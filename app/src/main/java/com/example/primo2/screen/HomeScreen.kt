@@ -68,7 +68,7 @@ fun Posts(postList : ArrayList<PostInfo>,
           requestManager: RequestManager,
           modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier.padding(vertical = 16.dp)) { // RecyclerView이 compose에서는 LazyColumn, LazyRow로 대체됨
+    LazyColumn(modifier = modifier) { // RecyclerView이 compose에서는 LazyColumn, LazyRow로 대체됨
         item{
             for (i in 0 until postList.size){ // UI에 for문도 가능
                 Post(postList[i],requestManager) // 대충 만들어 놓은 게시글 포맷
@@ -104,7 +104,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .size(256.dp)
+                        .size(350.dp)
                         .fillMaxWidth()
                         .align(Alignment.CenterHorizontally)
                 )
@@ -125,7 +125,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                 Text(
 
                     text = date,
-                    fontSize = 10.sp,
+                    fontSize = 14.sp,
                     textAlign = TextAlign.Right,
                     modifier = Modifier
                         .fillMaxWidth()
