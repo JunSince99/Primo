@@ -12,7 +12,8 @@ private val DarkColorPalette = darkColors(
     primaryVariant = Lightamber,
     secondary = Lightamber,
     onPrimary = Color.Black,
-    error = DarkRed
+    error = DarkRed,
+    onBackground = Color.White
 )
 
 private val LightColorPalette = lightColors(
@@ -20,7 +21,8 @@ private val LightColorPalette = lightColors(
     primaryVariant = Lightamber,
     secondary = Lightamber,
     onPrimary = Color.Black,
-    error = DarkRed
+    error = DarkRed,
+    onBackground = Color.White
 
 
     /* Other default colors to override

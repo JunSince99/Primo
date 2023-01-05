@@ -58,7 +58,7 @@ fun LoginScreen(
             fontWeight = FontWeight.W600,
             fontFamily = FontFamily.Monospace,
             modifier = Modifier
-                .padding(horizontal = 0.dp, vertical = 20.dp)
+                .padding(horizontal = 0.dp, vertical = 24.dp)
         )
 
         var email by remember { mutableStateOf("") }
@@ -182,6 +182,16 @@ fun LoginScreen(
             enabled = !isErrorInID && password.isNotEmpty()
         ) {
             Text("로그인")
+        }
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {
+                email = "11@naver.com"
+                password = "123456"
+            }
+        ){
+            Text("빡쳐서 만든 자동로그인")
         }
     }
 

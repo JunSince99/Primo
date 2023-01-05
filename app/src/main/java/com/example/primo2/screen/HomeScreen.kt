@@ -4,10 +4,8 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.material.Text
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
@@ -15,7 +13,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -43,21 +48,27 @@ fun HomeScreen(
         LazyColumnExampleTheme() {
             Surface(
                 modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
-                color = MaterialTheme.colors.background // app.build.gradle에서 색 지정 가능
+                color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
             ) {
-                Posts(postList, requestManager)
+                Scaffold(
+                    bottomBar = { navigationbar() },
+                    backgroundColor = Color.White
+                ) { padding ->
+                    Posts(postList, requestManager, Modifier.padding(padding))
+                }
             }
         }
 
 
 }
+
 // 게시글들을 띄우는 함수
 @Composable
 fun Posts(postList : ArrayList<PostInfo>,
           requestManager: RequestManager,
           modifier: Modifier = Modifier
 ) {
-    LazyColumn(modifier = modifier.padding(vertical = 4.dp)) { // RecyclerView이 compose에서는 LazyColumn, LazyRow로 대체됨
+    LazyColumn(modifier = modifier.padding(vertical = 16.dp)) { // RecyclerView이 compose에서는 LazyColumn, LazyRow로 대체됨
         item{
             for (i in 0 until postList.size){ // UI에 for문도 가능
                 Post(postList[i],requestManager) // 대충 만들어 놓은 게시글 포맷
@@ -91,7 +102,11 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                 GlideImage(
                     model = postInfo.Contents[0], // 여기에 이미지 주소 넣으면 나옴
                     contentDescription = null,
-                    modifier = Modifier.size(128.dp)
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(256.dp)
+                        .fillMaxWidth()
+                        .align(Alignment.CenterHorizontally)
                 )
                 {
                     it
@@ -118,5 +133,63 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                 )
             }
         }
+    }
+}
+
+@Composable
+fun navigationbar(){
+    BottomNavigation(
+        modifier = Modifier,
+        backgroundColor = Color.White,
+        contentColor = Color.Black
+    ) {
+        BottomNavigationItem(
+            icon = {
+                   Icon(
+                       imageVector = Icons.Default.Home,
+                       contentDescription = null
+                   )
+            },
+            selectedContentColor = MaterialTheme.colors.onPrimary,
+            unselectedContentColor = Color.Gray,
+            selected = true,
+            onClick = { /*TODO*/ }
+        )
+        BottomNavigationItem(
+            icon = {
+                Icon(
+                    imageVector =  Icons.Default.Search,
+                    contentDescription = null
+                )
+            },
+            selectedContentColor = MaterialTheme.colors.onPrimary,
+            unselectedContentColor = Color.Gray,
+            selected = false,
+            onClick = { /*TODO*/ }
+        )
+        BottomNavigationItem(
+            icon = {
+                Icon(
+                    imageVector =  Icons.Default.Star,
+                    contentDescription = null
+                )
+            },
+            selectedContentColor = MaterialTheme.colors.onPrimary,
+            unselectedContentColor = Color.Gray,
+            selected = false,
+            onClick = { /*TODO*/ }
+        )
+        BottomNavigationItem(
+            icon = {
+                Icon(
+                    imageVector =  Icons.Default.Person,
+                    contentDescription = null
+                )
+            },
+            selectedContentColor = MaterialTheme.colors.onPrimary,
+            unselectedContentColor = Color.Gray,
+            selected = false,
+            onClick = { /*TODO*/ }
+        )
     }
 }
