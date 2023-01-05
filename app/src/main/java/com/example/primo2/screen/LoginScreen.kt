@@ -68,8 +68,8 @@ fun LoginScreen(
         TextField(
             value = email,
             onValueChange = {
-                email = it
-                isErrorInID = Patterns.EMAIL_ADDRESS.matcher(email).matches().not()
+                email = it.trim()
+                isErrorInID = Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches().not()
             },
             modifier = Modifier
                 .fillMaxWidth(),
