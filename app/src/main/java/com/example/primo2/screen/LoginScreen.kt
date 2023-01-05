@@ -178,6 +178,7 @@ fun LoginScreen(
                 }
 
             },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black, contentColor = Color.White),
             enabled = !isErrorInID && password.isNotEmpty()
         ) {
             Text("로그인")
