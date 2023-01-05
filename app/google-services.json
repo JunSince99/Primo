@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "18197053959",
+    "project_id": "primo-92b68",
+    "storage_bucket": "primo-92b68.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:18197053959:android:66abaf91cc0588aaf520a2",
+        "android_client_info": {
+          "package_name": "com.example.primo2"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "18197053959-65ml86au5duf91uavv8c5q9tfot3a29a.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCLX9qTXF072ifJlFBnV4wMsPa3KRWWpT0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "18197053959-65ml86au5duf91uavv8c5q9tfot3a29a.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
