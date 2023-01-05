@@ -2,22 +2,27 @@ package com.example.primo2.screen
 
 import android.app.Activity
 import android.os.Bundle
+import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.example.primo2.PostInfo
 import com.example.primo2.activity.MainActivity
+import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -33,25 +38,70 @@ fun LoginScreen(
     modifier: Modifier = Modifier
 ){
     Column(
-        modifier = modifier.padding(16.dp).fillMaxWidth(),
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ){
-        Text(text = "로그인 화면", style = MaterialTheme.typography.h4)
+        Text(
+            text = "이메일과 비밀번호를\n입력하세요",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.W600,
+            fontFamily = FontFamily.Monospace,
+            modifier = Modifier
+                .padding(horizontal = 0.dp, vertical = 20.dp)
+        )
 
         var email by remember { mutableStateOf("") }
 
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("이메일") }
-        )
+        var isErrorInID by remember {
+            mutableStateOf(false)
+        }
 
+        TextField(
+            value = email,
+            onValueChange = {
+                email = it
+                isErrorInID = Patterns.EMAIL_ADDRESS.matcher(email).matches().not()
+            },
+            modifier = Modifier
+                .fillMaxWidth(),
+            textStyle = TextStyle.Default.copy(fontSize = 20.sp),
+            label = {Text("이메일")},
+            placeholder = {Text("이메일 주소 입력")},
+            isError = isErrorInID,
+            singleLine = true,
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.White,
+                cursorColor = Color.Black,
+                focusedIndicatorColor = Color.Black,
+                focusedLabelColor = Color.DarkGray
+            )
+        )
+        if (isErrorInID) {
+            Text(
+                text = "잘못된 유형의 이메일 주소입니다.",
+                color = MaterialTheme.colors.error,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
         var password by remember { mutableStateOf("") }
 
-        OutlinedTextField(
+        TextField(
             value = password,
             onValueChange = { password = it },
-            label = { Text("패스워드") }
+            modifier = Modifier
+                .fillMaxWidth(),
+            textStyle = TextStyle.Default.copy(fontSize = 20.sp,),
+            label = {Text("비밀번호")},
+            placeholder = {Text("8자리 이상 입력")},
+            singleLine = true,
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.White,
+                cursorColor = Color.Black,
+                focusedIndicatorColor = Color.Black,
+                focusedLabelColor = Color.DarkGray
+            )
         )
 
         Button(
@@ -121,14 +171,22 @@ fun LoginScreen(
 
 }
 
-@Composable
-fun InputIDZone() {
-    var text by remember { mutableStateOf("") }
+//@Composable
+//fun InputIDZone() {
+//    var text by remember { mutableStateOf("") }
+//
+//    OutlinedTextField(
+//        value = text,
+//        onValueChange = { text = it },
+//        label = { Text("ID") }
+//    )
+//}
 
-    OutlinedTextField(
-        value = text,
-        onValueChange = { text = it },
-        label = { Text("ID") }
-    )
-}
 
+//@Preview
+//@Composable
+//fun LoginScreenPre(){
+//    LazyColumnExampleTheme() {
+//        LoginScreen(auth = )
+//    }
+//}
