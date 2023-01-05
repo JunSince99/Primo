@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.bumptech.glide.RequestManager
 import com.example.primo2.PostInfo
 import com.example.primo2.activity.MainActivity
 import com.google.firebase.auth.FirebaseAuth
@@ -34,7 +35,7 @@ enum class PrimoScreen() {
 }
 
 @Composable
-fun PrimoApp(activity: Activity, modifier: Modifier = Modifier) {
+fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier) {
     var postList:ArrayList<PostInfo> = arrayListOf()
     val auth: FirebaseAuth = Firebase.auth
     val navController = rememberNavController()
@@ -55,7 +56,8 @@ fun PrimoApp(activity: Activity, modifier: Modifier = Modifier) {
                             onUploadButtonClicked = {
                                 navController.navigate(PrimoScreen.UploadPost.name)
                             },
-                            postList
+                            postList,
+                            requestManager
                         )
                 }
             }
