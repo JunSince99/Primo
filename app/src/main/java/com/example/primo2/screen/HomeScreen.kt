@@ -17,6 +17,8 @@ import coil.compose.AsyncImage
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.PostInfo
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.google.firebase.auth.FirebaseAuth
@@ -60,6 +62,7 @@ fun Posts(postList : ArrayList<PostInfo>,
         }
     }
 }
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun Post(postInfo: PostInfo) {
     Surface(
@@ -82,8 +85,7 @@ fun Post(postInfo: PostInfo) {
             }
             if (postInfo.Contents[0] != null) // 일단 첫번째 사진만 표사ㅣ
             {
-                AsyncImage(
-
+                GlideImage(
                     model = postInfo.Contents[0], // 여기에 이미지 주소 넣으면 나옴
                     contentDescription = null,
                     modifier = Modifier.size(128.dp)
