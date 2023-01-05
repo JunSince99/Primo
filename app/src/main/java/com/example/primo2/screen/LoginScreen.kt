@@ -184,7 +184,7 @@ fun LoginScreen(
             Text("로그인")
         }
 
-        Button(
+        Button( // 나중에 삭제
             modifier = Modifier.fillMaxWidth(),
             onClick = {
                 email = "11@naver.com"
