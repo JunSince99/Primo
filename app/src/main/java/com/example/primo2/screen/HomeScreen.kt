@@ -2,9 +2,11 @@ package com.example.primo2.screen
 
 import android.os.Bundle
 import android.util.Log
+import android.view.RoundedCorner
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -13,20 +15,27 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.composed
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.PostInfo
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
+import com.example.primo2.ui.theme.Shapes
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -80,12 +89,18 @@ fun Posts(postList : ArrayList<PostInfo>,
 @Composable
 fun Post(postInfo: PostInfo,requestManager: RequestManager) {
     Surface(
-        color = MaterialTheme.colors.primary, //primary color 내가 따로 저 연노랑으로 설정해놓음 대충
+        color = MaterialTheme.colors.onBackground, //primary color 내가 따로 저 연노랑으로 설정해놓음 대충
         modifier = Modifier
             .padding(horizontal = 8.dp, vertical = 4.dp)
     ) {
         Column(
             modifier = Modifier
+                .border(
+                    width = 1.dp,
+                    shape = RoundedCornerShape(7),
+                    color = Color.LightGray
+                )
+
         ) {
             if (postInfo.title != null) {
                 Text(
@@ -123,13 +138,12 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
             if(postInfo.PostDate != null) {
                 val date = postInfo.PostDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
                 Text(
-
                     text = date,
                     fontSize = 14.sp,
                     textAlign = TextAlign.Right,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp)
+                        .padding(horizontal = 16.dp, vertical = 4.dp)
                 )
             }
         }
@@ -191,5 +205,43 @@ fun navigationbar(){
             selected = false,
             onClick = { /*TODO*/ }
         )
+    }
+}
+
+fun Modifier.coloredShadow(
+    color: Color,
+    alpha: Float = 0.2f,
+    borderRadius: Dp = 0.dp,
+    shadowRadius: Dp = 20.dp,
+    offsetY: Dp = 0.dp,
+    offsetX: Dp = 0.dp
+) = composed {
+
+    val shadowColor = color.copy(alpha = alpha).toArgb()
+    val transparent = color.copy(alpha= 0f).toArgb()
+
+    this.drawBehind {
+
+        this.drawIntoCanvas {
+            val paint = Paint()
+            val frameworkPaint = paint.asFrameworkPaint()
+            frameworkPaint.color = transparent
+
+            frameworkPaint.setShadowLayer(
+                shadowRadius.toPx(),
+                offsetX.toPx(),
+                offsetY.toPx(),
+                shadowColor
+            )
+            it.drawRoundRect(
+                0f,
+                0f,
+                this.size.width,
+                this.size.height,
+                borderRadius.toPx(),
+                borderRadius.toPx(),
+                paint
+            )
+        }
     }
 }
