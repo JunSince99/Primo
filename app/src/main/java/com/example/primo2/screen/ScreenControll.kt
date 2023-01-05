@@ -5,10 +5,15 @@ import android.content.Intent
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Scaffold
-import androidx.compose.runtime.Composable
+import androidx.compose.material.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -91,5 +96,39 @@ fun PrimoApp(activity: Activity, modifier: Modifier = Modifier) {
 
         }
 
+    }
+}
+
+@Preview
+@Composable
+fun LoginPreview(modifier: Modifier = Modifier) {
+    Column(
+        modifier = modifier.padding(16.dp).fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ){
+        Text(text = "로그인 화면", style = MaterialTheme.typography.h4)
+
+        var email by remember { mutableStateOf("") }
+
+        OutlinedTextField(
+            value = email,
+            onValueChange = { email = it },
+            label = { Text("이메일") }
+        )
+
+        var password by remember { mutableStateOf("") }
+
+        OutlinedTextField(
+            value = password,
+            onValueChange = { password = it },
+            label = { Text("패스워드") }
+        )
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = {}
+        ) {
+            Text("로그인")
+        }
     }
 }

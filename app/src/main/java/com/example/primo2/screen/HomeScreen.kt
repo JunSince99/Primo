@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.runtime.*
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.primo2.PostInfo
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.google.firebase.auth.FirebaseAuth
@@ -34,6 +35,7 @@ fun HomeScreen(
     postList:ArrayList<PostInfo>,
     modifier: Modifier = Modifier
 ){
+
         LazyColumnExampleTheme() {
             Surface(
                 modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
@@ -102,19 +104,3 @@ fun Post(postInfo: PostInfo) {
         }
     }
 }
-/*
-@Preview(showBackground = true) //미리보기 용
-@Composable
-fun DefaultPreview() {
-    LazyColumnExampleTheme {
-        Post()
-    }
-}
-
-@Preview //미리보기 용
-@Composable
-fun PostsPreview() {
-    LazyColumnExampleTheme {
-        Posts()
-    }
-}*/
