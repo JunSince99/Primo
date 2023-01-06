@@ -16,10 +16,10 @@ class PostViewModel : ViewModel() {
     private val _postState = MutableStateFlow(ArrayList<PostInfo>())
     val postState: StateFlow<ArrayList<PostInfo>> = _postState.asStateFlow() // ui 실시간 반영인데 필요 없을듯?
 
-    var postList2: ArrayList<PostInfo> = arrayListOf()
     var test:PostInfo = PostInfo()
 
     fun updatePostInformation() {
+        var postList2: ArrayList<PostInfo> = arrayListOf()
         val db = Firebase.firestore
         var count:Int = 0
         db.collection("posts")

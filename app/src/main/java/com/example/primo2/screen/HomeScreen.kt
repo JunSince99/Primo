@@ -5,6 +5,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import android.os.Bundle
 import android.util.Log
 import android.view.RoundedCorner
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.background
@@ -25,36 +26,26 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.navigation.NavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.PostInfo
-import com.example.primo2.activity.MainActivity.Companion.postList
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
-import com.example.primo2.ui.theme.Shapes
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.ktx.auth
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.*
 import java.time.format.DateTimeFormatter
-import java.util.logging.Handler
 
 
 
 @Composable
 fun HomeScreen(
     onUploadButtonClicked: () -> Unit = {},
-    onAccountManageButton: () -> Unit = {},
+    navController: NavController,
     requestManager: RequestManager,
     modifier: Modifier = Modifier
 ){
@@ -64,7 +55,7 @@ fun HomeScreen(
                 color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
             ) {
                 Scaffold(
-                    bottomBar = { navigationbar(onAccountManageButton) },
+                    bottomBar = { NavigationBar(navController) },
                     backgroundColor = Color.White
                 ) { padding ->
                     Posts(requestManager, Modifier.padding(padding))
@@ -160,66 +151,13 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
             }
         }
     }
+
+    BackHandler(true){
+        Log.e("백","백")
+    }
+
 }
 
-@Composable
-fun navigationbar(
-    onAccountManageButton: () -> Unit = {}){
-    BottomNavigation(
-        modifier = Modifier,
-        backgroundColor = Color.White,
-        contentColor = Color.Black
-    ) {
-        BottomNavigationItem(
-            icon = {
-                   Icon(
-                       imageVector = Icons.Default.Home,
-                       contentDescription = null
-                   )
-            },
-            selectedContentColor = MaterialTheme.colors.onPrimary,
-            unselectedContentColor = Color.Gray,
-            selected = true,
-            onClick = {  }
-        ) // 홈화면
-        BottomNavigationItem(
-            icon = {
-                Icon(
-                    imageVector =  Icons.Default.Search,
-                    contentDescription = null
-                )
-            },
-            selectedContentColor = MaterialTheme.colors.onPrimary,
-            unselectedContentColor = Color.Gray,
-            selected = false,
-            onClick = { /*TODO*/ }
-        ) // 서치 화면
-        BottomNavigationItem(
-            icon = {
-                Icon(
-                    imageVector =  Icons.Default.Star,
-                    contentDescription = null
-                )
-            },
-            selectedContentColor = MaterialTheme.colors.onPrimary,
-            unselectedContentColor = Color.Gray,
-            selected = false,
-            onClick = { /*TODO*/ }
-        ) // 즐겨찾기?
-        BottomNavigationItem(
-            icon = {
-                Icon(
-                    imageVector =  Icons.Default.Person,
-                    contentDescription = null
-                )
-            },
-            selectedContentColor = MaterialTheme.colors.onPrimary,
-            unselectedContentColor = Color.Gray,
-            selected = false,
-            onClick = { onAccountManageButton() }
-        ) // 계정 관리
-    }
-}
 
 fun Modifier.coloredShadow(
     color: Color,

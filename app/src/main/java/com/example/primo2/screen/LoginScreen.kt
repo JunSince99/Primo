@@ -29,9 +29,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.primo2.PostInfo
-import com.example.primo2.activity.MainActivity
-import com.example.primo2.activity.MainActivity.Companion.postList
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth

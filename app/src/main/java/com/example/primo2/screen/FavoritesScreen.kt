@@ -12,8 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 
 @Composable
-fun ManageAccountScreen(
-    onLogoutButton: () -> Unit = {},
+fun FavoritesScreen(
     naviController: NavController,
     modifier: Modifier = Modifier
 ) {
@@ -25,14 +24,7 @@ fun ManageAccountScreen(
     )
     {
         modifier.padding(it)
-        Text(text = "계정 관리 페이지", style = MaterialTheme.typography.h4)
-
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = { onLogoutButton() }
-        ) {
-            Text("로그아웃")
-        }
+        Text(text = "즐겨찾기 페이지", style = MaterialTheme.typography.h4)
     }
 }
 

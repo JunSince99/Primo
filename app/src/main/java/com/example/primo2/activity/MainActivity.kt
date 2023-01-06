@@ -12,15 +12,13 @@ import com.google.firebase.auth.FirebaseAuth
 
 
 class MainActivity : AppCompatActivity() {
-    companion object{
-        var postList: ArrayList<PostInfo> = ArrayList()
-    }
     private lateinit var mGlideRequestManager: RequestManager
-    private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mGlideRequestManager = Glide.with(this);
         setContent {
+            //val intent = Intent(this, UploadPostActivity::class.java)
+            //startActivity(intent)
             PrimoApp(this, mGlideRequestManager)
         }
     }
