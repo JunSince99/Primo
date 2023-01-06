@@ -22,7 +22,9 @@ class MainActivity : AppCompatActivity() {
             PrimoApp(this, mGlideRequestManager)
         }
     }
+
 }
+
 
 //@Preview
 //@Composable

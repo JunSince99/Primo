@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -43,7 +45,7 @@ enum class PrimoScreen() {
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier) {
     val auth: FirebaseAuth = Firebase.auth
     val navController = rememberNavController()
-
+    Log.e("호출","호출")
     Scaffold() { innerPadding ->
         NavHost(
             navController = navController,
@@ -51,17 +53,41 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             modifier = modifier.padding(innerPadding)
         ) {
 
-
             //홈 화면
             composable(route = PrimoScreen.Home.name) {
+                BackHandler(navController.previousBackStackEntry?.destination?.route == "Home") { // backstack이 Home 일 때만 앱종료
+                    activity.finish()
+                }
                 val user = Firebase.auth.currentUser
                 if(user == null) {
-                    navController.navigate(PrimoScreen.Login.name)
+                    LoginScreen(
+                        onLoginButtonClicked = {isMember:Boolean ->
+                            if(!isMember){
+                                navController.navigate(PrimoScreen.MemberInit.name)
+                                {
+                                    popUpTo("Home")
+                                }
+                            }
+                            else{
+                                navController.navigate(PrimoScreen.Home.name)
+                                {
+                                    popUpTo("Home")
+                                }
+                            }
+                        },
+                        onRegisterScreenButtonClicked = {
+                            navController.navigate(PrimoScreen.Register.name)
+                        },
+                        auth, activity
+                    )
                 }
                 else {
                         HomeScreen(
                             onUploadButtonClicked = {
                                 navController.navigate(PrimoScreen.UploadPost.name)
+                                {
+                                    popUpTo("Home")
+                                }
                             },
                             navController,
                             requestManager
@@ -76,6 +102,9 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                     onLogoutButton = {
                         FirebaseAuth.getInstance().signOut()
                         navController.navigate(PrimoScreen.Login.name)
+                        {
+                            popUpTo("Home")
+                        }
                     },
                     navController
                 )
@@ -105,13 +134,13 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                         if(!isMember){
                             navController.navigate(PrimoScreen.MemberInit.name)
                             {
-                                popUpTo("Login") { inclusive = true }
+                                popUpTo("Home")
                             }
                         }
                         else{
                             navController.navigate(PrimoScreen.Home.name)
                             {
-                                popUpTo("Login") { inclusive = true }
+                                popUpTo("Home")
                             }
                         }
                     },
@@ -128,6 +157,9 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 RegisterScreen(
                     onRegisterButtonClicked = {
                         navController.navigate(PrimoScreen.Home.name)
+                        {
+                            popUpTo("Home")
+                        }
                     }
                 )
             }
@@ -138,6 +170,9 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 MemberInitScreen(
                     onSubmitButtonClicked = {
                         navController.navigate(PrimoScreen.Home.name)
+                        {
+                            popUpTo("Home")
+                        }
                     }
                 )
             }
@@ -150,13 +185,17 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
         }
 
     }
+
+
 }
 
 @Preview
 @Composable
 fun LoginPreview(modifier: Modifier = Modifier) {
     Column(
-        modifier = modifier.padding(16.dp).fillMaxWidth(),
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ){
         Text(text = "로그인 화면", style = MaterialTheme.typography.h4)

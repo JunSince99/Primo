@@ -152,9 +152,6 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
         }
     }
 
-    BackHandler(true){
-        Log.e("백","백")
-    }
 
 }
 
