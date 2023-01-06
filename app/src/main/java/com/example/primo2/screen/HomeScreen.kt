@@ -1,5 +1,7 @@
 package com.example.primo2.screen
 
+import PostViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import android.os.Bundle
 import android.util.Log
 import android.view.RoundedCorner
@@ -34,8 +36,11 @@ import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.PostInfo
+import com.example.primo2.activity.MainActivity.Companion.postList
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.example.primo2.ui.theme.Shapes
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -49,21 +54,20 @@ import java.util.logging.Handler
 @Composable
 fun HomeScreen(
     onUploadButtonClicked: () -> Unit = {},
-    postList:ArrayList<PostInfo>,
+    onAccountManageButton: () -> Unit = {},
     requestManager: RequestManager,
     modifier: Modifier = Modifier
 ){
-
         LazyColumnExampleTheme() {
             Surface(
                 modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
                 color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
             ) {
                 Scaffold(
-                    bottomBar = { navigationbar() },
+                    bottomBar = { navigationbar(onAccountManageButton) },
                     backgroundColor = Color.White
                 ) { padding ->
-                    Posts(postList, requestManager, Modifier.padding(padding))
+                    Posts(requestManager, Modifier.padding(padding))
                 }
             }
         }
@@ -73,19 +77,22 @@ fun HomeScreen(
 
 // 게시글들을 띄우는 함수
 @Composable
-fun Posts(postList : ArrayList<PostInfo>,
-          requestManager: RequestManager,
-          modifier: Modifier = Modifier
-) {
+fun Posts(requestManager: RequestManager,
+          modifier: Modifier = Modifier,
+          viewModel: PostViewModel = viewModel()
+)
+{
+    val uiState by viewModel.postState.collectAsState()
+    viewModel.updatePostInformation()
     LazyColumn(modifier = modifier) { // RecyclerView이 compose에서는 LazyColumn, LazyRow로 대체됨
         item{
-            for (i in 0 until postList.size){ // UI에 for문도 가능
-                Post(postList[i],requestManager) // 대충 만들어 놓은 게시글 포맷
+            for (i in 0 until uiState.size){ // UI에 for문도 가능
+                Post(uiState[i],requestManager) // 대충 만들어 놓은 게시글 포맷
             }
         }
     }
 }
-@OptIn(ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class)
 @Composable
 fun Post(postInfo: PostInfo,requestManager: RequestManager) {
     Surface(
@@ -112,28 +119,33 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                         .padding(8.dp)
                 )
             }
-            if (postInfo.Contents[0] != null) // 일단 첫번째 사진만 표사ㅣ
+            if (postInfo.Contents[0] != null)
             {
-                GlideImage(
-                    model = postInfo.Contents[0], // 여기에 이미지 주소 넣으면 나옴
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(350.dp)
-                        .fillMaxWidth()
-                        .align(Alignment.CenterHorizontally)
-                )
-                {
-                    it
-                        .thumbnail(
-                            requestManager
-                                .asDrawable()
-                                .load(postInfo.Contents[0])
-                               // .signature(signature)
-                                .override(128)
-                        )
-                       // .signature(signature)
+                HorizontalPager(modifier = Modifier.fillMaxSize(),
+                    count = postInfo.Contents.size
+                ) { page ->
+                    GlideImage(
+                        model = postInfo.Contents[page], // 여기에 이미지 주소 넣으면 나옴
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .size(350.dp)
+                            .fillMaxWidth()
+                            .align(Alignment.CenterHorizontally)
+                    )
+                    {
+                        it
+                            .thumbnail(
+                                requestManager
+                                    .asDrawable()
+                                    .load(postInfo.Contents[0])
+                                    // .signature(signature)
+                                    .override(128)
+                            )
+                        // .signature(signature)
+                    }
                 }
+
             }
             if(postInfo.PostDate != null) {
                 val date = postInfo.PostDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
@@ -151,7 +163,8 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
 }
 
 @Composable
-fun navigationbar(){
+fun navigationbar(
+    onAccountManageButton: () -> Unit = {}){
     BottomNavigation(
         modifier = Modifier,
         backgroundColor = Color.White,
@@ -167,8 +180,8 @@ fun navigationbar(){
             selectedContentColor = MaterialTheme.colors.onPrimary,
             unselectedContentColor = Color.Gray,
             selected = true,
-            onClick = { /*TODO*/ }
-        )
+            onClick = {  }
+        ) // 홈화면
         BottomNavigationItem(
             icon = {
                 Icon(
@@ -180,7 +193,7 @@ fun navigationbar(){
             unselectedContentColor = Color.Gray,
             selected = false,
             onClick = { /*TODO*/ }
-        )
+        ) // 서치 화면
         BottomNavigationItem(
             icon = {
                 Icon(
@@ -192,7 +205,7 @@ fun navigationbar(){
             unselectedContentColor = Color.Gray,
             selected = false,
             onClick = { /*TODO*/ }
-        )
+        ) // 즐겨찾기?
         BottomNavigationItem(
             icon = {
                 Icon(
@@ -203,8 +216,8 @@ fun navigationbar(){
             selectedContentColor = MaterialTheme.colors.onPrimary,
             unselectedContentColor = Color.Gray,
             selected = false,
-            onClick = { /*TODO*/ }
-        )
+            onClick = { onAccountManageButton() }
+        ) // 계정 관리
     }
 }
 

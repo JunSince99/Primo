@@ -10,5 +10,5 @@ data class PostInfo(
     val Comments: String? = null,
     val Writer: String? = null,
     val PostDate: String? = null,
-
+    val Like: Int? = null
 )

@@ -31,24 +31,24 @@ enum class PrimoScreen() {
     Login,
     Register,
     MemberInit,
-    UploadPost
+    UploadPost,
+    ManageAccount
 }
 
 @Composable
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier) {
-    var postList:ArrayList<PostInfo> = arrayListOf()
     val auth: FirebaseAuth = Firebase.auth
     val navController = rememberNavController()
     Scaffold() { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = PrimoScreen.Login.name,
+            startDestination = PrimoScreen.Home.name,
             modifier = modifier.padding(innerPadding)
         ) {
-
+            //홈 화면
             composable(route = PrimoScreen.Home.name) {
                 val user = Firebase.auth.currentUser
-                if(user == null) { // 로그인 x이면 로그인화면으로 가기
+                if(user == null) {
                     navController.navigate(PrimoScreen.Login.name)
                 }
                 else {
@@ -56,15 +56,18 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                             onUploadButtonClicked = {
                                 navController.navigate(PrimoScreen.UploadPost.name)
                             },
-                            postList,
+                            onAccountManageButton = {
+                                navController.navigate(PrimoScreen.ManageAccount.name)
+                            },
                             requestManager
                         )
                 }
             }
+
+            //로그인 화면
             composable(route = PrimoScreen.Login.name) {
                 LoginScreen(
-                    onLoginButtonClicked = {isMember:Boolean, _postList:ArrayList<PostInfo> ->
-                        postList = _postList
+                    onLoginButtonClicked = {isMember:Boolean ->
                         if(!isMember){
                             navController.navigate(PrimoScreen.MemberInit.name)
                         }
@@ -78,6 +81,9 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                     auth, activity
                 )
             }
+
+
+            //가입 화면
             composable(route = PrimoScreen.Register.name) {
                 RegisterScreen(
                     onRegisterButtonClicked = {
@@ -85,10 +91,24 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                     }
                 )
             }
+
+
+            // 회원 등록 화면
             composable(route = PrimoScreen.MemberInit.name) {
                 MemberInitScreen(
                     onSubmitButtonClicked = {
                         navController.navigate(PrimoScreen.Home.name)
+                    }
+                )
+            }
+
+
+            //계정 관리 화면
+            composable(route = PrimoScreen.ManageAccount.name) {
+                ManageAccountScreen(
+                    onLogoutBotton = {
+                        FirebaseAuth.getInstance().signOut()
+                        navController.navigate(PrimoScreen.Login.name)
                     }
                 )
             }

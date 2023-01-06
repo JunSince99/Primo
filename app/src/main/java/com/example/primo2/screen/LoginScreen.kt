@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.primo2.PostInfo
 import com.example.primo2.activity.MainActivity
+import com.example.primo2.activity.MainActivity.Companion.postList
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -40,7 +41,7 @@ import com.google.firebase.ktx.Firebase
 
 @Composable
 fun LoginScreen(
-    onLoginButtonClicked: (Boolean, ArrayList<PostInfo>) -> Unit,
+    onLoginButtonClicked: (Boolean) -> Unit,
     onRegisterScreenButtonClicked: () -> Unit,
     auth: FirebaseAuth,
     activity: Activity,
@@ -136,30 +137,7 @@ fun LoginScreen(
                                                 isMember = true // 멤버정보 o
                                             }
                                         }
-
-                                        val postList:ArrayList<PostInfo> = arrayListOf() // 홈화면에 띄울거 불러오기
-                                        db.collection("posts")
-                                            //.whereEqualTo("capital", true)
-                                            .get()
-                                            .addOnSuccessListener { documents ->
-                                                for (pDocument in documents) {
-                                                    postList.add(
-                                                        PostInfo(
-                                                            pDocument.getString("title"),
-                                                            pDocument.data["contents"] as ArrayList<String?>,
-                                                            pDocument.get("comments").toString(),
-                                                            pDocument.getString("writer"),
-                                                            pDocument.getString("postDate")
-                                                        )
-                                                    )
-                                                }
-                                                onLoginButtonClicked(isMember,postList)
-                                            }
-
-                                            .addOnFailureListener { exception ->
-                                                Toast.makeText(activity, "오류 발생",
-                                                    Toast.LENGTH_SHORT).show()
-                                            }
+                                        onLoginButtonClicked(isMember)
                                     }
                                     .addOnFailureListener {
                                         Toast.makeText(activity, "오류 발생",

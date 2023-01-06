@@ -1,15 +1,20 @@
 package com.example.primo2.activity
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
+import com.example.primo2.PostInfo
 import com.example.primo2.screen.PrimoApp
 import com.google.firebase.auth.FirebaseAuth
 
 
 class MainActivity : AppCompatActivity() {
+    companion object{
+        var postList: ArrayList<PostInfo> = ArrayList()
+    }
     private lateinit var mGlideRequestManager: RequestManager
     private lateinit var auth: FirebaseAuth
     override fun onCreate(savedInstanceState: Bundle?) {
