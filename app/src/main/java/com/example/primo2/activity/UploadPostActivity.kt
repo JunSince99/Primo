@@ -10,8 +10,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
-import com.example.primo2.PostInfo
-import com.example.primo2.R
+import com.example.primo2.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ktx.firestore
@@ -23,7 +22,6 @@ import java.io.FileInputStream
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.util.*
-import kotlin.collections.ArrayList
 
 
 class UploadPostActivity: AppCompatActivity() {
@@ -66,7 +64,7 @@ class UploadPostActivity: AppCompatActivity() {
             val storageRef = storage.reference
 
             val contentsList: ArrayList<String?> = arrayListOf()
-
+            val formatList: ArrayList<String?> = arrayListOf()
 
 
             var count:Int = 0
@@ -90,8 +88,17 @@ class UploadPostActivity: AppCompatActivity() {
                 else {
                     checkSuccess ++
                     contentsList.add(pathList[count])
+
+                    if (isImageFile(pathList[count])) {
+                        formatList.add("image")
+                    } else if (isVideoFile(pathList[count])) {
+                        formatList.add("video")
+                    } else {
+                        formatList.add("error")
+                    }
+                    val pathArray: Array<String> = pathList[count]!!.split("/",".").toTypedArray()
                     val mountainImagesRef: StorageReference =
-                        storageRef.child("posts/" + documentReference.id + "/" + count + ".jpg")
+                        storageRef.child("posts/" + documentReference.id + "/" + count + "."+ pathArray[pathArray.size - 1])
 
                     val stream = FileInputStream(pathList[count])
 
@@ -107,9 +114,8 @@ class UploadPostActivity: AppCompatActivity() {
                             contentsList[index] = ImageUri.toString()
                             checkSuccess--
                             if (checkSuccess == 0) {
-                                Log.e("userid", "" + user!!.uid)
                                 val postInfo =
-                                    PostInfo(title, contentsList, comments, user.uid, LocalDate.now().format(
+                                    PostInfo(title, contentsList, formatList,comments,user!!.uid, LocalDate.now().format(
                                         DateTimeFormatter.ofPattern("yyyy-MM-dd")))
 
                                 uploader(documentReference,postInfo)
@@ -123,7 +129,7 @@ class UploadPostActivity: AppCompatActivity() {
             if(pathList.size == 0)
             {
                 val postInfo =
-                    PostInfo(title, contentsList, comments,user!!.uid, LocalDate.now().format(
+                    PostInfo(title, contentsList, formatList,comments,user!!.uid, LocalDate.now().format(
                         DateTimeFormatter.ofPattern("yyyy-MM-dd")))
 
                 uploader(documentReference,postInfo)

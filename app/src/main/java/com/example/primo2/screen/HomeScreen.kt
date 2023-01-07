@@ -1,45 +1,44 @@
 package com.example.primo2.screen
 
 import PostViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
-import android.os.Bundle
-import android.util.Log
-import android.view.RoundedCorner
-import androidx.activity.compose.BackHandler
-import androidx.activity.compose.setContent
-import androidx.appcompat.app.AppCompatActivity
-import androidx.compose.foundation.background
+import android.net.Uri
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight.Companion.Bold
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import coil.compose.AsyncImage
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight.Companion.Bold
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.PostInfo
+import com.example.primo2.isVideoFile
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.android.exoplayer2.ExoPlayer
+import com.google.android.exoplayer2.MediaItem
+import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
+import com.google.android.exoplayer2.ui.StyledPlayerView
 import java.time.format.DateTimeFormatter
-
 
 
 @Composable
@@ -76,10 +75,8 @@ fun Posts(requestManager: RequestManager,
     val uiState by viewModel.postState.collectAsState()
     viewModel.updatePostInformation()
     LazyColumn(modifier = modifier) { // RecyclerView이 compose에서는 LazyColumn, LazyRow로 대체됨
-        item{
-            for (i in 0 until uiState.size){ // UI에 for문도 가능
-                Post(uiState[i],requestManager) // 대충 만들어 놓은 게시글 포맷
-            }
+        items(uiState.size){
+            Post(uiState[it],requestManager) // 대충 만들어 놓은 게시글 포맷
         }
     }
 }
@@ -112,28 +109,54 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
             }
             if (postInfo.Contents[0] != null)
             {
-                HorizontalPager(modifier = Modifier.fillMaxSize(),
-                    count = postInfo.Contents.size
-                ) { page ->
-                    GlideImage(
-                        model = postInfo.Contents[page], // 여기에 이미지 주소 넣으면 나옴
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .size(350.dp)
-                            .fillMaxWidth()
-                            .align(Alignment.CenterHorizontally)
-                    )
-                    {
-                        it
-                            .thumbnail(
-                                requestManager
-                                    .asDrawable()
-                                    .load(postInfo.Contents[0])
-                                    // .signature(signature)
-                                    .override(128)
+                Box(modifier = Modifier //박스로 안감싸주면 이미지,동영상 크기에 따라 들쭉날쭉거려서 박스로 감싸줬음 아마 제목,내용 이런것도 다 박스로 감싸서 정규화시켜줘야할듯
+                    .fillMaxWidth()
+                    .height(400.dp))
+                {
+
+                    HorizontalPager(
+                        modifier = Modifier.fillMaxSize(),
+                        count = postInfo.Contents.size
+                    ) { page ->
+                        val uri = postInfo.Contents[page]
+                        val format = postInfo.Format[page]
+                        if (format.equals("video")) { // 동영상
+                            val mContext = LocalContext.current
+                            val mediaItem = MediaItem.Builder().setUri(Uri.parse(uri)).build()
+                            val mExoPlayer = remember(mContext) {
+                                ExoPlayer.Builder(mContext).build().apply {
+                                    this.setMediaItem(mediaItem)
+                                    playWhenReady = true
+                                    prepare()
+                                }
+                            }
+                            AndroidView(factory = { context ->
+                                StyledPlayerView(context).apply {
+                                    player = mExoPlayer
+                                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
+                                }
+                            })
+                        } else {  // 이미지
+                            GlideImage(
+                                model = uri,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    //.align(Alignment.CenterHorizontally)
                             )
-                        // .signature(signature)
+                            {
+                                it
+                                    .thumbnail(
+                                        requestManager
+                                            .asDrawable()
+                                            .load(postInfo.Contents[0])
+                                            // .signature(signature)
+                                            .override(128)
+                                    )
+                                // .signature(signature)
+                            }
+                        }
                     }
                 }
 
@@ -193,3 +216,4 @@ fun Modifier.coloredShadow(
         }
     }
 }
+

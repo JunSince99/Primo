@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.update
 class PostViewModel : ViewModel() {
 
     private val _postState = MutableStateFlow(ArrayList<PostInfo>())
-    val postState: StateFlow<ArrayList<PostInfo>> = _postState.asStateFlow() // ui 실시간 반영인데 필요 없을듯?
+    val postState: StateFlow<ArrayList<PostInfo>> = _postState.asStateFlow()
 
     var test:PostInfo = PostInfo()
 
@@ -30,6 +30,7 @@ class PostViewModel : ViewModel() {
                         PostInfo(
                             pDocument.getString("title"),
                             pDocument.data["contents"] as ArrayList<String?>,
+                            pDocument.data["format"] as ArrayList<String?>,
                             pDocument.get("comments").toString(),
                             pDocument.getString("writer"),
                             pDocument.getString("postDate")
