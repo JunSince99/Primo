@@ -20,8 +20,8 @@ class MainActivity : AppCompatActivity() {
         setContent {
             //val intent = Intent(this, UploadPostActivity::class.java)
             //startActivity(intent)
-            //PrimoApp(this, mGlideRequestManager)
-            MapScreen()
+            PrimoApp(this, mGlideRequestManager)
+            //MapScreen()
         }
     }
 
