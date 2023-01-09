@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.example.primo2.PostInfo
+import com.example.primo2.screen.MapScreen
 import com.example.primo2.screen.PrimoApp
 import com.google.firebase.auth.FirebaseAuth
 
@@ -19,7 +20,8 @@ class MainActivity : AppCompatActivity() {
         setContent {
             //val intent = Intent(this, UploadPostActivity::class.java)
             //startActivity(intent)
-            PrimoApp(this, mGlideRequestManager)
+            //PrimoApp(this, mGlideRequestManager)
+            MapScreen()
         }
     }
 

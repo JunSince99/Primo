@@ -23,7 +23,7 @@ fun RegisterScreen(
         modifier = modifier.padding(16.dp).fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ){
-        Text(text = "로그인 화면", style = MaterialTheme.typography.h4)
+        Text(text = "가입 화면", style = MaterialTheme.typography.h4)
     }
 }
 

@@ -2,6 +2,7 @@ package com.example.primo2.screen
 
 import PostViewModel
 import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -97,15 +98,18 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                 )
 
         ) {
+
             if (postInfo.title != null) {
                 Text(
                     text = postInfo.title,
+                    color =Color.Black,
                     textAlign = TextAlign.Center,
                     fontWeight = Bold,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(8.dp)
                 )
+                Log.e("",""+postInfo.title)
             }
             if (postInfo.Contents[0] != null)
             {
@@ -150,7 +154,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                                     .thumbnail(
                                         requestManager
                                             .asDrawable()
-                                            .load(postInfo.Contents[0])
+                                            .load(uri)
                                             // .signature(signature)
                                             .override(128)
                                     )
