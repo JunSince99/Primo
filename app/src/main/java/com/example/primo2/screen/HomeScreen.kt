@@ -112,7 +112,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                 elevation = 7.dp,
                 shape = RoundedCornerShape(20)
             )
-            .aspectRatio(16f / 9f)
+            .aspectRatio(16f / 10f)
             .clickable { /*TODO*/ }
     ) {
         if (postInfo.Contents[0] != null) // 사진 & 동영상
@@ -185,7 +185,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                 Log.e("",""+postInfo.title)
             }
 
-            Spacer(modifier = Modifier.weight(1f))
+            Spacer(modifier = Modifier.weight(1.5f))
 
             Row(
                 modifier = Modifier
@@ -195,10 +195,6 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
             ) {
                 Column(modifier = Modifier
                 ) {
-                    Text(
-                        text = "좋아요" + "100"/*변수로*/ + "개",
-                        fontSize = 14.sp,
-                    )
                     Row(modifier = Modifier){
                         Icon(
                             imageVector = Icons.Default.FavoriteBorder,
@@ -225,6 +221,10 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                                 .padding(horizontal = 2.dp)
                         )
                     }
+                    Text(
+                        text = "좋아요" + "100"/*변수로*/ + "개",
+                        fontSize = 14.sp,
+                    )
                 }
                 if(postInfo.PostDate != null) {
                     val date = postInfo.PostDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
