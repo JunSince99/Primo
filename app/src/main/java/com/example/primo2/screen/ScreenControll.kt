@@ -1,5 +1,6 @@
 package com.example.primo2.screen
 
+import PostViewModel
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -18,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,6 +27,7 @@ import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.RequestManager
 import com.example.primo2.PostInfo
 import com.example.primo2.activity.MainActivity
+import com.example.primo2.getPlaceInfo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -37,16 +40,18 @@ enum class PrimoScreen() {
     Register,
     MemberInit,
     UploadPost,
-    Search,
+    Map,
     Favorites,
     ManageAccount
 }
 @Composable
-fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier) {
+fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier,viewModel: PostViewModel = viewModel()) {
     val auth: FirebaseAuth = Firebase.auth
     val navController = rememberNavController()
+    getPlaceInfo()
     Log.e("호출","호출")
     Scaffold() { innerPadding ->
+        val uiState by viewModel.postState.collectAsState()
         NavHost(
             navController = navController,
             startDestination = PrimoScreen.Home.name,
@@ -90,7 +95,9 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                                 }
                             },
                             navController,
-                            requestManager
+                            requestManager,
+                            modifier = Modifier,
+                            viewModel
                         )
                 }
             }
@@ -111,9 +118,9 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             }
 
 
-            //검색 화면
-            composable(route = PrimoScreen.Search.name) {
-                SearchScreen(
+            //지도
+            composable(route = PrimoScreen.Map.name) {
+                MapScreen(
                     navController
                 )
             }

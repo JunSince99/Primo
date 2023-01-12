@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
+import androidx.compose.ui.Modifier
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.example.primo2.PostInfo
@@ -20,9 +21,10 @@ class MainActivity : AppCompatActivity() {
         setContent {
             //val intent = Intent(this, UploadPostActivity::class.java)
             //startActivity(intent)
-            PrimoApp(this, mGlideRequestManager)
+            PrimoApp(this, mGlideRequestManager, modifier = Modifier)
             //MapScreen()
         }
+
     }
 
 }

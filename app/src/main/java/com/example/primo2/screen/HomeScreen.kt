@@ -47,7 +47,8 @@ fun HomeScreen(
     onUploadButtonClicked: () -> Unit = {},
     navController: NavController,
     requestManager: RequestManager,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: PostViewModel = viewModel()
 ){
         LazyColumnExampleTheme() {
             Surface(
@@ -58,7 +59,7 @@ fun HomeScreen(
                     bottomBar = { NavigationBar(navController) },
                     backgroundColor = Color.White
                 ) { padding ->
-                    Posts(requestManager, Modifier.padding(padding))
+                    Posts(requestManager, Modifier.padding(padding), viewModel)
                 }
             }
         }
@@ -74,12 +75,19 @@ fun Posts(requestManager: RequestManager,
 )
 {
     val uiState by viewModel.postState.collectAsState()
-    viewModel.updatePostInformation()
+
+    if(uiState.isEmpty())
+    {
+        viewModel.updatePostInformation()
+    }
+
+
     LazyColumn(modifier = modifier) { // RecyclerView이 compose에서는 LazyColumn, LazyRow로 대체됨
         items(uiState.size){
             Post(uiState[it],requestManager) // 대충 만들어 놓은 게시글 포맷
         }
     }
+
 }
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class)
 @Composable

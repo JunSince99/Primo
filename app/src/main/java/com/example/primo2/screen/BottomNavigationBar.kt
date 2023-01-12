@@ -48,8 +48,8 @@ fun NavigationBar(navController: NavController){
             },
             selectedContentColor = Color.Black, // 계속 하얀색되서 잠깐 바꿔놈 고쳐줘
             unselectedContentColor = Color.Gray,
-            selected = currentDestination?.hierarchy?.any{it.route == "Search"} == true,
-            onClick = { navController.navigate("Search") }
+            selected = currentDestination?.hierarchy?.any{it.route == "Map"} == true,
+            onClick = { navController.navigate("Map") }
         ) // 서치 화면
         BottomNavigationItem(
             icon = {

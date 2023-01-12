@@ -1,33 +1,48 @@
 package com.example.primo2.screen
 
+import android.graphics.PointF
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Button
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
+import androidx.navigation.NavController
+import com.example.primo2.R
+import com.example.primo2.placeList
 import com.google.accompanist.permissions.*
-import com.google.type.LatLng
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.geometry.LatLngBounds
 import com.naver.maps.map.*
 import com.naver.maps.map.compose.*
 import com.naver.maps.map.compose.LocationTrackingMode
-import kotlinx.coroutines.launch
+import com.naver.maps.map.overlay.InfoWindow
+import com.naver.maps.map.overlay.Marker
+import com.naver.maps.map.overlay.OverlayImage
 
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(
+    naviController: NavController,
     modifier: Modifier = Modifier
 ){
 
+    val infoWindow = InfoWindow()
+    val context = LocalContext.current
+    infoWindow.adapter = object : InfoWindow.DefaultTextAdapter(context) {
+        override fun getText(infoWindow: InfoWindow): CharSequence {
+            return infoWindow.marker?.tag as CharSequence? ?: ""
+        }
+    }
 
     var mapProperties by remember {
         mutableStateOf(
@@ -40,15 +55,74 @@ fun MapScreen(
             MapUiSettings(isLocationButtonEnabled = true, isIndoorLevelPickerEnabled = true)
         )
     }
+    Scaffold(
+        bottomBar = {
+            NavigationBar(naviController)
+        },
+        backgroundColor = Color.White
+    )
+    {
+        modifier.padding(it)
+        Box(Modifier.fillMaxSize()) {
+            val cameraPositionState = rememberCameraPositionState()
+            val position by remember {
+                derivedStateOf {
+                    cameraPositionState.position
+                }
+            }
+            /*
+        LaunchedEffect(cameraPositionState.isMoving){
+            if(cameraPositionState.isMoving)
+            {
+                Log.e("카메라 움직임", "줌레벨 :")
+                Log.e("카메라 움직임", "줌레벨 : "+cameraPositionState.position.zoom)
+            }
+            else{
+                Log.e("카메라 멈춤", "줌레벨 :")
+                Log.e("카메라 멈춤", "줌레벨 : "+cameraPositionState.position.zoom)
+            }
+        }*/
+            NaverMap(cameraPositionState = cameraPositionState,
+                locationSource = rememberFusedLocationSource(),
+                properties = mapProperties,
+                uiSettings = mapUiSettings,
+                onMapClick = { _, coord ->
+                    Log.e("이 곳의 경도 위도는?", "" + coord.latitude + "," + coord.longitude)
+                }
+            )
+            {
 
-    Box(Modifier.fillMaxSize()) {
-        NaverMap(locationSource = rememberFusedLocationSource(),properties = mapProperties, uiSettings = mapUiSettings)
-        Column {
-            //ShowLocationPermission()
+                for (i in 0 until placeList.size) {
+                    Marker(
+                        icon = OverlayImage.fromResource(R.drawable.map_markerx),// 맵 마커 이미지인데 일단 임시로 암거나 넣어놈
+                        state = MarkerState(
+                            position = LatLng(
+                                placeList[i].latitude,
+                                placeList[i].longitude
+                            )
+                        ),
+                        captionText = placeList[i].name,
+                        captionMinZoom = 13.0,
+                        minZoom = 12.0,
+                        onClick = { overlay ->
+                            infoWindow.open(overlay)
+                            true
+                        },
+                        tag = placeList[i].information
+                    )
+                }
+                // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
+            }
+            Column {
+                //ShowLocationPermission()
+            }
         }
     }
 
 }
+
+
+
 /*
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
@@ -77,78 +151,7 @@ fun ShowLocationPermission(){
 }
 
 */
-@OptIn(ExperimentalNaverMapApi::class)
-@Preview
-@Composable
-fun MapScreenPreview(
-    modifier: Modifier = Modifier
-){
-    NaverMap(
-        modifier = Modifier.fillMaxSize()
-    )
-    {
-        val context = LocalContext.current
-        var naverMap:NaverMap? = null
 
-        DisposableMapEffect(LocalLifecycleOwner){ map->
-            naverMap = map
-            onDispose {
-            }
-
-        }
-
-
-        var mapProperties by remember {
-            mutableStateOf(
-                MapProperties(maxZoom = 10.0, minZoom = 5.0)
-            )
-        }
-        var mapUiSettings by remember {
-            mutableStateOf(
-                MapUiSettings(isLocationButtonEnabled = false)
-            )
-        }
-
-        Box(Modifier.fillMaxSize()) {
-            NaverMap(properties = mapProperties, uiSettings = mapUiSettings)
-            Column {
-                Button(onClick = {
-                    mapProperties = mapProperties.copy(
-                        isBuildingLayerGroupEnabled = !mapProperties.isBuildingLayerGroupEnabled
-                    )
-                }) {
-                    Text(text = "Toggle isBuildingLayerGroupEnabled")
-                }
-                Button(onClick = {
-                    mapUiSettings = mapUiSettings.copy(
-                        isLocationButtonEnabled = !mapUiSettings.isLocationButtonEnabled
-                    )
-                }) {
-                    Text(text = "Toggle isLocationButtonEnabled")
-                }
-            }
-        }
-
-        val cameraUpdate = CameraUpdate.scrollTo(
-            com.naver.maps.geometry.LatLng(
-                17.5666102,
-                126.9783881
-            )
-        )
-            .reason(3)
-            .animate(CameraAnimation.Easing, 2000)
-            .finishCallback {
-                Toast.makeText(context, "완료", Toast.LENGTH_SHORT).show()
-            }
-            .cancelCallback {
-                Toast.makeText(context, "취소", Toast.LENGTH_SHORT).show()
-            }
-
-        naverMap!!.moveCamera(cameraUpdate)
-
-        Log.e("","xx")
-    }
-}
 
 
 

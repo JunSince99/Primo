@@ -1,6 +1,8 @@
 import android.app.Activity
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.primo2.PostInfo
 import com.example.primo2.activity.MainActivity
 import com.google.firebase.firestore.ktx.firestore
@@ -10,15 +12,15 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
 class PostViewModel : ViewModel() {
 
     private val _postState = MutableStateFlow(ArrayList<PostInfo>())
     val postState: StateFlow<ArrayList<PostInfo>> = _postState.asStateFlow()
 
-    var test:PostInfo = PostInfo()
-
     fun updatePostInformation() {
+        Log.e("뷰 모델", "업데이트 호출")
         var postList2: ArrayList<PostInfo> = arrayListOf()
         val db = Firebase.firestore
         var count:Int = 0
