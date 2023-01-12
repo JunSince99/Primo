@@ -1,34 +1,36 @@
 package com.example.primo2.screen
 
-import android.graphics.PointF
 import android.util.Log
-import android.widget.Toast
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.Button
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavController
+import com.bumptech.glide.Glide
 import com.example.primo2.R
+import com.example.primo2.adapter.placeAdapter
 import com.example.primo2.placeList
 import com.google.accompanist.permissions.*
 import com.naver.maps.geometry.LatLng
-import com.naver.maps.geometry.LatLngBounds
-import com.naver.maps.map.*
 import com.naver.maps.map.compose.*
 import com.naver.maps.map.compose.LocationTrackingMode
 import com.naver.maps.map.overlay.InfoWindow
-import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.overlay.OverlayImage
-
+@Composable
+fun informationPlace(modifier: Modifier = Modifier)
+{
+    Text(text = "즐겨찾기 페이지", style = MaterialTheme.typography.h4)
+}
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalPermissionsApi::class)
 @Composable
 fun MapScreen(
@@ -38,11 +40,14 @@ fun MapScreen(
 
     val infoWindow = InfoWindow()
     val context = LocalContext.current
+    val adapter = placeAdapter(context)
+    infoWindow.adapter = adapter
+    /*
     infoWindow.adapter = object : InfoWindow.DefaultTextAdapter(context) {
         override fun getText(infoWindow: InfoWindow): CharSequence {
             return infoWindow.marker?.tag as CharSequence? ?: ""
         }
-    }
+    }*/
 
     var mapProperties by remember {
         mutableStateOf(
