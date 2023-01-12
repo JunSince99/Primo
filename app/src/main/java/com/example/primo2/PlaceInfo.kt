@@ -2,6 +2,7 @@ package com.example.primo2
 
 import android.graphics.PointF
 import android.location.Location
+import android.widget.ImageView
 
 data class PlaceInfo(
     val name: String? = null,
@@ -15,8 +16,8 @@ data class PlaceInfo(
     val focusFood:Double = 0.0,
     val focusTour:Double = 0.0,
     val lazy:Double = 0.0,
-    val faithful:Double = 0.0
-
+    val faithful:Double = 0.0,
+    val imageResource:Int = 0
 )
 val placeList: ArrayList<PlaceInfo> = ArrayList()
 fun getPlaceInfo()
@@ -27,13 +28,16 @@ fun getPlaceInfo()
         0.9,0.1,
         0.3,0.7,
         0.1,0.9,
-        0.9,0.1))
+        0.9,0.1,
+        R.drawable.place_centralpark)
+        )
     placeList.add(PlaceInfo("솔찬 공원",
         "예쁜 바다와 감성 카페가 있는 공원!",
         37.3724716115434,126.62812397607729,
         0.9,0.1,
         0.8,0.2,
         0.7,0.3,
-        0.9,0.1
+        0.9,0.1,
+        R.drawable.place_solchanpark
     ))
 }

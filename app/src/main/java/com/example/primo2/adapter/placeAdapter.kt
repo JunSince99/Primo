@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.annotation.NonNull
 import com.bumptech.glide.Glide
+import com.example.primo2.placeList
 import com.example.primo2.screen.informationPlace
 import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.InfoWindow.DefaultViewAdapter
@@ -28,9 +29,10 @@ class placeAdapter(@NonNull context: Context) :
         val placePicture: ImageView = view.findViewById(R.id.placePicture) as ImageView
         val txtTitle = view.findViewById(R.id.title) as TextView
         val txtInfoWindow = view.findViewById(R.id.information) as TextView
-        txtTitle.text = infoWindow.marker?.captionText
-        txtInfoWindow.text = infoWindow.marker?.tag as CharSequence? ?: ""
-        placePicture.setImageResource(R.drawable.place_centralpark)
+        val num:Int = infoWindow.marker?.tag.toString().toInt()
+        txtTitle.text = placeList[num].name
+        txtInfoWindow.text = placeList[num].information
+        placePicture.setImageResource(placeList[num].imageResource)
         return view
     }
 }

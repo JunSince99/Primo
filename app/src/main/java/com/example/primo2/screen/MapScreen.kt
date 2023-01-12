@@ -113,7 +113,7 @@ fun MapScreen(
                             infoWindow.open(overlay)
                             true
                         },
-                        tag = placeList[i].information
+                        tag = i
                     )
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
