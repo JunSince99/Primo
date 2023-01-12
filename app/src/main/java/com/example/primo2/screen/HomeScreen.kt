@@ -169,21 +169,28 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
         }
         Column(
             modifier = Modifier
-                .background(brush = SolidColor(Color.Black), alpha = 0.2f) // 이미지 어둡게
+                .background(brush = SolidColor(Color.Black), alpha = 0.3f) // 이미지 어둡게
         ) {
+            Spacer(modifier = Modifier.padding(16.dp))
             if (postInfo.title != null) {
                 Text(
                     text = postInfo.title,
                     color =Color.White,
-                    style = TextStyle(fontSize = 20.sp),
+                    fontSize = 20.sp,
                     textAlign = TextAlign.Center,
                     fontWeight = Bold,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(24.dp)
                 )
                 Log.e("",""+postInfo.title)
             }
+            Text(
+                text = "걷기 좋은 공원  |  JuSiErW님",
+                textAlign = TextAlign.Center,
+                fontSize = 16.sp,
+                modifier = Modifier
+                    .fillMaxWidth()
+            )
 
             Spacer(modifier = Modifier.weight(1.5f))
 
