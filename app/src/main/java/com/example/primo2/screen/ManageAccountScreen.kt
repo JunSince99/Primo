@@ -17,12 +17,7 @@ fun ManageAccountScreen(
     naviController: NavController,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        bottomBar = {
-            NavigationBar(naviController)
-        },
-        backgroundColor = Color.White
-    )
+    Scaffold()
     {
         modifier.padding(it)
         Text(text = "계정 관리 페이지", style = MaterialTheme.typography.h4)

@@ -73,10 +73,7 @@ fun HomeScreen(
                 color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
             ) {
 
-                Scaffold(
-                    bottomBar = { NavigationBar(navController) },
-                    backgroundColor = Color.White
-                ) { padding ->
+                Scaffold() { padding ->
                     Posts(requestManager, Modifier.padding(padding), viewModel)
                 }
             }
@@ -186,6 +183,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
             }
             Text(
                 text = "걷기 좋은 공원  |  JuSiErW님",
+                color = Color.White,
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 modifier = Modifier
@@ -209,7 +207,8 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .clickable { /*TODO*/ }
-                                .padding(horizontal = 2.dp)
+                                .padding(horizontal = 2.dp),
+                            tint = Color.White
                         )
                         Icon(
                             imageVector = Icons.Outlined.Email,
@@ -217,7 +216,8 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .clickable { /*TODO*/ }
-                                .padding(horizontal = 2.dp)
+                                .padding(horizontal = 2.dp),
+                            tint = Color.White
                         )
                         Icon(
                             imageVector = Icons.Outlined.Share,
@@ -225,10 +225,12 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .clickable { /*TODO*/ }
-                                .padding(horizontal = 2.dp)
+                                .padding(horizontal = 2.dp),
+                            tint = Color.White
                         )
                     }
                     Text(
+                        color =Color.White,
                         text = "좋아요" + "100"/*변수로*/ + "개",
                         fontSize = 14.sp,
                     )

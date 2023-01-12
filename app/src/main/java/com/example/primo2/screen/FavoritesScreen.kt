@@ -16,12 +16,7 @@ fun FavoritesScreen(
     naviController: NavController,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        bottomBar = {
-            NavigationBar(naviController)
-        },
-        backgroundColor = Color.White
-    )
+    Scaffold()
     {
         modifier.padding(it)
         Text(text = "즐겨찾기 페이지", style = MaterialTheme.typography.h4)

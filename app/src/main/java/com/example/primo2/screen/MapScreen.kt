@@ -4,10 +4,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
@@ -15,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bumptech.glide.Glide
 import com.example.primo2.R
@@ -42,12 +40,6 @@ fun MapScreen(
     val context = LocalContext.current
     val adapter = placeAdapter(context)
     infoWindow.adapter = adapter
-    /*
-    infoWindow.adapter = object : InfoWindow.DefaultTextAdapter(context) {
-        override fun getText(infoWindow: InfoWindow): CharSequence {
-            return infoWindow.marker?.tag as CharSequence? ?: ""
-        }
-    }*/
 
     var mapProperties by remember {
         mutableStateOf(
@@ -60,15 +52,12 @@ fun MapScreen(
             MapUiSettings(isLocationButtonEnabled = true, isIndoorLevelPickerEnabled = true)
         )
     }
-    Scaffold(
-        bottomBar = {
-            NavigationBar(naviController)
-        },
-        backgroundColor = Color.White
-    )
+    Scaffold()
+
     {
         modifier.padding(it)
-        Box(Modifier.fillMaxSize()) {
+
+        Box(Modifier.fillMaxWidth().fillMaxHeight(0.98f)) {
             val cameraPositionState = rememberCameraPositionState()
             val position by remember {
                 derivedStateOf {

@@ -16,12 +16,7 @@ fun SearchScreen(
     naviController: NavController,
     modifier: Modifier = Modifier
 ) {
-    Scaffold(
-        bottomBar = {
-            NavigationBar(naviController)
-        },
-        backgroundColor = Color.White
-    )
+    Scaffold()
     {
         modifier.padding(it)
         Text(text = "서치 페이지", style = MaterialTheme.typography.h4)

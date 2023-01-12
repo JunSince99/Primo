@@ -15,14 +15,18 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.RequestManager
 import com.example.primo2.PostInfo
@@ -49,8 +53,16 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
     val auth: FirebaseAuth = Firebase.auth
     val navController = rememberNavController()
     getPlaceInfo()
-    Log.e("호출","호출")
-    Scaffold() { innerPadding ->
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val bottomBarState = rememberSaveable { (mutableStateOf(true)) } // 바텀 네비게이션바 보이게 할지 말지
+
+
+    Scaffold(
+        bottomBar = { NavigationBar(navController,bottomBarState.value) },
+        backgroundColor = Color.White
+    )  { innerPadding ->
+
+        bottomBarState.value = checkBottomVisible(navController)
         val uiState by viewModel.postState.collectAsState()
         NavHost(
             navController = navController,
@@ -195,6 +207,39 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
 
 
 }
+@Composable
+fun checkBottomVisible (navController:NavController): Boolean{
+    var bottomBarState:Boolean = true
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    when (navBackStackEntry?.destination?.route) {
+        "Home" -> {
+            bottomBarState = true
+        }
+        "Login" -> {
+            bottomBarState = false
+        }
+        "Register" -> {
+            bottomBarState = false
+        }
+        "MemberInit" -> {
+            bottomBarState = false
+        }
+        "UploadPost" -> {
+            bottomBarState = false
+        }
+        "Map" -> {
+            bottomBarState = true
+        }
+        "Favorites" -> {
+            bottomBarState = true
+        }
+        "ManageAccount" -> {
+            bottomBarState = true
+        }
+    }
+    return bottomBarState
+}
+
 
 @Preview
 @Composable
@@ -231,3 +276,6 @@ fun LoginPreview(modifier: Modifier = Modifier) {
         }
     }
 }
+
+
+
