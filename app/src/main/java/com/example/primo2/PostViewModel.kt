@@ -24,7 +24,6 @@ class PostViewModel : ViewModel() {
     fun updatePostInformation() {
         postList2.clear()
         val db = Firebase.firestore
-        var count:Int = 0
             db.collection("posts").orderBy("postDate", Query.Direction.DESCENDING)
                 .get()
                 .addOnSuccessListener { documents ->
