@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
@@ -201,13 +202,15 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                     likeCount = postInfo.Like.count()
                     Row(modifier = Modifier){
                         var likeColor:Color = Color.White
+                        var iconImage:ImageVector = Icons.Filled.FavoriteBorder
                         if(postInfo.Like.containsKey(uid))
                         {
                             likeColor = Color.Red
+                            iconImage = Icons.Filled.Favorite
                         }
 
                         Icon(
-                            imageVector = Icons.Default.FavoriteBorder,
+                            imageVector = iconImage,
                             contentDescription = null,
                             modifier = Modifier
                                 .clip(CircleShape)
