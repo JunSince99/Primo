@@ -20,6 +20,7 @@ import com.google.firebase.storage.StorageReference
 import com.google.firebase.storage.ktx.storageMetadata
 import java.io.FileInputStream
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -115,11 +116,19 @@ class UploadPostActivity: AppCompatActivity() {
                             contentsList[index] = ImageUri.toString()
                             checkSuccess--
                             if (checkSuccess == 0) {
-                                val postInfo =
-                                    PostInfo(documentReference.id,title, contentsList, formatList,comments,user!!.uid, LocalDate.now().format(
-                                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                                val db = Firebase.firestore
+                                val docRef = db.collection("users").document(user!!.uid)
+                                var name:String? = ""
+                                db.runTransaction { transaction ->
+                                    val snapshot = transaction.get(docRef)
+                                    name = snapshot.getString("name")
+                                }.addOnSuccessListener {
+                                    val postInfo =
+                                        PostInfo(documentReference.id,title, contentsList, formatList,comments,name,user!!.uid, LocalDate.now().format(
+                                            DateTimeFormatter.ofPattern("yyyy-MM-dd "))+LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")))
 
-                                uploader(documentReference,postInfo)
+                                    uploader(documentReference,postInfo)
+                                }
                             }
                         }
                     }

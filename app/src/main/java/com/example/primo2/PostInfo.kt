@@ -12,6 +12,7 @@ data class PostInfo(
     val Format: ArrayList<String?> = arrayListOf(),
     val Comments: String? = null,
     val Writer: String? = null,
+    val WriterID: String? = null,
     val PostDate: String? = null,
     val Like: HashMap<String,Boolean> = HashMap()
 )

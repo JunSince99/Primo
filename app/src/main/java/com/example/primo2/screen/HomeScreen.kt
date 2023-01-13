@@ -177,9 +177,8 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                 )
                 Log.e("",""+postInfo.title)
             }
-            val postWriterInfo:MemberInfo = getWriterInfomation(postInfo.Writer!!)
             Text(
-                text = "걷기 좋은 공원"+getWriterInfomation(postInfo.Writer).name+"님",
+                text = "걷기 좋은 공원 | "+postInfo.Writer+"님",
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,

@@ -38,6 +38,7 @@ class PostViewModel : ViewModel() {
                             pDocument.data["format"] as ArrayList<String?>,
                             pDocument.get("comments").toString(),
                             pDocument.getString("writer"),
+                            pDocument.getString("writerID"),
                             pDocument.getString("postDate"),
                             pDocument.data["like"] as HashMap<String, Boolean>,
                         )
