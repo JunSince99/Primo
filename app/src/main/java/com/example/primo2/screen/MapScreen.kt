@@ -1,10 +1,13 @@
 package com.example.primo2.screen
 
+import android.graphics.drawable.Drawable
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -13,12 +16,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableResource
 import com.example.primo2.R
 import com.example.primo2.adapter.placeAdapter
 import com.example.primo2.placeList
@@ -60,31 +68,25 @@ fun MapScreen(
             MapUiSettings(isLocationButtonEnabled = true, isIndoorLevelPickerEnabled = true)
         )
     }
+
     val scaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
+    var bottomNaviSize by remember { mutableStateOf(0.dp) }
+    var bottomNaviTitle by remember { mutableStateOf("") }
+    var bottomNaviPaint by remember { mutableStateOf(R.drawable.place_centralpark) }
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
-            BottomSheetContent()
+            BottomSheetContent(bottomNaviTitle,bottomNaviPaint)
         },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text("상세정보") },
-                onClick = {
-                    scope.launch {
-                        scaffoldState.bottomSheetState.apply {
-                            if (isCollapsed) expand() else collapse()
-                        }
-                    }
-                }
-            )
-        },
-        sheetPeekHeight = 0.dp
+        sheetPeekHeight = bottomNaviSize,
     )
     {
         modifier.padding(it)
 
-        Box(Modifier.fillMaxWidth().fillMaxHeight(0.98f)) {
+        Box(
+            Modifier
+                .fillMaxSize()) {
             val cameraPositionState = rememberCameraPositionState()
             val position by remember {
                 derivedStateOf {
@@ -108,6 +110,7 @@ fun MapScreen(
                 properties = mapProperties,
                 uiSettings = mapUiSettings,
                 onMapClick = { _, coord ->
+                    bottomNaviSize = 0.dp
                     Log.e("이 곳의 경도 위도는?", "" + coord.latitude + "," + coord.longitude)
                 }
             )
@@ -126,7 +129,9 @@ fun MapScreen(
                         captionMinZoom = 13.0,
                         minZoom = 12.0,
                         onClick = { overlay ->
-                            infoWindow.open(overlay)
+                            bottomNaviSize = 65.dp
+                            bottomNaviTitle = placeList[i].name!!
+                            bottomNaviPaint = placeList[i].imageResource
                             true
                         },
                         tag = i
@@ -142,43 +147,45 @@ fun MapScreen(
 
 }
 @Composable
-fun BottomSheetBeforeSlide(icon: Int, title: String, onItemClick: (String) -> Unit) {
+fun BottomSheetBeforeSlide(title: String) { // 위로 스와이프 하기전에 보이는거
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable {  }
-            .height(55.dp)
-            .background(color = Color.Black)
-            .padding(start = 15.dp), verticalAlignment = Alignment.CenterVertically
+            .clickable { }
+            .height(65.dp)
+            .background(color = Color.White)
+            .padding(start = 0.dp, top = 5.dp), verticalAlignment = Alignment.Top
     ) {
-        Icon(painter = painterResource(id = icon), contentDescription = "Share", tint = Color.White)
-        Spacer(modifier = Modifier.width(20.dp))
-        Text(text = title, color = Color.White)
+        Spacer(modifier = Modifier.width(0.dp))
+        Column(modifier = Modifier, verticalArrangement = Arrangement.Top) {
+            Text(text = title, color = Color.Black, fontSize = 20.sp, fontFamily = FontFamily.Cursive )
+            Text(text = "인천 연수구 송도동 24-5", color = Color.Black, fontSize = 14.sp, fontFamily = FontFamily.Cursive )
+        }
+    }
+}
+
+@Composable
+fun BottomSheetContent(title: String, paint:Int) { // 스와이프 한후에 보이는 전체
+    val context = LocalContext.current
+    Column {
+        BottomSheetBeforeSlide(title)
+        Image(painter = painterResource(paint), contentDescription = "")
+        Spacer(modifier = Modifier.height(15.dp))
+        Text(text = "센트럴파크에서 재밌게 노는 법!", fontFamily = FontFamily.Cursive )
     }
 }
 
 @Preview(showBackground = true)
 @Composable
 fun BottomSheetListItemPreview() {
-    BottomSheetBeforeSlide(icon = R.drawable.ic_baseline_add_24, title = "Share", onItemClick = { })
+    BottomSheetBeforeSlide(title = "센트럴 파크")
 }
 
-
-@Composable
-fun BottomSheetContent() {
-    val context = LocalContext.current
-    Column {
-        BottomSheetBeforeSlide(
-            icon = R.drawable.ic_baseline_add_24,
-            title = "Share",
-            onItemClick = {})
-    }
-}
 
 @Preview(showBackground = true)
 @Composable
 fun BottomSheetContentPreview() {
-    BottomSheetContent()
+    BottomSheetContent("센트럴파크",R.drawable.place_centralpark)
 }
 
 
