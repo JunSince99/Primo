@@ -3,9 +3,7 @@ package com.example.primo2.screen
 import PostViewModel
 import android.net.Uri
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,49 +12,45 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Send
 import androidx.compose.material.icons.outlined.Share
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
 import androidx.compose.ui.draw.*
 import androidx.compose.ui.graphics.*
-import androidx.compose.ui.graphics.drawscope.drawIntoCanvas
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.VerticalAlignmentLine
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.PostInfo
-import com.example.primo2.R
-import com.example.primo2.isVideoFile
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
-import com.google.android.exoplayer2.text.webvtt.WebvttCssStyle.FONT_SIZE_UNIT_PIXEL
 import com.google.android.exoplayer2.text.webvtt.WebvttCssStyle.FontSizeUnit
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+import java.text.SimpleDateFormat
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import java.time.temporal.ChronoUnit
+import java.util.Calendar
+import java.util.Date
 
 
 @Composable
@@ -94,14 +88,14 @@ fun Posts(requestManager: RequestManager,
     }
     LazyColumn(modifier = modifier) { // RecyclerView이 compose에서는 LazyColumn, LazyRow로 대체됨
         items(uiState.size){
-            Post(uiState[it],requestManager) // 대충 만들어 놓은 게시글 포맷
+            Post(uiState[it],requestManager,it) // 대충 만들어 놓은 게시글 포맷
         }
     }
 
 }
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class)
 @Composable
-fun Post(postInfo: PostInfo,requestManager: RequestManager) {
+fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
     Surface(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -200,15 +194,33 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
             ) {
                 Column(modifier = Modifier
                 ) {
+                    val uid = FirebaseAuth.getInstance().currentUser?.uid
+                    var likeCount by remember { mutableStateOf(0) }
+                    likeCount = postInfo.Like.count()
                     Row(modifier = Modifier){
+                        var likeColor:Color = Color.White
+                        if(postInfo.Like.containsKey(uid))
+                        {
+                            likeColor = Color.Red
+                        }
+
                         Icon(
                             imageVector = Icons.Default.FavoriteBorder,
                             contentDescription = null,
                             modifier = Modifier
                                 .clip(CircleShape)
-                                .clickable { /*TODO*/ }
+                                .clickable {
+                                    if(postInfo.Like.containsKey(uid)){
+                                        postInfo.Like.remove(uid)
+                                    }
+                                    else{
+                                        postInfo.Like[uid!!] = true
+                                    }
+                                    likeCount = postInfo.Like.count()
+                                    savePostLike(postInfo.Like,postInfo.postID!!)
+                                }
                                 .padding(horizontal = 2.dp),
-                            tint = Color.White
+                            tint = likeColor
                         )
                         Icon(
                             imageVector = Icons.Outlined.Email,
@@ -231,22 +243,74 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager) {
                     }
                     Text(
                         color =Color.White,
-                        text = "좋아요" + "100"/*변수로*/ + "개",
+                        text = "좋아요" + likeCount + "개",
                         fontSize = 14.sp,
                     )
                 }
                 if(postInfo.PostDate != null) {
-                    val date = postInfo.PostDate.format(DateTimeFormatter.ofPattern("yyyy년 MM월 dd일"))
+
+                    var today = Calendar.getInstance()
+                    var compareTime = "error"
+                    var sf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    var date = sf.parse(postInfo.PostDate)
+                    var calcuDate = (today.time.time - date.time) / (60 * 1000)
+                    var timeUnit = "error"
+
+                    if(calcuDate <= 0)
+                    {
+                        compareTime = "방금 전"
+                    }
+                    else
+                    {
+                        timeUnit = "분 전"
+                        compareTime = calcuDate.toString() + "개월 전"
+                        if(calcuDate >= 60)
+                        {
+                            calcuDate/=60
+                            timeUnit = "시간 전"
+                        }
+                        if(calcuDate >= 24)
+                        {
+                            calcuDate/=24
+                            timeUnit = "일 전"
+                        }
+                        if(calcuDate >= 30)
+                        {
+                            calcuDate/=30
+                            timeUnit = "개월 전"
+                        }
+                        if(calcuDate >= 12)
+                        {
+                            calcuDate/=12
+                            timeUnit = "년 전"
+                        }
+                        compareTime = calcuDate.toString() + timeUnit
+                    }
+
                     Text(
-                        text = date,
+                        text = compareTime,
                         fontSize = 14.sp,
                         textAlign = TextAlign.Right,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.Bottom)
+                            .align(Alignment.Bottom),
+                        color = Color.White
                     )
                 }
             }
         }
     }
+}
+
+fun savePostLike(likeInfo: HashMap<String,Boolean>,documentID: String)
+{
+    val db = Firebase.firestore
+    val docRef = db.collection("posts").document(documentID)
+
+    db.runTransaction { transaction ->
+        val snapshot = transaction.get(docRef)
+        transaction.update(docRef, "like", likeInfo)
+        likeInfo
+    }.addOnSuccessListener { Log.e("성공","성공 ") }
+        .addOnFailureListener { Log.e("실패","실패") }
 }

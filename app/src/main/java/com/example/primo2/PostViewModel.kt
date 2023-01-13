@@ -5,6 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.primo2.PostInfo
 import com.example.primo2.activity.MainActivity
+import com.google.firebase.auth.FirebaseUser
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 
 import com.google.firebase.ktx.Firebase
@@ -18,24 +20,26 @@ class PostViewModel : ViewModel() {
 
     private val _postState = MutableStateFlow(ArrayList<PostInfo>())
     val postState: StateFlow<ArrayList<PostInfo>> = _postState.asStateFlow()
-
+    var postList2: ArrayList<PostInfo> = arrayListOf()
     fun updatePostInformation() {
         Log.e("뷰 모델", "업데이트 호출")
-        var postList2: ArrayList<PostInfo> = arrayListOf()
+        postList2 = arrayListOf()
         val db = Firebase.firestore
         var count:Int = 0
-        db.collection("posts")
+        db.collection("posts").orderBy("postDate", Query.Direction.DESCENDING)
             .get()
             .addOnSuccessListener { documents ->
                 for (pDocument in documents) {
                     postList2.add(
                         PostInfo(
+                            pDocument.id,
                             pDocument.getString("title"),
                             pDocument.data["contents"] as ArrayList<String?>,
                             pDocument.data["format"] as ArrayList<String?>,
                             pDocument.get("comments").toString(),
                             pDocument.getString("writer"),
-                            pDocument.getString("postDate")
+                            pDocument.getString("postDate"),
+                            pDocument.data["like"] as HashMap<String, Boolean>,
                         )
                     )
                 }
@@ -46,4 +50,6 @@ class PostViewModel : ViewModel() {
             .addOnFailureListener { exception ->
             }
     }
+
+
 }

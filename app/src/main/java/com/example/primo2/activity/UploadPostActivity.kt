@@ -100,6 +100,7 @@ class UploadPostActivity: AppCompatActivity() {
                     val mountainImagesRef: StorageReference =
                         storageRef.child("posts/" + documentReference.id + "/" + count + "."+ pathArray[pathArray.size - 1])
 
+
                     val stream = FileInputStream(pathList[count])
 
                     val metadata = storageMetadata {
@@ -116,7 +117,7 @@ class UploadPostActivity: AppCompatActivity() {
                             if (checkSuccess == 0) {
                                 val postInfo =
                                     PostInfo(title, contentsList, formatList,comments,user!!.uid, LocalDate.now().format(
-                                        DateTimeFormatter.ofPattern("yyyy-MM-dd")))
+                                        DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
 
                                 uploader(documentReference,postInfo)
                             }
