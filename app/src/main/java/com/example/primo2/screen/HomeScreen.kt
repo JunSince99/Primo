@@ -44,6 +44,7 @@ import com.google.android.exoplayer2.text.webvtt.WebvttCssStyle.FontSizeUnit
 import com.google.android.exoplayer2.ui.AspectRatioFrameLayout
 import com.google.android.exoplayer2.ui.StyledPlayerView
 import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
@@ -64,12 +65,15 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
     viewModel: PostViewModel = viewModel()
 ){
+        val user = Firebase.auth.currentUser
+        if(user == null) {
+            navController.navigate(PrimoScreen.Login.name)
+        }
         LazyColumnExampleTheme() {
             Surface(
                 modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
                 color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
             ) {
-
                 Scaffold() { padding ->
                     Posts(requestManager, Modifier.padding(padding), viewModel)
                 }
@@ -84,10 +88,14 @@ fun Posts(requestManager: RequestManager,
           viewModel: PostViewModel = viewModel()
 )
 {
+    Log.e("호출","인데")
     val uiState by viewModel.postState.collectAsState()
     if(uiState.isEmpty())
     {
-        viewModel.updatePostInformation()
+        if(!viewModel.isUpdate) {
+            viewModel.updatePostInformation()
+            viewModel.isUpdate = true
+        }
     }
     LazyColumn(modifier = modifier) { // RecyclerView이 compose에서는 LazyColumn, LazyRow로 대체됨
         items(uiState.size){

@@ -54,7 +54,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
     val navController = rememberNavController()
     getPlaceInfo()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val bottomBarState = rememberSaveable { (mutableStateOf(true)) } // 바텀 네비게이션바 보이게 할지 말지
+    val bottomBarState = rememberSaveable { (mutableStateOf(false)) } // 바텀 네비게이션바 보이게 할지 말지
 
 
     Scaffold(
@@ -75,43 +75,18 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 BackHandler(navController.previousBackStackEntry?.destination?.route == "Home") { // backstack이 Home 일 때만 앱종료
                     activity.finish()
                 }
-                val user = Firebase.auth.currentUser
-                if(user == null) {
-                    LoginScreen(
-                        onLoginButtonClicked = {isMember:Boolean ->
-                            if(!isMember){
-                                navController.navigate(PrimoScreen.MemberInit.name)
-                                {
-                                    popUpTo("Home")
-                                }
-                            }
-                            else{
-                                navController.navigate(PrimoScreen.Home.name)
-                                {
-                                    popUpTo("Home")
-                                }
+                    HomeScreen(
+                        onUploadButtonClicked = {
+                            navController.navigate(PrimoScreen.UploadPost.name)
+                            {
+                                popUpTo("Home")
                             }
                         },
-                        onRegisterScreenButtonClicked = {
-                            navController.navigate(PrimoScreen.Register.name)
-                        },
-                        auth, activity
+                        navController,
+                        requestManager,
+                        modifier = Modifier,
+                        viewModel
                     )
-                }
-                else {
-                        HomeScreen(
-                            onUploadButtonClicked = {
-                                navController.navigate(PrimoScreen.UploadPost.name)
-                                {
-                                    popUpTo("Home")
-                                }
-                            },
-                            navController,
-                            requestManager,
-                            modifier = Modifier,
-                            viewModel
-                        )
-                }
             }
 
 
@@ -147,7 +122,9 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
 
             //로그인 화면
             composable(route = PrimoScreen.Login.name) {
-
+                BackHandler() { // .로그인일땐 그냥 꺼버리기
+                    activity.finish()
+                }
                 LoginScreen(
                     onLoginButtonClicked = {isMember:Boolean ->
                         if(!isMember){
@@ -161,6 +138,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                             {
                                 popUpTo("Home")
                             }
+                            bottomBarState.value = true
                         }
                     },
                     onRegisterScreenButtonClicked = {
@@ -209,32 +187,38 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
 }
 @Composable
 fun checkBottomVisible (navController:NavController): Boolean{
-    var bottomBarState:Boolean = true
+    val user = Firebase.auth.currentUser
+    var bottomBarState:Boolean = false
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    when (navBackStackEntry?.destination?.route) {
-        "Home" -> {
-            bottomBarState = true
-        }
-        "Login" -> {
-            bottomBarState = false
-        }
-        "Register" -> {
-            bottomBarState = false
-        }
-        "MemberInit" -> {
-            bottomBarState = false
-        }
-        "UploadPost" -> {
-            bottomBarState = false
-        }
-        "Map" -> {
-            bottomBarState = true
-        }
-        "Favorites" -> {
-            bottomBarState = true
-        }
-        "ManageAccount" -> {
-            bottomBarState = true
+    if(user == null) {
+        bottomBarState = false
+    }
+    else {
+        when (navBackStackEntry?.destination?.route) {
+            "Home" -> {
+                bottomBarState = true
+            }
+            "Login" -> {
+                bottomBarState = false
+            }
+            "Register" -> {
+                bottomBarState = false
+            }
+            "MemberInit" -> {
+                bottomBarState = false
+            }
+            "UploadPost" -> {
+                bottomBarState = false
+            }
+            "Map" -> {
+                bottomBarState = true
+            }
+            "Favorites" -> {
+                bottomBarState = true
+            }
+            "ManageAccount" -> {
+                bottomBarState = true
+            }
         }
     }
     return bottomBarState

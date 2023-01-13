@@ -4,14 +4,18 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Scaffold
-import androidx.compose.material.Text
+import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.bumptech.glide.Glide
@@ -24,18 +28,22 @@ import com.naver.maps.map.compose.*
 import com.naver.maps.map.compose.LocationTrackingMode
 import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.OverlayImage
+import kotlinx.coroutines.launch
+
 @Composable
 fun informationPlace(modifier: Modifier = Modifier)
 {
     Text(text = "즐겨찾기 페이지", style = MaterialTheme.typography.h4)
 }
-@OptIn(ExperimentalNaverMapApi::class, ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalNaverMapApi::class, ExperimentalPermissionsApi::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun MapScreen(
     naviController: NavController,
     modifier: Modifier = Modifier
 ){
-
+    
     val infoWindow = InfoWindow()
     val context = LocalContext.current
     val adapter = placeAdapter(context)
@@ -52,8 +60,27 @@ fun MapScreen(
             MapUiSettings(isLocationButtonEnabled = true, isIndoorLevelPickerEnabled = true)
         )
     }
-    Scaffold()
-
+    val scaffoldState = rememberBottomSheetScaffoldState()
+    val scope = rememberCoroutineScope()
+    BottomSheetScaffold(
+        scaffoldState = scaffoldState,
+        sheetContent = {
+            BottomSheetContent()
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                text = { Text("상세정보") },
+                onClick = {
+                    scope.launch {
+                        scaffoldState.bottomSheetState.apply {
+                            if (isCollapsed) expand() else collapse()
+                        }
+                    }
+                }
+            )
+        },
+        sheetPeekHeight = 0.dp
+    )
     {
         modifier.padding(it)
 
@@ -113,6 +140,45 @@ fun MapScreen(
         }
     }
 
+}
+@Composable
+fun BottomSheetBeforeSlide(icon: Int, title: String, onItemClick: (String) -> Unit) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable {  }
+            .height(55.dp)
+            .background(color = Color.Black)
+            .padding(start = 15.dp), verticalAlignment = Alignment.CenterVertically
+    ) {
+        Icon(painter = painterResource(id = icon), contentDescription = "Share", tint = Color.White)
+        Spacer(modifier = Modifier.width(20.dp))
+        Text(text = title, color = Color.White)
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomSheetListItemPreview() {
+    BottomSheetBeforeSlide(icon = R.drawable.ic_baseline_add_24, title = "Share", onItemClick = { })
+}
+
+
+@Composable
+fun BottomSheetContent() {
+    val context = LocalContext.current
+    Column {
+        BottomSheetBeforeSlide(
+            icon = R.drawable.ic_baseline_add_24,
+            title = "Share",
+            onItemClick = {})
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun BottomSheetContentPreview() {
+    BottomSheetContent()
 }
 
 
