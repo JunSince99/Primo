@@ -31,7 +31,9 @@ import androidx.navigation.NavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.primo2.MemberInfo
 import com.example.primo2.PostInfo
+import com.example.primo2.getWriterInfomation
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -175,8 +177,9 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                 )
                 Log.e("",""+postInfo.title)
             }
+            val postWriterInfo:MemberInfo = getWriterInfomation(postInfo.Writer!!)
             Text(
-                text = "걷기 좋은 공원  |  JuSiErW님",
+                text = "걷기 좋은 공원"+getWriterInfomation(postInfo.Writer).name+"님",
                 color = Color.White,
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
@@ -311,6 +314,5 @@ fun savePostLike(likeInfo: HashMap<String,Boolean>,documentID: String)
         val snapshot = transaction.get(docRef)
         transaction.update(docRef, "like", likeInfo)
         likeInfo
-    }.addOnSuccessListener { Log.e("성공","성공 ") }
-        .addOnFailureListener { Log.e("실패","실패") }
+    }
 }
