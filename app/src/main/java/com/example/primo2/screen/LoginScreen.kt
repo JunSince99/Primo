@@ -6,7 +6,10 @@ import android.util.Patterns
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
@@ -19,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -26,6 +30,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,13 +55,14 @@ fun LoginScreen(
             .fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ){
+        Spacer(modifier = Modifier.padding(16.dp))
         Text(
             text = "이메일과 비밀번호를\n입력하세요",
-            fontSize = 20.sp,
+            fontSize = 24.sp,
             fontWeight = FontWeight.W600,
             fontFamily = FontFamily.Monospace,
             modifier = Modifier
-                .padding(horizontal = 0.dp, vertical = 24.dp)
+                .padding(vertical = 8.dp)
         )
 
         var email by remember { mutableStateOf("") }
@@ -115,9 +121,11 @@ fun LoginScreen(
                 focusedLabelColor = Color.DarkGray
             )
         )
-
         Button(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .aspectRatio(20f / 4f)
+                .padding(vertical = 8.dp),
             onClick = {
                 if(email.isNotEmpty() && password.isNotEmpty()){
                     auth.signInWithEmailAndPassword(email, password) // 유저 로그인
@@ -156,17 +164,42 @@ fun LoginScreen(
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black, contentColor = Color.White),
             enabled = !isErrorInID && password.isNotEmpty()
         ) {
-            Text("로그인")
+            Text(
+                "로그인",
+                fontSize = 16.sp
+            )
         }
-
+        Row( //회원가입 버튼
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally),
+        ) {
+            Text(
+                text = "아직 회원이 아니신가요?  ",
+                color = Color.Gray,
+                fontSize = 14.sp
+            )
+            ClickableText(
+                text = AnnotatedString("회원가입"),
+                style = TextStyle(
+                    fontSize = 14.sp,
+                    textDecoration = TextDecoration.Underline
+                ),
+                modifier = Modifier,
+                onClick = {
+                    //회원가입 페이지로
+                }
+            )
+        }
+        Spacer(modifier = Modifier.padding(90.dp))
         Button( // 나중에 삭제
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier.align(Alignment.CenterHorizontally),
             onClick = {
                 email = "11@naver.com"
                 password = "123456"
-            }
+            },
+            colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black, contentColor = Color.White)
         ){
-            Text("빡쳐서 만든 자동로그인")
+            Text("개발자용 자동로그인")
         }
     }
 

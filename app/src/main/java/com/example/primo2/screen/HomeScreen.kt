@@ -250,6 +250,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                         color =Color.White,
                         text = "좋아요" + likeCount + "개",
                         fontSize = 14.sp,
+                        modifier = Modifier.padding(horizontal = 4.dp)
                     )
                 }
                 if(postInfo.PostDate != null) {
@@ -298,7 +299,8 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                         textAlign = TextAlign.Right,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .align(Alignment.Bottom),
+                            .align(Alignment.Bottom)
+                            .padding(horizontal = 4.dp),
                         color = Color.White
                     )
                 }
