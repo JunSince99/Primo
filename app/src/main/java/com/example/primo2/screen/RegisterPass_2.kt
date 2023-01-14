@@ -34,59 +34,23 @@ fun RegisterPass_2(
     ){
         Spacer(modifier = Modifier.padding(16.dp))
         Text(
-            text = "이메일 주소를 입력해주세요.",
+            text = "비밀번호를 입력해주세요.",
             style = Typography.h1,
             modifier = Modifier
                 .padding(vertical = 8.dp)
         )
-        Spacer(modifier = Modifier.padding(11.dp))
-        var email by remember { mutableStateOf("") }
-
-        var isErrorInID by remember { mutableStateOf(false) }
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = {
-                email = it.trim()
-                isErrorInID = Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches().not()
-            },
-            modifier = Modifier
-                .fillMaxWidth(),
-            textStyle = TextStyle.Default.copy(fontSize = 20.sp),
-            label = {Text("이메일")},
-            isError = isErrorInID,
-            trailingIcon = {
-                if (isErrorInID)
-                    Icon(Icons.Filled.Info, "Error", tint = MaterialTheme.colors.error)
-            },
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Next,
-                keyboardType = KeyboardType.Email
-            ),
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.White,
-                cursorColor = Color.Black,
-                focusedIndicatorColor = Color.Black,
-                focusedLabelColor = Color.DarkGray
-            )
-        )
-        if (isErrorInID) {
-            Text(
-                text = "잘못된 유형의 이메일 주소입니다.",
-                color = MaterialTheme.colors.error,
-                modifier = Modifier.padding(start = 16.dp)
-            )
-        }
-
-        Spacer(modifier = Modifier.padding(8.dp))
 
         var password by remember { mutableStateOf("") }
+        var isErrorinPw by remember { mutableStateOf(false) }
         var passwordconfirm by remember { mutableStateOf("")}
         var isSamePass by remember { mutableStateOf(false) }
 
-        OutlinedTextField(
+        TextField(
             value = password,
-            onValueChange = { password = it },
+            onValueChange = {
+                password = it
+                isErrorinPw = (0< password.length && password.length< 8)
+            },
             modifier = Modifier
                 .fillMaxWidth(),
             textStyle = TextStyle.Default.copy(fontSize = 20.sp,),
@@ -95,18 +59,30 @@ fun RegisterPass_2(
             keyboardOptions = KeyboardOptions(
                 keyboardType = KeyboardType.Password
             ),
+            isError = isErrorinPw,
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.White,
                 cursorColor = Color.Black,
                 focusedIndicatorColor = Color.Black,
-                focusedLabelColor = Color.DarkGray
+                focusedLabelColor = Color.Black
             )
         )
-        Text(
-            text = "8자리 이상 입력해주세요.",
-            modifier = Modifier.padding(start = 16.dp)
-        )
-        OutlinedTextField(
+        if(isErrorinPw){
+            Text(
+                text = "8자리 이상 입력해주세요.",
+                modifier = Modifier.padding(start = 16.dp),
+                color = MaterialTheme.colors.error
+            )
+        } else{
+            Text(
+                text = "8자리 이상 입력해주세요.",
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
+
+        Spacer(modifier = Modifier.padding(4.dp))
+
+        TextField(
             value = passwordconfirm,
             onValueChange = {
                 passwordconfirm = it
@@ -125,9 +101,16 @@ fun RegisterPass_2(
                 backgroundColor = Color.White,
                 cursorColor = Color.Black,
                 focusedIndicatorColor = Color.Black,
-                focusedLabelColor = Color.DarkGray
+                focusedLabelColor = Color.Black
             )
         )
+        if (isSamePass) {
+            Text(
+                text = "비밀번호가 일치하지 않습니다.",
+                color = MaterialTheme.colors.error,
+                modifier = Modifier.padding(start = 16.dp)
+            )
+        }
     }
 }
 

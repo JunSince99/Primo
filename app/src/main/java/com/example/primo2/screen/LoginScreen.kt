@@ -79,7 +79,7 @@ fun LoginScreen(
                 .fillMaxWidth(),
             textStyle = TextStyle.Default.copy(fontSize = 20.sp),
             label = {Text("이메일")},
-            placeholder = {Text("이메일 주소 입력")},
+            //placeholder = {Text("이메일 주소 입력")},
             isError = isErrorInID,
             singleLine = true,
             trailingIcon = {
@@ -92,7 +92,7 @@ fun LoginScreen(
                 backgroundColor = Color.White,
                 cursorColor = Color.Black,
                 focusedIndicatorColor = Color.Black,
-                focusedLabelColor = Color.DarkGray
+                focusedLabelColor = Color.Black
             )
         )
         if (isErrorInID) {
@@ -111,14 +111,13 @@ fun LoginScreen(
                 .fillMaxWidth(),
             textStyle = TextStyle.Default.copy(fontSize = 20.sp,),
             label = {Text("비밀번호")},
-            placeholder = {Text("8자리 이상 입력")},
             visualTransformation = PasswordVisualTransformation(),
             singleLine = true,
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.White,
                 cursorColor = Color.Black,
                 focusedIndicatorColor = Color.Black,
-                focusedLabelColor = Color.DarkGray
+                focusedLabelColor = Color.Black
             )
         )
         Button(
