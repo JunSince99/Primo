@@ -151,7 +151,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
 
             //가입 화면
             composable(route = PrimoScreen.Register.name) {
-                RegisterScreen(
+                RegisterEmail_1(
                     onRegisterButtonClicked = {
                         navController.navigate(PrimoScreen.Home.name)
                         {
