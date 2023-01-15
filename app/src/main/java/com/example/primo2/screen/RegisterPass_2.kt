@@ -57,7 +57,8 @@ fun RegisterPass_2(
             label = {Text("비밀번호")},
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Next
             ),
             isError = isErrorinPw,
             colors = TextFieldDefaults.textFieldColors(
