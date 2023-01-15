@@ -29,6 +29,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.bumptech.glide.RequestManager
+import com.example.primo2.MemberInfo
 import com.example.primo2.PostInfo
 import com.example.primo2.activity.MainActivity
 import com.example.primo2.getPlaceInfo

@@ -30,6 +30,7 @@ import com.bumptech.glide.load.resource.drawable.DrawableResource
 import com.example.primo2.R
 import com.example.primo2.adapter.placeAdapter
 import com.example.primo2.placeList
+import com.example.primo2.userOrientation
 import com.google.accompanist.permissions.*
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.*
@@ -37,6 +38,7 @@ import com.naver.maps.map.compose.LocationTrackingMode
 import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.OverlayImage
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 @Composable
 fun informationPlace(modifier: Modifier = Modifier)
@@ -117,24 +119,28 @@ fun MapScreen(
             {
 
                 for (i in 0 until placeList.size) {
+                    var fitness:Double = fitnessCalc(userOrientation,i)
                     Marker(
-                        icon = OverlayImage.fromResource(R.drawable.map_markerx),// 맵 마커 이미지인데 일단 임시로 암거나 넣어놈
+                        icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
+                        width = 40.dp,
+                        height = 40.dp,
                         state = MarkerState(
                             position = LatLng(
                                 placeList[i].latitude,
                                 placeList[i].longitude
                             )
                         ),
-                        captionText = placeList[i].name,
-                        captionMinZoom = 13.0,
-                        minZoom = 12.0,
+                        captionText = placeList[i].name+"\n"+"적합도 : " + fitness.roundToInt() + "%",
+                        captionMinZoom = 12.2,
+                        minZoom = 12.2,
                         onClick = { overlay ->
                             bottomNaviSize = 65.dp
                             bottomNaviTitle = placeList[i].name!!
                             bottomNaviPaint = placeList[i].imageResource
                             true
                         },
-                        tag = i
+                        tag = i,
+                        zIndex = fitness.roundToInt() // 겹칠때 적합도 높은게 위로 가게
                     )
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
@@ -175,6 +181,20 @@ fun BottomSheetContent(title: String, paint:Int) { // 스와이프 한후에 보
     }
 }
 
+
+fun fitnessCalc(userOrientation: HashMap<String, Double>,num :Int) : Double{
+    var fitness = 0.0
+    fitness += 20 + ((userOrientation["IE"]!! * placeList[num].static) - (userOrientation["IE"]!! * placeList[num].active))*10
+    fitness += 20 +((userOrientation["NS"]!! * placeList[num].nature) - (userOrientation["NS"]!! * placeList[num].city))*10
+    fitness += 20 +((userOrientation["FT"]!! * placeList[num].focusFood) - (userOrientation["FT"]!! * placeList[num].focusTour))*10
+    fitness += 20 +((userOrientation["PJ"]!! * placeList[num].lazy) - (userOrientation["PJ"]!! * placeList[num].faithful))*10
+
+    if(fitness > 100)
+    {
+        fitness = 100.0
+    }
+    return fitness
+}
 @Preview(showBackground = true)
 @Composable
 fun BottomSheetListItemPreview() {
