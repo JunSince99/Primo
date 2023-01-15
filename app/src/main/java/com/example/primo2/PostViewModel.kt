@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.primo2.PostInfo
 import com.example.primo2.activity.MainActivity
+import com.example.primo2.screen.Post
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
@@ -24,33 +25,32 @@ class PostViewModel : ViewModel() {
     fun updatePostInformation() {
         postList2.clear()
         val db = Firebase.firestore
-        var count:Int = 0
-            db.collection("posts").orderBy("postDate", Query.Direction.DESCENDING)
-                .get()
-                .addOnSuccessListener { documents ->
-
-                    for (pDocument in documents) {
-                        postList2.add(
-                            PostInfo(
-                                pDocument.id,
-                                pDocument.getString("title"),
-                                pDocument.data["contents"] as ArrayList<String?>,
-                                pDocument.data["format"] as ArrayList<String?>,
-                                pDocument.get("comments").toString(),
-                                pDocument.getString("writer"),
-                                pDocument.getString("writerID"),
-                                pDocument.getString("postDate"),
-                                pDocument.data["like"] as HashMap<String, Boolean>,
-                            )
+        db.collection("posts").orderBy("postDate", Query.Direction.DESCENDING)
+            .get()
+            .addOnSuccessListener { documents ->
+                for (pDocument in documents) {
+                    postList2.add(
+                        PostInfo(
+                            pDocument.id,
+                            pDocument.getString("title"),
+                            pDocument.data["contents"] as ArrayList<String?>,
+                            pDocument.data["format"] as ArrayList<String?>,
+                            pDocument.get("comments").toString(),
+                            pDocument.getString("writer"),
+                            pDocument.getString("writerID"),
+                            pDocument.getString("postDate"),
+                            pDocument.data["like"] as HashMap<String, Boolean>,
                         )
-                    }
-                    _postState.update { currentState ->
-                        isUpdate = false
-                        postList2
-                    }
+                    )
+                    Log.e("",""+ pDocument.getString("title") +  pDocument.getString("postDate"))
                 }
-                .addOnFailureListener { exception ->
+                _postState.update { currentState ->
+                    isUpdate = false
+                    postList2
                 }
+            }
+            .addOnFailureListener { exception ->
+            }
         }
 
 }

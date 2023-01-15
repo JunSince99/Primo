@@ -21,7 +21,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.primo2.getUserOrientation
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
+import com.example.primo2.userOrientation
 
 
 @Composable
@@ -56,10 +58,10 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean){
                             contentDescription = null
                         )
                     },
-                    selectedContentColor = MaterialTheme.colors.primary, // 계속 하얀색되서 잠깐 바꿔놈 고쳐줘
+                    selectedContentColor = MaterialTheme.colors.primary,
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "Map" } == true,
-                    onClick = { navController.navigate("Map") }
+                    onClick = { if(userOrientation.isEmpty()){getUserOrientation(navController)} else { navController.navigate("Map") { popUpTo("Home") } } }
                 ) // 서치 화면
                 BottomNavigationItem(
                     icon = {
@@ -71,7 +73,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean){
                     selectedContentColor = MaterialTheme.colors.primary,
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "Favorites" } == true,
-                    onClick = { navController.navigate("Favorites") }
+                    onClick = { navController.navigate("Favorites")  { popUpTo("Home") }}
                 ) // 즐겨찾기?
                 BottomNavigationItem(
                     icon = {
@@ -83,7 +85,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean){
                     selectedContentColor = MaterialTheme.colors.primary,
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "ManageAccount" } == true,
-                    onClick = { navController.navigate("ManageAccount") }
+                    onClick = { navController.navigate("ManageAccount") { popUpTo("Home") } }
                 ) // 계정 관리
             }
         }

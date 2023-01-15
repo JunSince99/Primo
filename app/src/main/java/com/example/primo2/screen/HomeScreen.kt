@@ -282,21 +282,21 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                         {
                             calcuDate/=60
                             timeUnit = "시간 전"
-                        }
-                        if(calcuDate >= 24)
-                        {
-                            calcuDate/=24
-                            timeUnit = "일 전"
-                        }
-                        if(calcuDate >= 30)
-                        {
-                            calcuDate/=30
-                            timeUnit = "개월 전"
-                        }
-                        if(calcuDate >= 12)
-                        {
-                            calcuDate/=12
-                            timeUnit = "년 전"
+                            if(calcuDate >= 24)
+                            {
+                                calcuDate/=24
+                                timeUnit = "일 전"
+                                if(calcuDate >= 30)
+                                {
+                                    calcuDate/=30
+                                    timeUnit = "개월 전"
+                                    if(calcuDate >= 12)
+                                    {
+                                        calcuDate/=12
+                                        timeUnit = "년 전"
+                                    }
+                                }
+                            }
                         }
                         compareTime = calcuDate.toString() + timeUnit
                     }
