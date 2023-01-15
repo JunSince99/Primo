@@ -97,9 +97,9 @@ fun Posts(requestManager: RequestManager,
             viewModel.isUpdate = true
         }
     }
-    LazyColumn(modifier = modifier) { // RecyclerView이 compose에서는 LazyColumn, LazyRow로 대체됨
+    LazyColumn(modifier = modifier) {
         items(uiState.size){
-            Post(uiState[it],requestManager,it) // 대충 만들어 놓은 게시글 포맷
+            Post(uiState[it],requestManager,it)
         }
     }
 
@@ -111,7 +111,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .shadow(
-                elevation = 7.dp,
+                elevation = 10.dp,
                 shape = RoundedCornerShape(20)
             )
             .aspectRatio(16f / 10f)
