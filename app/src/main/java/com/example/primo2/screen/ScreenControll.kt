@@ -47,7 +47,9 @@ enum class PrimoScreen() {
     UploadPost,
     Map,
     Favorites,
-    ManageAccount
+    ManageAccount,
+    RegisterPartner,
+    RegisterPartnerID
 }
 @Composable
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier,viewModel: PostViewModel = viewModel()) {
@@ -56,7 +58,6 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
     getPlaceInfo()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val bottomBarState = rememberSaveable { (mutableStateOf(false)) } // 바텀 네비게이션바 보이게 할지 말지
-
 
     Scaffold(
         bottomBar = { NavigationBar(navController,bottomBarState.value) },
@@ -101,7 +102,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                             popUpTo("Home")
                         }
                     },
-                    navController
+                    navController,requestManager
                 )
             }
 
@@ -167,7 +168,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             composable(route = PrimoScreen.MemberInit.name) {
                 MemberInitScreen(
                     onSubmitButtonClicked = {
-                        navController.navigate(PrimoScreen.Home.name)
+                        navController.navigate(PrimoScreen.RegisterPartnerID.name)
                         {
                             popUpTo("Home")
                         }
@@ -175,6 +176,28 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 )
             }
 
+            composable(route = PrimoScreen.RegisterPartnerID.name){
+                RegisterPartnerIDScreen(
+                    onSubmitButtonClicked = {
+                        navController.navigate(PrimoScreen.ManageAccount.name)
+                    },
+                    activity,
+                    navController
+                )
+            }
+
+
+            composable(route = PrimoScreen.RegisterPartner.name){
+                RegisterPartnerScreen(
+                onSubmitButtonClicked = {
+                    navController.navigate(PrimoScreen.RegisterPartnerID.name)
+                    {
+                        popUpTo("Home")
+                    }
+                },activity,navController
+                )
+
+            }
 
 
 
@@ -220,6 +243,13 @@ fun checkBottomVisible (navController:NavController): Boolean{
             "ManageAccount" -> {
                 bottomBarState = true
             }
+            "RegisterPartnerID" ->{
+                bottomBarState = false
+            }
+            "RegisterPartner" ->{
+                bottomBarState = false
+            }
+
         }
     }
     return bottomBarState

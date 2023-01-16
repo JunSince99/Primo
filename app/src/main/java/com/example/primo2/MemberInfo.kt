@@ -8,8 +8,11 @@ import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.update
-
+var myName:String = ""
 val userOrientation:HashMap<String,Double> = HashMap()
+var partnerName:String? = null
+var partnerPhotoURL:String? = null
+var startDating:String? = null
 
 data class MemberInfo(
     val name: String? = null,
@@ -20,9 +23,42 @@ data class MemberInfo(
     val IE: Double = 0.0,
     val NS: Double = 0.0,
     val FT: Double = 0.0,
-    val PJ: Double = 0.0
+    val PJ: Double = 0.0,
+    val partnerUID: String?  = null
 )
+fun getPartnerInfo(navController: NavController){
+    val db = Firebase.firestore
+    val user = Firebase.auth.currentUser
+    if(user != null) {
+        db.collection("users").document(user.uid)
+            .get()
+            .addOnSuccessListener { document ->
+                myName = document.getString("name") ?: ""
+                val partnerUID = document.getString("partnerUID") ?: ""
+                if(partnerUID == "")
+                {
+                    partnerName = ""
+                }
+                else {
 
+                    db.collection("users").document(partnerUID)
+                        .get()
+                        .addOnSuccessListener { document2 ->
+                            partnerName = document2.getString("name") ?: ""
+                            partnerPhotoURL = document2.getString("photoUrl") ?: ""
+                            startDating = document2.getString("startDating")?:""
+                            navController.navigate("ManageAccount")
+                        }
+
+                        .addOnFailureListener { exception ->
+                        }
+                }
+            }
+
+            .addOnFailureListener { exception ->
+            }
+    }
+}
 fun getUserOrientation(navController: NavController)
 {
     val db = Firebase.firestore

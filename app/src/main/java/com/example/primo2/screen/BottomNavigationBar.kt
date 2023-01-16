@@ -21,9 +21,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.primo2.getUserOrientation
+import com.example.primo2.*
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
-import com.example.primo2.userOrientation
 
 
 @Composable
@@ -85,7 +84,11 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean){
                     selectedContentColor = MaterialTheme.colors.primary,
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "ManageAccount" } == true,
-                    onClick = { navController.navigate("ManageAccount") { popUpTo("Home") } }
+                    onClick = {
+                        if(partnerName == null) {
+                            getPartnerInfo(navController)
+                    }
+                        else{navController.navigate("ManageAccount") { popUpTo("Home") }} }
                 ) // 계정 관리
             }
         }
