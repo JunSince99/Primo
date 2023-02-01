@@ -25,7 +25,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImage
 import com.bumptech.glide.Glide
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.load.resource.drawable.DrawableResource
 import com.example.primo2.R
 import com.example.primo2.adapter.placeAdapter
@@ -51,13 +55,9 @@ fun informationPlace(modifier: Modifier = Modifier)
 @Composable
 fun MapScreen(
     naviController: NavController,
+    requestManager:RequestManager,
     modifier: Modifier = Modifier
 ){
-    
-    val infoWindow = InfoWindow()
-    val context = LocalContext.current
-    val adapter = placeAdapter(context)
-    infoWindow.adapter = adapter
 
     var mapProperties by remember {
         mutableStateOf(
@@ -75,11 +75,12 @@ fun MapScreen(
     val scope = rememberCoroutineScope()
     var bottomNaviSize by remember { mutableStateOf(0.dp) }
     var bottomNaviTitle by remember { mutableStateOf("") }
-    var bottomNaviPaint by remember { mutableStateOf(R.drawable.place_centralpark) }
+    var bottomNaviInfo by remember { mutableStateOf("") }
+    var bottomNaviPaint by remember { mutableStateOf("") }
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
-            BottomSheetContent(bottomNaviTitle,bottomNaviPaint)
+            BottomSheetContent(bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager)
         },
         sheetPeekHeight = bottomNaviSize,
     )
@@ -130,12 +131,13 @@ fun MapScreen(
                                 placeList[i].longitude
                             )
                         ),
-                        captionText = placeList[i].name+"\n"+"적합도 : " + fitness.roundToInt() + "%",
+                        captionText = placeList[i].placeName+"\n"+"적합도 : " + fitness.roundToInt() + "%",
                         captionMinZoom = 12.2,
                         minZoom = 12.2,
                         onClick = { overlay ->
                             bottomNaviSize = 65.dp
-                            bottomNaviTitle = placeList[i].name!!
+                            bottomNaviInfo = placeList[i].information
+                            bottomNaviTitle = placeList[i].placeName
                             bottomNaviPaint = placeList[i].imageResource
                             true
                         },
@@ -170,24 +172,36 @@ fun BottomSheetBeforeSlide(title: String) { // 위로 스와이프 하기전에 
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun BottomSheetContent(title: String, paint:Int) { // 스와이프 한후에 보이는 전체
+fun BottomSheetContent(title: String, paint:String, info:String,requestManager: RequestManager) { // 스와이프 한후에 보이는 전체
     val context = LocalContext.current
     Column {
         BottomSheetBeforeSlide(title)
-        Image(painter = painterResource(paint), contentDescription = "")
+        GlideImage(model = paint, contentDescription = "", modifier = Modifier.height(300.dp).fillMaxWidth(), contentScale = ContentScale.Crop)
+        {
+            it
+                .thumbnail(
+                    requestManager
+                        .asDrawable()
+                        .load(paint)
+                        // .signature(signature)
+                        .override(64)
+                )
+            // .signature(signature)
+        }
         Spacer(modifier = Modifier.height(15.dp))
-        Text(text = "센트럴파크에서 재밌게 노는 법!", fontFamily = FontFamily.Cursive )
+        Text(text = info, fontFamily = FontFamily.Cursive )
     }
 }
 
 
 fun fitnessCalc(userOrientation: HashMap<String, Double>,num :Int) : Double{
     var fitness = 0.0
-    fitness += 20 + ((userOrientation["IE"]!! * placeList[num].static) - (userOrientation["IE"]!! * placeList[num].active))*10
-    fitness += 20 +((userOrientation["NS"]!! * placeList[num].nature) - (userOrientation["NS"]!! * placeList[num].city))*10
-    fitness += 20 +((userOrientation["FT"]!! * placeList[num].focusFood) - (userOrientation["FT"]!! * placeList[num].focusTour))*10
-    fitness += 20 +((userOrientation["PJ"]!! * placeList[num].lazy) - (userOrientation["PJ"]!! * placeList[num].faithful))*10
+    //fitness += 20 + ((userOrientation["IE"]!! * placeList[num].static) - (userOrientation["IE"]!! * placeList[num].active))*10
+    //fitness += 20 +((userOrientation["NS"]!! * placeList[num].nature) - (userOrientation["NS"]!! * placeList[num].city))*10
+    //fitness += 20 +((userOrientation["FT"]!! * placeList[num].focusFood) - (userOrientation["FT"]!! * placeList[num].focusTour))*10
+   //fitness += 20 +((userOrientation["PJ"]!! * placeList[num].lazy) - (userOrientation["PJ"]!! * placeList[num].faithful))*10
 
     if(fitness > 100)
     {
@@ -201,12 +215,14 @@ fun BottomSheetListItemPreview() {
     BottomSheetBeforeSlide(title = "센트럴 파크")
 }
 
-
+/*
 @Preview(showBackground = true)
 @Composable
-fun BottomSheetContentPreview() {
-    BottomSheetContent("센트럴파크",R.drawable.place_centralpark)
+fun BottomSheetContentPreview(requestManager:RequestManager) {
+    BottomSheetContent("센트럴파크","https://firebasestorage.googleapis.com/v0/b/primo-92b68.appspot.com/o/places%2F%EC%86%94%EC%B0%AC%EA%B3%B5%EC%9B%90.jpg?alt=media&token=cb9ace94-0d86-4cf1-8065-b6781b8ea30d","센트럴 파크에서 재밌게 노는법!",requestManager)
 }
+
+ */
 
 
 

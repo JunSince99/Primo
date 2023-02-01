@@ -5,9 +5,13 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import android.widget.ImageView
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.annotation.NonNull
+import androidx.compose.ui.unit.dp
 import com.bumptech.glide.Glide
 import com.example.primo2.placeList
 import com.example.primo2.screen.informationPlace
@@ -30,9 +34,9 @@ class placeAdapter(@NonNull context: Context) :
         val txtTitle = view.findViewById(R.id.title) as TextView
         val txtInfoWindow = view.findViewById(R.id.information) as TextView
         val num:Int = infoWindow.marker?.tag.toString().toInt()
-        txtTitle.text = placeList[num].name
+        txtTitle.text = placeList[num].placeName
         txtInfoWindow.text = placeList[num].information
-        placePicture.setImageResource(placeList[num].imageResource)
+        Glide.with(view).load(placeList[num].imageResource).into(placePicture)
         return view
     }
 }

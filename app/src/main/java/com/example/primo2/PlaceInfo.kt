@@ -2,8 +2,46 @@ package com.example.primo2
 
 import android.graphics.PointF
 import android.location.Location
+import android.util.Log
 import android.widget.ImageView
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 
+data class PlaceInfo(
+    val placeName: String = "",
+    val information: String = "",
+    val imageResource: String = "",
+    val latitude: Double = 0.0,
+    val longitude: Double = 0.0,
+    val placeHashMap: HashMap<String,Double>? = null
+)
+val placeList: ArrayList<PlaceInfo> = ArrayList()
+fun getPlaceInfo(){
+    val db = Firebase.firestore
+    val user = Firebase.auth.currentUser
+    if(user != null) {
+        db.collection("places")
+            .get()
+            .addOnSuccessListener { documents ->
+                for(document in documents)
+                {
+                    val imageResource = document.data["imageResource"] as String
+                    val placeName = document.data["placeName"] as String
+                    val placeHashMap = document.data["placeHashMap"]as HashMap<String, Double>
+                    val latitude = document.data["latitude"] as Double
+                    val longitude = document.data["longitude"] as Double
+                    val information = document.data["information"] as String
+                    placeList.add(PlaceInfo(placeName,information,imageResource,latitude,longitude,placeHashMap))
+                }
+            }
+
+            .addOnFailureListener { exception ->
+                Log.e("오류","플레이스 오류 발생")
+            }
+    }
+}
+/*
 data class PlaceInfo(
     val name: String? = null,
     val information: String? = null,
@@ -19,7 +57,6 @@ data class PlaceInfo(
     val faithful:Double = 0.0,
     val imageResource:Int = 0
 )
-val placeList: ArrayList<PlaceInfo> = ArrayList()
 fun getPlaceInfo()
 {
     placeList.add(PlaceInfo("센트럴파크",
@@ -86,3 +123,4 @@ fun getPlaceInfo()
 
 
 }
+*/

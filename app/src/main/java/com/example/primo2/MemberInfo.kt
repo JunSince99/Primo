@@ -10,6 +10,7 @@ import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.update
 var myName:String = ""
 val userOrientation:HashMap<String,Double> = HashMap()
+val partnerOrientation:HashMap<String,Double> = HashMap()
 var partnerName:String? = null
 var partnerPhotoURL:String? = null
 var startDating:String? = null
@@ -47,6 +48,10 @@ fun getPartnerInfo(navController: NavController){
                             partnerName = document2.getString("name") ?: ""
                             partnerPhotoURL = document2.getString("photoUrl") ?: ""
                             startDating = document2.getString("startDating")?:""
+                            partnerOrientation["IE"] = document2.getDouble("IE") ?: 0.0
+                            partnerOrientation["NS"] = document2.getDouble("NS") ?: 0.0
+                            partnerOrientation["FT"] = document2.getDouble("FT") ?: 0.0
+                            partnerOrientation["PJ"] = document2.getDouble("PJ") ?: 0.0
                             navController.navigate("ManageAccount")
                         }
 

@@ -110,7 +110,8 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             //지도
             composable(route = PrimoScreen.Map.name) {
                 MapScreen(
-                    navController
+                    navController,
+                    requestManager
                 )
             }
 
