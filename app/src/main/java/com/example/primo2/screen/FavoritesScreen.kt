@@ -1,5 +1,6 @@
 package com.example.primo2.screen
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -23,6 +24,13 @@ import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.ui.theme.Typography
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -30,6 +38,10 @@ fun FavoritesScreen(
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
+    val user = Firebase.auth.currentUser
+    val database = Firebase.database.reference.child("DatePlan").child(user!!.uid)
+    addDatePlanEventListener(database)
+
     val scaffoldState = rememberBottomSheetScaffoldState()
     var bottomNaviSize by remember { mutableStateOf(0.dp) }
     TopAppBar(backgroundColor = Color.White) {
@@ -73,4 +85,22 @@ fun FavoritesScreen(
             }
         }
     }
+}
+
+
+private fun addDatePlanEventListener(postReference: DatabaseReference) {
+    val postListener = object : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            for(datePlanSnapshot in dataSnapshot.children)
+            {
+                val post = datePlanSnapshot.child("dateTitle").value
+            }
+        }
+
+        override fun onCancelled(databaseError: DatabaseError) {
+            //실패
+        }
+    }
+
+    postReference.addValueEventListener(postListener)
 }
