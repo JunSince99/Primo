@@ -49,7 +49,8 @@ enum class PrimoScreen() {
     Favorites,
     ManageAccount,
     RegisterPartner,
-    RegisterPartnerID
+    RegisterPartnerID,
+    SelectDateDate
 }
 @Composable
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier,viewModel: PostViewModel = viewModel()) {
@@ -200,6 +201,15 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
 
             }
 
+            composable(route = PrimoScreen.SelectDateDate.name){
+                SelectDateDateScreen(
+                    onSubmitButtonClicked = {
+                        //navController.navigate(PrimoScreen.RegisterPartnerID.name)
+                    },activity,navController
+                )
+
+            }
+
 
 
 
@@ -248,6 +258,9 @@ fun checkBottomVisible (navController:NavController): Boolean{
                 bottomBarState = false
             }
             "RegisterPartner" ->{
+                bottomBarState = false
+            }
+            "SelectDateDate" ->{
                 bottomBarState = false
             }
 

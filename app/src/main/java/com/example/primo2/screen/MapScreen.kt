@@ -12,15 +12,20 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -42,6 +47,7 @@ import com.naver.maps.map.compose.LocationTrackingMode
 import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.OverlayImage
 import kotlinx.coroutines.launch
+import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import kotlin.math.roundToInt
 
 @Composable
@@ -165,9 +171,38 @@ fun BottomSheetBeforeSlide(title: String) { // 위로 스와이프 하기전에 
             .padding(start = 0.dp, top = 5.dp), verticalAlignment = Alignment.Top
     ) {
         Spacer(modifier = Modifier.width(0.dp))
-        Column(modifier = Modifier, verticalArrangement = Arrangement.Top) {
-            Text(text = title, color = Color.Black, fontSize = 20.sp, fontFamily = FontFamily.Cursive )
-            Text(text = "인천 연수구 송도동 24-5", color = Color.Black, fontSize = 14.sp, fontFamily = FontFamily.Cursive )
+            Column(modifier = Modifier, verticalArrangement = Arrangement.Top) {
+                Text(
+                    text = title,
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontFamily = FontFamily.Cursive
+                )
+                Text(
+                    text = "인천 연수구 송도동 24-5",
+                    color = Color.Black,
+                    fontSize = 14.sp,
+                    fontFamily = FontFamily.Cursive
+                )
+            }
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { }
+                .height(65.dp)
+                .background(color = Color.White)
+                .padding(start = 0.dp, top = 5.dp), verticalAlignment = Alignment.Top, horizontalArrangement = Arrangement.End
+
+        ) {
+
+            Row(modifier = Modifier, horizontalArrangement = Arrangement.End) {
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(50.dp).clickable {
+                    }
+                )
+            }
         }
     }
 }
@@ -178,7 +213,9 @@ fun BottomSheetContent(title: String, paint:String, info:String,requestManager: 
     val context = LocalContext.current
     Column {
         BottomSheetBeforeSlide(title)
-        GlideImage(model = paint, contentDescription = "", modifier = Modifier.height(300.dp).fillMaxWidth(), contentScale = ContentScale.Crop)
+        GlideImage(model = paint, contentDescription = "", modifier = Modifier
+            .height(300.dp)
+            .fillMaxWidth(), contentScale = ContentScale.Crop)
         {
             it
                 .thumbnail(
