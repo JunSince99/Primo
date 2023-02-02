@@ -33,10 +33,11 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.util.Pair
 import androidx.navigation.NavController
 import com.example.primo2.DatePlanInfo
-import com.example.primo2.datePlanList
+import com.example.primo2.*
 import com.example.primo2.ui.theme.HideColor
 
 import com.example.primo2.ui.theme.Typography
+import com.google.android.exoplayer2.util.Log
 import com.google.android.material.datepicker.MaterialDatePicker
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
@@ -186,11 +187,24 @@ fun SelectDateDateScreen(
 fun writeDatePlan(startDate:String, dateTitle:String){
     val user = Firebase.auth.currentUser
     val database = Firebase.database.reference
-    datePlanList.add(DatePlanInfo(dateTitle,date,"", mapOf(0 to "none")))
-    val insertList:List<DatePlanInfo> = datePlanList
-    database.child("DatePlan").child(user!!.uid).child(dateTitle).child("dateTitle").setValue(dateTitle)
-    database.child("DatePlan").child(user!!.uid).child(dateTitle).child("startDate").setValue(startDate)
-    database.child("DatePlan").child(user.uid).child(dateTitle).child("EndDate").setValue("")
+    database.child("DatePlan").child(leaderUID)
+        .child(dateTitle)
+        .child("dateTitle").setValue(dateTitle)
+    database.child("DatePlan").child(leaderUID)
+        .child(dateTitle)
+        .child("startDate").setValue(startDate)
+    database.child("DatePlan").child(leaderUID)
+        .child(dateTitle)
+        .child("endDate")
+        .setValue("")
+
+    val insertList = listOf<String>("센트럴파크", "솔찬공원")
+
+    database.child("DatePlan").child(leaderUID)
+        .child(dateTitle)
+        .child("course")
+        .setValue(insertList)
+
 }
 
 

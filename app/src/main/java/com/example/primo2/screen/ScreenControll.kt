@@ -32,6 +32,7 @@ import com.bumptech.glide.RequestManager
 import com.example.primo2.MemberInfo
 import com.example.primo2.PostInfo
 import com.example.primo2.activity.MainActivity
+import com.example.primo2.getPartnerInfo
 import com.example.primo2.getPlaceInfo
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -59,7 +60,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
     getPlaceInfo()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val bottomBarState = rememberSaveable { (mutableStateOf(false)) } // 바텀 네비게이션바 보이게 할지 말지
-
+    getPartnerInfo(navController,false)
     Scaffold(
         bottomBar = { NavigationBar(navController,bottomBarState.value) },
         backgroundColor = Color.White
@@ -119,7 +120,8 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             //즐겨찾기 화면
             composable(route = PrimoScreen.Favorites.name) {
                 FavoritesScreen(
-                    navController
+                    navController,
+                    requestManager
                 )
             }
 

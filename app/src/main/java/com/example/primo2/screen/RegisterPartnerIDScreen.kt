@@ -95,8 +95,7 @@ fun RegisterPartnerIDScreen(
                                                 Toast.LENGTH_SHORT).show()
                                         }
                                         else {
-                                            savePartner(partnerCode,startDating.toString())
-                                            getPartnerInfo(navController)
+                                            savePartner(partnerCode,startDating.toString(),navController)
                                         }
                                     }
                             }
@@ -118,7 +117,7 @@ fun RegisterPartnerIDScreen(
 }
 
 
-fun savePartner(partnerUID:String,startDating:String) {
+fun savePartner(partnerUID:String,startDating:String,navController:NavController) {
     val user = Firebase.auth.currentUser
     val db = Firebase.firestore
     val docRef = db.collection("users").document(user!!.uid)
@@ -126,8 +125,9 @@ fun savePartner(partnerUID:String,startDating:String) {
     db.runTransaction { transaction ->
         val snapshot = transaction.get(docRef)
         transaction.update(docRef, "partnerUID", partnerUID)
+        transaction.update(docRef, "leaderUID", user.uid)
         partnerUID
-    }
+    }.addOnSuccessListener { getPartnerInfo(navController) }
 
     val docRef2 = db.collection("users").document(partnerUID)
 
@@ -135,6 +135,7 @@ fun savePartner(partnerUID:String,startDating:String) {
         val snapshot = transaction.get(docRef)
         transaction.update(docRef2, "partnerUID", user.uid)
         transaction.update(docRef2, "startDating", startDating)
+        transaction.update(docRef2, "leaderUID", user.uid)
         user.uid
     }
 }

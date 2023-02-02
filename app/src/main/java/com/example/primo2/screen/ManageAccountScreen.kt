@@ -47,10 +47,8 @@ import com.example.primo2.R
 import com.example.primo2.ui.theme.Typography
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.ktx.Firebase
-import com.naver.maps.map.compose.GroundOverlayDefaults.Image
 import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.text.Typography
 
 @Composable
 fun ManageAccountScreen(
@@ -91,7 +89,6 @@ fun ProfileBox(navController: NavController,requestManager: RequestManager, modi
                         modifier = Modifier,
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
-                        Log.e("확인",""+ partnerPhotoURL)
                         if(partnerName != "") {
                             GlideImage(
                                 model = partnerPhotoURL,

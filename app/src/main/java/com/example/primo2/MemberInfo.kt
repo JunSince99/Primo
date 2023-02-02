@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.update
 var myName:String = ""
 val userOrientation:HashMap<String,Double> = HashMap()
 val partnerOrientation:HashMap<String,Double> = HashMap()
+var leaderUID:String = ""
 var partnerName:String? = null
 var partnerPhotoURL:String? = null
 var startDating:String? = null
@@ -27,7 +28,7 @@ data class MemberInfo(
     val PJ: Double = 0.0,
     val partnerUID: String?  = null
 )
-fun getPartnerInfo(navController: NavController){
+fun getPartnerInfo(navController: NavController, move:Boolean = true){
     val db = Firebase.firestore
     val user = Firebase.auth.currentUser
     if(user != null) {
@@ -35,6 +36,7 @@ fun getPartnerInfo(navController: NavController){
             .get()
             .addOnSuccessListener { document ->
                 myName = document.getString("name") ?: ""
+                leaderUID = document.getString("leaderUID")?:""
                 val partnerUID = document.getString("partnerUID") ?: ""
                 if(partnerUID == "")
                 {
@@ -48,11 +50,15 @@ fun getPartnerInfo(navController: NavController){
                             partnerName = document2.getString("name") ?: ""
                             partnerPhotoURL = document2.getString("photoUrl") ?: ""
                             startDating = document2.getString("startDating")?:""
+                            Log.e("","테스트" )
+                            Log.e("",""+ leaderUID)
                             partnerOrientation["IE"] = document2.getDouble("IE") ?: 0.0
                             partnerOrientation["NS"] = document2.getDouble("NS") ?: 0.0
                             partnerOrientation["FT"] = document2.getDouble("FT") ?: 0.0
                             partnerOrientation["PJ"] = document2.getDouble("PJ") ?: 0.0
-                            navController.navigate("ManageAccount")
+                            if(move) {
+                                navController.navigate("ManageAccount")
+                            }
                         }
 
                         .addOnFailureListener { exception ->
