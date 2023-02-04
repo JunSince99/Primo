@@ -56,6 +56,13 @@ import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 
+private val SaveScroll = mutableMapOf<String, ScrollParams>()
+
+private data class ScrollParams(
+    val index: Int,
+    val scrollOffset: Int
+)
+
 
 @Composable
 fun HomeScreen(
@@ -97,6 +104,7 @@ fun Posts(requestManager: RequestManager,
             viewModel.isUpdate = true
         }
     }
+
     LazyColumn(modifier = modifier) {
         items(uiState.size){
             Post(uiState[it],requestManager,it)

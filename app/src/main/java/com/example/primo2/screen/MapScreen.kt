@@ -9,8 +9,10 @@ import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -18,10 +20,13 @@ import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.layout.HorizontalAlignmentLine
+import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
@@ -62,9 +67,10 @@ fun informationPlace(modifier: Modifier = Modifier)
 fun MapScreen(
     naviController: NavController,
     requestManager:RequestManager,
+    datePlanName:String?,
     modifier: Modifier = Modifier
 ){
-
+    Log.e("뭘까", ""+datePlanName)
     var mapProperties by remember {
         mutableStateOf(
             MapProperties(locationTrackingMode = LocationTrackingMode.Follow
@@ -79,14 +85,16 @@ fun MapScreen(
 
     val scaffoldState = rememberBottomSheetScaffoldState()
     val scope = rememberCoroutineScope()
-    var bottomNaviSize by remember { mutableStateOf(0.dp) }
+    var bottomNaviSize by remember { mutableStateOf(65.dp) }
     var bottomNaviTitle by remember { mutableStateOf("") }
     var bottomNaviInfo by remember { mutableStateOf("") }
     var bottomNaviPaint by remember { mutableStateOf("") }
+
+    var showMapInfo by remember { mutableStateOf(false) }
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
-            BottomSheetContent(bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager)
+            BottomSheetContent(bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo)
         },
         sheetPeekHeight = bottomNaviSize,
     )
@@ -119,7 +127,8 @@ fun MapScreen(
                 properties = mapProperties,
                 uiSettings = mapUiSettings,
                 onMapClick = { _, coord ->
-                    bottomNaviSize = 0.dp
+                    showMapInfo = false
+                    bottomNaviSize = 100.dp
                     Log.e("이 곳의 경도 위도는?", "" + coord.latitude + "," + coord.longitude)
                 }
             )
@@ -145,6 +154,7 @@ fun MapScreen(
                             bottomNaviInfo = placeList[i].information
                             bottomNaviTitle = placeList[i].placeName
                             bottomNaviPaint = placeList[i].imageResource
+                            showMapInfo = true
                             true
                         },
                         tag = i,
@@ -199,8 +209,10 @@ fun BottomSheetBeforeSlide(title: String) { // 위로 스와이프 하기전에 
                 Icon(
                     imageVector = Icons.Default.AddCircle,
                     contentDescription = null,
-                    modifier = Modifier.size(50.dp).clickable {
-                    }
+                    modifier = Modifier
+                        .size(50.dp)
+                        .clickable {
+                        }
                 )
             }
         }
@@ -209,26 +221,65 @@ fun BottomSheetBeforeSlide(title: String) { // 위로 스와이프 하기전에 
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun BottomSheetContent(title: String, paint:String, info:String,requestManager: RequestManager) { // 스와이프 한후에 보이는 전체
+fun BottomSheetContent(title: String, paint:String, info:String,requestManager: RequestManager,showMapInfo:Boolean) { // 스와이프 한후에 보이는 전체
     val context = LocalContext.current
     Column {
-        BottomSheetBeforeSlide(title)
-        GlideImage(model = paint, contentDescription = "", modifier = Modifier
-            .height(300.dp)
-            .fillMaxWidth(), contentScale = ContentScale.Crop)
-        {
-            it
-                .thumbnail(
-                    requestManager
-                        .asDrawable()
-                        .load(paint)
-                        // .signature(signature)
-                        .override(64)
-                )
-            // .signature(signature)
+        if(showMapInfo) {
+            BottomSheetBeforeSlide(title)
+            GlideImage(
+                model = paint, contentDescription = "", modifier = Modifier
+                    .height(300.dp)
+                    .fillMaxWidth(), contentScale = ContentScale.Crop
+            )
+            {
+                it
+                    .thumbnail(
+                        requestManager
+                            .asDrawable()
+                            .load(paint)
+                            // .signature(signature)
+                            .override(64)
+                    )
+                // .signature(signature)
+            }
+            Spacer(modifier = Modifier.height(15.dp))
+            Text(text = info, fontFamily = FontFamily.Cursive)
         }
-        Spacer(modifier = Modifier.height(15.dp))
-        Text(text = info, fontFamily = FontFamily.Cursive )
+        else{
+            Column(modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center ) {
+
+                Card(
+                    modifier = Modifier
+                        .padding(15.dp)
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .shadow(shape = RoundedCornerShape(20),
+                            elevation = 5.dp)
+                ) {
+                    Text(modifier = Modifier.fillMaxWidth().fillMaxHeight(), textAlign = TextAlign.Center, text = "센트럴 파크")
+                }
+                Card(
+                    modifier = Modifier
+                        .padding(15.dp)
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .shadow(shape = RoundedCornerShape(20),
+                            elevation = 5.dp)
+                ) {
+                    Text(modifier = Modifier.fillMaxWidth().fillMaxHeight(), textAlign = TextAlign.Center, text = "송도 셜록홈즈 방탈출")
+                }
+                Card(
+                    modifier = Modifier
+                        .padding(15.dp)
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .shadow(shape = RoundedCornerShape(20),
+                            elevation = 5.dp)
+                ) {
+                    Text(modifier = Modifier.fillMaxWidth().fillMaxHeight(), textAlign = TextAlign.Center, text = "솔찬 공원")
+                }
+            }
+        }
     }
 }
 

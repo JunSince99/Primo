@@ -158,7 +158,13 @@ fun SelectDateDateScreen(
                         drawLine(Color.LightGray, Offset(size.width/2,0f),Offset(size.width/2,size.height), strokeWidth = 1.dp.toPx())
                 }, horizontalArrangement = Arrangement.Center)
                 {
-                    Box(modifier = Modifier.weight(1f).clickable { writeDatePlan(date,dateTitle) })
+                    Box(modifier = Modifier.weight(1f).clickable {
+                        writeDatePlan(date,dateTitle)
+                        navController.navigate(PrimoScreen.Favorites.name)
+                        {
+                            popUpTo("Favorites")
+                        }
+                    })
                     {
                         Text(
                             text = AnnotatedString("등록"),
@@ -187,6 +193,7 @@ fun SelectDateDateScreen(
 fun writeDatePlan(startDate:String, dateTitle:String){
     val user = Firebase.auth.currentUser
     val database = Firebase.database.reference
+
     database.child("DatePlan").child(leaderUID)
         .child(dateTitle)
         .child("dateTitle").setValue(dateTitle)

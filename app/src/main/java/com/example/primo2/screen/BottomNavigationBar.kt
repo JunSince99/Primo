@@ -59,8 +59,8 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean){
                     },
                     selectedContentColor = MaterialTheme.colors.primary,
                     unselectedContentColor = Color.Gray,
-                    selected = currentDestination?.hierarchy?.any { it.route == "Map" } == true,
-                    onClick = { if(userOrientation.isEmpty()){getUserOrientation(navController)} else { navController.navigate("Map") { popUpTo("Home") } } }
+                    selected = currentDestination?.hierarchy?.any { it.route == "DatePlans" } == true,
+                    onClick = { navController.navigate("DatePlans") { popUpTo("Home") }  }
                 ) // 서치 화면
                 BottomNavigationItem(
                     icon = {

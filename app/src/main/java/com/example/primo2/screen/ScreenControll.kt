@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -24,16 +25,19 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.bumptech.glide.RequestManager
 import com.example.primo2.MemberInfo
 import com.example.primo2.PostInfo
 import com.example.primo2.activity.MainActivity
 import com.example.primo2.getPartnerInfo
 import com.example.primo2.getPlaceInfo
+import com.google.android.material.behavior.HideBottomViewOnScrollBehavior.ScrollState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -47,14 +51,17 @@ enum class PrimoScreen() {
     MemberInit,
     UploadPost,
     Map,
+    DatePlans,
     Favorites,
     ManageAccount,
     RegisterPartner,
     RegisterPartnerID,
     SelectDateDate
 }
+
 @Composable
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier,viewModel: PostViewModel = viewModel()) {
+    var selectDatePlan:String? = null
     val auth: FirebaseAuth = Firebase.auth
     val navController = rememberNavController()
     getPlaceInfo()
@@ -108,18 +115,36 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 )
             }
 
-
             //지도
-            composable(route = PrimoScreen.Map.name) {
+            val mapName = PrimoScreen.Map.name
+            composable(route = "$mapName/{datePlanName}",
+            arguments = listOf(
+                navArgument("datePlanName"){
+                    type = NavType.StringType
+                }
+            )
+            ) { entry->
+                val datePlanName = entry.arguments?.getString("datePlanName")
                 MapScreen(
+                    navController,
+                    requestManager,
+                    datePlanName
+                )
+            }
+
+            //즐겨찾기 화면
+
+            composable(route = PrimoScreen.Favorites.name) {
+                FavoritesScreen(
                     navController,
                     requestManager
                 )
             }
 
-            //즐겨찾기 화면
-            composable(route = PrimoScreen.Favorites.name) {
-                FavoritesScreen(
+
+            //데이트 계획 관리
+            composable(route = PrimoScreen.DatePlans.name) {
+                DatePlanScreen(
                     navController,
                     requestManager
                 )
@@ -248,7 +273,7 @@ fun checkBottomVisible (navController:NavController): Boolean{
                 bottomBarState = false
             }
             "Map" -> {
-                bottomBarState = true
+                bottomBarState = false
             }
             "Favorites" -> {
                 bottomBarState = true
@@ -264,6 +289,9 @@ fun checkBottomVisible (navController:NavController): Boolean{
             }
             "SelectDateDate" ->{
                 bottomBarState = false
+            }
+            "DatePlans" ->{
+                bottomBarState = true
             }
 
         }
