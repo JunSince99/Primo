@@ -7,10 +7,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import android.widget.Toast
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -18,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -41,11 +39,16 @@ import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.bumptech.glide.load.resource.drawable.DrawableResource
+import com.example.primo2.DatePlanInfo
 import com.example.primo2.R
 import com.example.primo2.adapter.placeAdapter
 import com.example.primo2.placeList
 import com.example.primo2.userOrientation
 import com.google.accompanist.permissions.*
+import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.ktx.database
+import com.google.firebase.ktx.Firebase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.*
 import com.naver.maps.map.compose.LocationTrackingMode
@@ -70,7 +73,20 @@ fun MapScreen(
     datePlanName:String?,
     modifier: Modifier = Modifier
 ){
-    Log.e("뭘까", ""+datePlanName)
+    var courseList = remember { mutableStateListOf<String>() }
+
+    val database = Firebase.database.reference
+    val user = Firebase.auth.currentUser
+    courseList.clear()
+    database.child("DatePlan").child(user!!.uid).child(datePlanName!!).child("course").get().addOnSuccessListener {
+        for(i in 0 until it.childrenCount)
+        {
+            courseList.add(it.child(i.toString()).value.toString())
+        }
+    }.addOnFailureListener{
+        Log.e("firebase", "Error getting data", it)
+    }
+
     var mapProperties by remember {
         mutableStateOf(
             MapProperties(locationTrackingMode = LocationTrackingMode.Follow
@@ -94,7 +110,7 @@ fun MapScreen(
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
-            BottomSheetContent(bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo)
+            BottomSheetContent(bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,courseList)
         },
         sheetPeekHeight = bottomNaviSize,
     )
@@ -221,7 +237,7 @@ fun BottomSheetBeforeSlide(title: String) { // 위로 스와이프 하기전에 
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun BottomSheetContent(title: String, paint:String, info:String,requestManager: RequestManager,showMapInfo:Boolean) { // 스와이프 한후에 보이는 전체
+fun BottomSheetContent(title: String, paint:String, info:String,requestManager: RequestManager,showMapInfo:Boolean,courseList: SnapshotStateList<String>) { // 스와이프 한후에 보이는 전체
     val context = LocalContext.current
     Column {
         if(showMapInfo) {
@@ -246,37 +262,26 @@ fun BottomSheetContent(title: String, paint:String, info:String,requestManager: 
             Text(text = info, fontFamily = FontFamily.Cursive)
         }
         else{
-            Column(modifier = Modifier, horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center ) {
-
-                Card(
-                    modifier = Modifier
-                        .padding(15.dp)
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .shadow(shape = RoundedCornerShape(20),
-                            elevation = 5.dp)
-                ) {
-                    Text(modifier = Modifier.fillMaxWidth().fillMaxHeight(), textAlign = TextAlign.Center, text = "센트럴 파크")
-                }
-                Card(
-                    modifier = Modifier
-                        .padding(15.dp)
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .shadow(shape = RoundedCornerShape(20),
-                            elevation = 5.dp)
-                ) {
-                    Text(modifier = Modifier.fillMaxWidth().fillMaxHeight(), textAlign = TextAlign.Center, text = "송도 셜록홈즈 방탈출")
-                }
-                Card(
-                    modifier = Modifier
-                        .padding(15.dp)
-                        .fillMaxWidth()
-                        .height(50.dp)
-                        .shadow(shape = RoundedCornerShape(20),
-                            elevation = 5.dp)
-                ) {
-                    Text(modifier = Modifier.fillMaxWidth().fillMaxHeight(), textAlign = TextAlign.Center, text = "솔찬 공원")
+            val scrollState = rememberScrollState()
+            Column(modifier = Modifier
+                .verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center ) {
+                for(i in 0 until courseList.size) {
+                    Card(
+                        modifier = Modifier
+                            .padding(15.dp)
+                            .fillMaxWidth()
+                            .height(50.dp)
+                            .shadow(
+                                shape = RoundedCornerShape(20),
+                                elevation = 5.dp
+                            )
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .fillMaxHeight(), textAlign = TextAlign.Center, text = courseList[i]
+                        )
+                    }
                 }
             }
         }
