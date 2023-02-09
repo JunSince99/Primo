@@ -48,6 +48,9 @@ import com.example.primo2.placeList
 import com.example.primo2.userOrientation
 import com.google.accompanist.permissions.*
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.naver.maps.geometry.LatLng
@@ -80,7 +83,6 @@ fun MapScreen(
 ){
     var courseList = remember { mutableStateListOf<String>() }
 
-    val user = Firebase.auth.currentUser
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
     courseList.clear()
     database.child(datePlanName!!).child("course").get().addOnSuccessListener {
@@ -114,10 +116,24 @@ fun MapScreen(
 
     var showMapInfo by remember { mutableStateOf(false) }
 
+    val courseListener = object : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            courseList.clear()
+            for (i in 0 until dataSnapshot.childrenCount) {
+                courseList.add(
+                    dataSnapshot.child(i.toString()).value.toString()
+                )
+            }
+        }
+        override fun onCancelled(databaseError: DatabaseError) {
+            //실패
+        }
+    }
+    database!!.child(datePlanName!!).child("course").addValueEventListener(courseListener)
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
-            BottomSheetContent(bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,courseList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it})
+            BottomSheetContent(bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,datePlanName,leaderUID,courseList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it})
         },
         sheetPeekHeight = bottomNaviSize,
     )
@@ -267,22 +283,17 @@ fun BottomSheetContent(
     title: String, paint:String, info:String,
     requestManager: RequestManager,
     showMapInfo:Boolean,
+    datePlanName: String?,
+    leaderUID: String?,
     courseList: SnapshotStateList<String>,
     onBottomNaviSizeChange: (Dp) -> Unit,
     onShowMapInfo: (Boolean) -> Unit
 ) { // 스와이프 한후에 보이는 전체
-    val data = remember { mutableStateOf(List(100) { "Item $it" }) }
-    data.value
+    val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         courseList.add(to.index,courseList.removeAt(from.index))
+        database.child(datePlanName!!).child("course").setValue(courseList)
     })
-    var position by remember {
-        mutableStateOf<Float?>(null)
-    }
-    var draggedItem by remember {
-        mutableStateOf<Int?>(null)
-    }
-
     val context = LocalContext.current
     Column {
         if(showMapInfo) {

@@ -60,7 +60,6 @@ fun DatePlanScreen(
     requestManager:RequestManager,
     modifier: Modifier = Modifier
 ) {
-    Log.e("로딩됨2", "로딩됨2")
     var datePlanList = remember { mutableStateListOf<DatePlanInfo>() }
 //Firebase.database.reference.child("DatePlan").child(user!!.uid)
     val user = Firebase.auth.currentUser
