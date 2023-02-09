@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -29,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.DatePlanInfo
 import com.example.primo2.getUserOrientation
 import com.example.primo2.leaderUID
@@ -60,7 +62,8 @@ fun DatePlanScreen(
     requestManager:RequestManager,
     modifier: Modifier = Modifier
 ) {
-    var datePlanList = remember { mutableStateListOf<DatePlanInfo>() }
+    val datePlanList = remember { mutableStateListOf<DatePlanInfo>() }
+    var imageUrlList:List<String> = listOf()
 //Firebase.database.reference.child("DatePlan").child(user!!.uid)
     val user = Firebase.auth.currentUser
     val db = Firebase.firestore
@@ -73,18 +76,20 @@ fun DatePlanScreen(
             val postListener = object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     datePlanList.clear()
-
+                    imageUrlList = listOf()
                     for (datePlanSnapshot in dataSnapshot.children) {
                         val title = datePlanSnapshot.child("dateTitle").value.toString()
                         val startDate = datePlanSnapshot.child("startDate").value.toString()
                         val endDate = datePlanSnapshot.child("endDate").value.toString()
                         val course: MutableList<String> = mutableListOf()
-                        for (i in 0 until datePlanSnapshot.child("course").childrenCount) {
+                        val courseCount = datePlanSnapshot.child("course").childrenCount
+                        for (i in 0 until courseCount) {
                             course.add(
                                 datePlanSnapshot.child("course").child(i.toString()).value.toString()
                             )
                         }
-                        var image = ""
+                        course.add("")
+
                         datePlanList.add(
                             DatePlanInfo(
                                 title,
@@ -103,8 +108,6 @@ fun DatePlanScreen(
         }
 
 
-    val scaffoldState = rememberBottomSheetScaffoldState()
-    var bottomNaviSize by remember { mutableStateOf(0.dp) }
     Column(modifier = Modifier) {
 
         TopAppBar(backgroundColor = Color.White) {
@@ -166,16 +169,21 @@ fun DatePlanScreen(
 @Composable
 fun DatePlans(requestManager: RequestManager,
           modifier: Modifier = Modifier,
-              datePlanList: SnapshotStateList<DatePlanInfo>
-              ,navController: NavController
+              datePlanList: SnapshotStateList<DatePlanInfo>,
+              navController: NavController
 )
 {
     LazyColumn(modifier = modifier) {
         items(datePlanList.size){
-            DatePlan(datePlanList[it],requestManager,it,navController, leaderUID)
+                DatePlan(
+                    datePlanList[it],
+                    requestManager,
+                    it,
+                    navController,
+                    leaderUID,
+                )
         }
     }
-
 }
 
 
@@ -193,7 +201,27 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
             .clickable { /*TODO*/ }
     ) {
 
-
+        Box(modifier = Modifier.fillMaxWidth()){
+            GlideImage(
+                model = "",
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .fillMaxSize()
+                //.align(Alignment.CenterHorizontally)
+            )
+            {
+                it
+                    .thumbnail(
+                        requestManager
+                            .asDrawable()
+                            .load("")
+                            // .signature(signature)
+                            .override(128)
+                    )
+                // .signature(signature)
+            }
+        }
         Column(
             modifier = Modifier
                 .background(brush = SolidColor(Color.Black), alpha = 0.3f)

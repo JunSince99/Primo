@@ -220,7 +220,7 @@ fun MapScreen(
 
 }
 @Composable
-fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateList<String>,onShowMapInfo: (Boolean) -> Unit) { // 위로 스와이프 하기전에 보이는거
+fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateList<String>,onShowMapInfo: (Boolean) -> Unit,leaderUID: String?,datePlanName: String?) { // 위로 스와이프 하기전에 보이는거
     val context = LocalContext.current
     Row(
         modifier = Modifier
@@ -265,6 +265,8 @@ fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateLis
                             onShowMapInfo(false)
                             if (courseList.indexOf(ID) == -1) {
                                 courseList.add(ID)
+                                val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
+                                database.child(datePlanName!!).child("course").setValue(courseList)
                             } else {
                                 Toast
                                     .makeText(context, "이미 추가된 장소입니다.", Toast.LENGTH_SHORT)
@@ -298,7 +300,7 @@ fun BottomSheetContent(
     Column {
         if(showMapInfo) {
             onBottomNaviSizeChange(65.dp)
-            BottomSheetBeforeSlide(ID,title,courseList, onShowMapInfo)
+            BottomSheetBeforeSlide(ID,title,courseList, onShowMapInfo,leaderUID,datePlanName)
             GlideImage(
                 model = paint, contentDescription = "", modifier = Modifier
                     .height(300.dp)
