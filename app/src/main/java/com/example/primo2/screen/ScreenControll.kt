@@ -40,8 +40,10 @@ import com.example.primo2.getPlaceInfo
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior.ScrollState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 
 
 enum class PrimoScreen() {
@@ -61,6 +63,7 @@ enum class PrimoScreen() {
 
 @Composable
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier,viewModel: PostViewModel = viewModel()) {
+
     var selectDatePlan:String? = null
     val auth: FirebaseAuth = Firebase.auth
     val navController = rememberNavController()
@@ -117,18 +120,23 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
 
             //지도
             val mapName = PrimoScreen.Map.name
-            composable(route = "$mapName/{datePlanName}",
+            composable(route = "$mapName/{datePlanName}/{leaderUID}",
             arguments = listOf(
                 navArgument("datePlanName"){
+                    type = NavType.StringType
+                },
+                navArgument("leaderUID"){
                     type = NavType.StringType
                 }
             )
             ) { entry->
                 val datePlanName = entry.arguments?.getString("datePlanName")
+                val leaderUID = entry.arguments?.getString("leaderUID")
                 MapScreen(
                     navController,
                     requestManager,
-                    datePlanName
+                    datePlanName,
+                    leaderUID
                 )
             }
 

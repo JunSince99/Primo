@@ -1,61 +1,65 @@
 package com.example.primo2.screen
 
-import android.graphics.drawable.Drawable
 import android.util.Log
-import android.view.View
-import android.widget.ImageView
-import android.widget.TextView
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
+import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.outlined.AddCircle
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.consumeAllChanges
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.layout.HorizontalAlignmentLine
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import coil.compose.AsyncImage
-import com.bumptech.glide.Glide
+import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.bumptech.glide.load.resource.drawable.DrawableResource
 import com.example.primo2.DatePlanInfo
 import com.example.primo2.R
-import com.example.primo2.adapter.placeAdapter
 import com.example.primo2.placeList
 import com.example.primo2.userOrientation
 import com.google.accompanist.permissions.*
 import com.google.firebase.auth.ktx.auth
-import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.*
 import com.naver.maps.map.compose.LocationTrackingMode
-import com.naver.maps.map.overlay.InfoWindow
 import com.naver.maps.map.overlay.OverlayImage
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.launch
-import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
+import org.burnoutcrew.reorderable.*
+import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
 @Composable
@@ -68,17 +72,18 @@ fun informationPlace(modifier: Modifier = Modifier)
 )
 @Composable
 fun MapScreen(
-    naviController: NavController,
+    navController: NavController,
     requestManager:RequestManager,
     datePlanName:String?,
+    leaderUID: String?,
     modifier: Modifier = Modifier
 ){
     var courseList = remember { mutableStateListOf<String>() }
 
-    val database = Firebase.database.reference
     val user = Firebase.auth.currentUser
+    val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
     courseList.clear()
-    database.child("DatePlan").child(user!!.uid).child(datePlanName!!).child("course").get().addOnSuccessListener {
+    database.child(datePlanName!!).child("course").get().addOnSuccessListener {
         for(i in 0 until it.childrenCount)
         {
             courseList.add(it.child(i.toString()).value.toString())
@@ -103,20 +108,21 @@ fun MapScreen(
     val scope = rememberCoroutineScope()
     var bottomNaviSize by remember { mutableStateOf(65.dp) }
     var bottomNaviTitle by remember { mutableStateOf("") }
+    var bottomNaviID by remember { mutableStateOf("") }
     var bottomNaviInfo by remember { mutableStateOf("") }
     var bottomNaviPaint by remember { mutableStateOf("") }
 
     var showMapInfo by remember { mutableStateOf(false) }
+
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
-            BottomSheetContent(bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,courseList)
+            BottomSheetContent(bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,courseList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it})
         },
         sheetPeekHeight = bottomNaviSize,
     )
     {
         modifier.padding(it)
-
         Box(
             Modifier
                 .fillMaxSize()) {
@@ -143,8 +149,12 @@ fun MapScreen(
                 properties = mapProperties,
                 uiSettings = mapUiSettings,
                 onMapClick = { _, coord ->
+                    scope.launch {
+                            scaffoldState.bottomSheetState.apply{
+                                if (!isCollapsed) {collapse()}
+                        }
+                    }
                     showMapInfo = false
-                    bottomNaviSize = 100.dp
                     Log.e("이 곳의 경도 위도는?", "" + coord.latitude + "," + coord.longitude)
                 }
             )
@@ -166,11 +176,18 @@ fun MapScreen(
                         captionMinZoom = 12.2,
                         minZoom = 12.2,
                         onClick = { overlay ->
-                            bottomNaviSize = 65.dp
                             bottomNaviInfo = placeList[i].information
+                            bottomNaviID = placeList[i].placeID
                             bottomNaviTitle = placeList[i].placeName
                             bottomNaviPaint = placeList[i].imageResource
                             showMapInfo = true
+
+                            scope.launch {
+                                scaffoldState.bottomSheetState.apply{
+                                    if (!isCollapsed) {collapse()}
+                                }
+                            }
+
                             true
                         },
                         tag = i,
@@ -187,7 +204,8 @@ fun MapScreen(
 
 }
 @Composable
-fun BottomSheetBeforeSlide(title: String) { // 위로 스와이프 하기전에 보이는거
+fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateList<String>,onShowMapInfo: (Boolean) -> Unit) { // 위로 스와이프 하기전에 보이는거
+    val context = LocalContext.current
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -228,6 +246,13 @@ fun BottomSheetBeforeSlide(title: String) { // 위로 스와이프 하기전에 
                     modifier = Modifier
                         .size(50.dp)
                         .clickable {
+                            onShowMapInfo(false)
+                            if (courseList.indexOf(ID) == -1) {
+                                courseList.add(ID)
+                            } else {
+                                Toast
+                                    .makeText(context, "이미 추가된 장소입니다.", Toast.LENGTH_SHORT)
+                                    .show(); }
                         }
                 )
             }
@@ -237,11 +262,32 @@ fun BottomSheetBeforeSlide(title: String) { // 위로 스와이프 하기전에 
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun BottomSheetContent(title: String, paint:String, info:String,requestManager: RequestManager,showMapInfo:Boolean,courseList: SnapshotStateList<String>) { // 스와이프 한후에 보이는 전체
+fun BottomSheetContent(
+    ID:String,
+    title: String, paint:String, info:String,
+    requestManager: RequestManager,
+    showMapInfo:Boolean,
+    courseList: SnapshotStateList<String>,
+    onBottomNaviSizeChange: (Dp) -> Unit,
+    onShowMapInfo: (Boolean) -> Unit
+) { // 스와이프 한후에 보이는 전체
+    val data = remember { mutableStateOf(List(100) { "Item $it" }) }
+    data.value
+    val state = rememberReorderableLazyListState(onMove = { from, to ->
+        courseList.add(to.index,courseList.removeAt(from.index))
+    })
+    var position by remember {
+        mutableStateOf<Float?>(null)
+    }
+    var draggedItem by remember {
+        mutableStateOf<Int?>(null)
+    }
+
     val context = LocalContext.current
     Column {
         if(showMapInfo) {
-            BottomSheetBeforeSlide(title)
+            onBottomNaviSizeChange(65.dp)
+            BottomSheetBeforeSlide(ID,title,courseList, onShowMapInfo)
             GlideImage(
                 model = paint, contentDescription = "", modifier = Modifier
                     .height(300.dp)
@@ -262,25 +308,38 @@ fun BottomSheetContent(title: String, paint:String, info:String,requestManager: 
             Text(text = info, fontFamily = FontFamily.Cursive)
         }
         else{
-            val scrollState = rememberScrollState()
-            Column(modifier = Modifier
-                .verticalScroll(scrollState), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center ) {
-                for(i in 0 until courseList.size) {
-                    Card(
-                        modifier = Modifier
-                            .padding(15.dp)
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .shadow(
-                                shape = RoundedCornerShape(20),
-                                elevation = 5.dp
-                            )
-                    ) {
-                        Text(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .fillMaxHeight(), textAlign = TextAlign.Center, text = courseList[i]
-                        )
+            onBottomNaviSizeChange(65.dp)
+            LazyColumn(
+                state = state.listState,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(500.dp)
+                    .reorderable(state)
+            ) {
+                items(courseList, { it }) { item ->
+                    ReorderableItem(state, key = item) { isDragging ->
+                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                        Column(modifier = Modifier.padding(5.dp,20.dp) ) {
+                            Box(
+                                modifier = Modifier
+                                    .shadow(elevation.value)
+                                    .background(Color.Black)
+                                    .fillMaxWidth()
+                                    .height(80.dp)
+                                    .detectReorder(state)
+                            ) {
+                                Text(
+                                    text = item,
+                                    color = Color.White,
+                                    fontSize = 20.sp,
+                                    textAlign = TextAlign.Center,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                )
+
+                            }
+                        }
                     }
                 }
             }
@@ -302,11 +361,13 @@ fun fitnessCalc(userOrientation: HashMap<String, Double>,num :Int) : Double{
     }
     return fitness
 }
+/*
 @Preview(showBackground = true)
 @Composable
 fun BottomSheetListItemPreview() {
-    BottomSheetBeforeSlide(title = "센트럴 파크")
+    BottomSheetBeforeSlide(ID = "CentrolPark",title = "센트럴 파크")
 }
+ */
 
 /*
 @Preview(showBackground = true)
@@ -347,6 +408,8 @@ fun ShowLocationPermission(){
 }
 
 */
+
+
 
 
 

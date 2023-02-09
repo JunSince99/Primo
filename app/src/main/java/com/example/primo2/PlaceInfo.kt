@@ -9,6 +9,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 
 data class PlaceInfo(
+    val placeID: String = "",
     val placeName: String = "",
     val information: String = "",
     val imageResource: String = "",
@@ -27,12 +28,13 @@ fun getPlaceInfo(){
                 for(document in documents)
                 {
                     val imageResource = document.data["imageResource"] as String
+                    val placeID = document.data["id"] as String
                     val placeName = document.data["placeName"] as String
                     val placeHashMap = document.data["placeHashMap"]as HashMap<String, Double>
                     val latitude = document.data["latitude"] as Double
                     val longitude = document.data["longitude"] as Double
                     val information = document.data["information"] as String
-                    placeList.add(PlaceInfo(placeName,information,imageResource,latitude,longitude,placeHashMap))
+                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap))
                 }
             }
 

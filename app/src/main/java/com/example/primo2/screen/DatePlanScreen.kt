@@ -1,5 +1,6 @@
 package com.example.primo2.screen
 
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
@@ -30,6 +31,7 @@ import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.primo2.DatePlanInfo
 import com.example.primo2.getUserOrientation
+import com.example.primo2.leaderUID
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.example.primo2.ui.theme.Typography
 import com.example.primo2.userOrientation
@@ -40,12 +42,17 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
+import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DatePlanScreen(
@@ -53,43 +60,48 @@ fun DatePlanScreen(
     requestManager:RequestManager,
     modifier: Modifier = Modifier
 ) {
+    Log.e("로딩됨2", "로딩됨2")
     var datePlanList = remember { mutableStateListOf<DatePlanInfo>() }
-
+//Firebase.database.reference.child("DatePlan").child(user!!.uid)
     val user = Firebase.auth.currentUser
-    val database = Firebase.database.reference.child("DatePlan").child(user!!.uid)
     val db = Firebase.firestore
-    val postListener = object : ValueEventListener {
-        override fun onDataChange(dataSnapshot: DataSnapshot) {
-                datePlanList.clear()
+    var leaderUID = ""
+    db.collection("users").document(user!!.uid)
+        .get()
+        .addOnSuccessListener { document ->
+            leaderUID = document.getString("leaderUID") as String
+            val database = Firebase.database.reference.child("DatePlan").child(leaderUID)
+            val postListener = object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    datePlanList.clear()
 
-                for (datePlanSnapshot in dataSnapshot.children) {
-                    val title = datePlanSnapshot.child("dateTitle").value.toString()
-                    val startDate = datePlanSnapshot.child("startDate").value.toString()
-                    val endDate = datePlanSnapshot.child("endDate").value.toString()
-                    val course: MutableList<String> = mutableListOf()
-                    for (i in 0 until datePlanSnapshot.child("course").childrenCount) {
-                        course.add(
-                            datePlanSnapshot.child("course").child(i.toString()).value.toString()
+                    for (datePlanSnapshot in dataSnapshot.children) {
+                        val title = datePlanSnapshot.child("dateTitle").value.toString()
+                        val startDate = datePlanSnapshot.child("startDate").value.toString()
+                        val endDate = datePlanSnapshot.child("endDate").value.toString()
+                        val course: MutableList<String> = mutableListOf()
+                        for (i in 0 until datePlanSnapshot.child("course").childrenCount) {
+                            course.add(
+                                datePlanSnapshot.child("course").child(i.toString()).value.toString()
+                            )
+                        }
+                        var image = ""
+                        datePlanList.add(
+                            DatePlanInfo(
+                                title,
+                                startDate,
+                                endDate,
+                                course
+                            )
                         )
                     }
-                    var image = ""
-                    datePlanList.add(
-                        DatePlanInfo(
-                            title,
-                            startDate,
-                            endDate,
-                            course
-                        )
-                    )
                 }
+                override fun onCancelled(databaseError: DatabaseError) {
+                    //실패
+                }
+            }
+            database!!.addValueEventListener(postListener)
         }
-
-        override fun onCancelled(databaseError: DatabaseError) {
-            //실패
-        }
-    }
-
-    database.addValueEventListener(postListener)
 
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -159,10 +171,9 @@ fun DatePlans(requestManager: RequestManager,
               ,navController: NavController
 )
 {
-    Log.e("구성중",""+datePlanList)
     LazyColumn(modifier = modifier) {
         items(datePlanList.size){
-            DatePlan(datePlanList[it],requestManager,it,navController)
+            DatePlan(datePlanList[it],requestManager,it,navController, leaderUID)
         }
     }
 
@@ -171,7 +182,7 @@ fun DatePlans(requestManager: RequestManager,
 
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class)
 @Composable
-fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,navController: NavController) {
+fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,navController: NavController,leaderUID:String) {
     Surface(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -206,7 +217,7 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                     .fillMaxWidth(),
                 onClick = {
                     val datePlanName = datePlanInfo.dateTitle
-                    navController.navigate("${PrimoScreen.Map.name}/$datePlanName")
+                    navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
                 }
             )
             Spacer(modifier = Modifier.weight(1.5f))

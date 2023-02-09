@@ -160,9 +160,9 @@ fun SelectDateDateScreen(
                 {
                     Box(modifier = Modifier.weight(1f).clickable {
                         writeDatePlan(date,dateTitle)
-                        navController.navigate(PrimoScreen.Favorites.name)
+                        navController.navigate(PrimoScreen.DatePlans.name)
                         {
-                            popUpTo("Favorites")
+                            popUpTo("DatePlans")
                         }
                     })
                     {
@@ -205,7 +205,7 @@ fun writeDatePlan(startDate:String, dateTitle:String){
         .child("endDate")
         .setValue("")
 
-    val insertList = listOf<String>("센트럴파크", "솔찬공원")
+    val insertList = listOf<String>()
 
     database.child("DatePlan").child(leaderUID)
         .child(dateTitle)
