@@ -91,7 +91,6 @@ fun MapScreen(
             courseList.add(it.child(i.toString()).value.toString())
         }
     }.addOnFailureListener{
-        Log.e("firebase", "Error getting data", it)
     }
 
     var mapProperties by remember {
@@ -173,6 +172,8 @@ fun MapScreen(
                     showMapInfo = false
                     Log.e("이 곳의 경도 위도는?", "" + coord.latitude + "," + coord.longitude)
                 }
+
+
             )
             {
 
@@ -361,8 +362,16 @@ fun BottomSheetContent(
 }
 
 
-fun fitnessCalc(userOrientation: HashMap<String, Double>,num :Int) : Double{
-    var fitness = 0.0
+fun fitnessCalc(userOrientation: HashMap<String, Any>,num :Int) : Double{
+    var fitness:Double = 0.0
+    for((key, value) in userOrientation){
+        if(placeList[num].placeHashMap?.containsKey(key) == true)
+        {
+            val tmp = placeList[num].placeHashMap?.get(key).toString().toDouble()
+            fitness += tmp * value.toString().toDouble() * 20
+        }
+    }
+
     //fitness += 20 + ((userOrientation["IE"]!! * placeList[num].static) - (userOrientation["IE"]!! * placeList[num].active))*10
     //fitness += 20 +((userOrientation["NS"]!! * placeList[num].nature) - (userOrientation["NS"]!! * placeList[num].city))*10
     //fitness += 20 +((userOrientation["FT"]!! * placeList[num].focusFood) - (userOrientation["FT"]!! * placeList[num].focusTour))*10

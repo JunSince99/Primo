@@ -3,14 +3,15 @@ package com.example.primo2
 import android.util.Log
 import android.widget.EditText
 import androidx.navigation.NavController
+import com.example.primo2.screen.PrimoScreen
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.update
 var myName:String = ""
-val userOrientation:HashMap<String,Double> = HashMap()
-val partnerOrientation:HashMap<String,Double> = HashMap()
+var userOrientation:HashMap<String,Any> = HashMap()
+var partnerOrientation:HashMap<String,Any> = HashMap()
 var leaderUID:String = ""
 var partnerName:String? = null
 var partnerPhotoURL:String? = null
@@ -22,10 +23,6 @@ data class MemberInfo(
     val phoneNumber: String? = null,
     val Address: String? = null,
     val photoUrl: String? = null,
-    val IE: Double = 0.0,
-    val NS: Double = 0.0,
-    val FT: Double = 0.0,
-    val PJ: Double = 0.0,
     val partnerUID: String?  = null
 )
 fun getPartnerInfo(navController: NavController, move:Boolean = true){
@@ -50,12 +47,7 @@ fun getPartnerInfo(navController: NavController, move:Boolean = true){
                             partnerName = document2.getString("name") ?: ""
                             partnerPhotoURL = document2.getString("photoUrl") ?: ""
                             startDating = document2.getString("startDating")?:""
-                            Log.e("","테스트" )
-                            Log.e("",""+ leaderUID)
-                            partnerOrientation["IE"] = document2.getDouble("IE") ?: 0.0
-                            partnerOrientation["NS"] = document2.getDouble("NS") ?: 0.0
-                            partnerOrientation["FT"] = document2.getDouble("FT") ?: 0.0
-                            partnerOrientation["PJ"] = document2.getDouble("PJ") ?: 0.0
+                            partnerOrientation = document2.data!!["taste"] as HashMap<String, Any>
                             if(move) {
                                 navController.navigate("ManageAccount")
                             }
@@ -70,19 +62,17 @@ fun getPartnerInfo(navController: NavController, move:Boolean = true){
             }
     }
 }
-fun getUserOrientation(navController: NavController)
+fun getUserOrientation(navController: NavController, datePlanName:String, leaderUID:String)
 {
+
     val db = Firebase.firestore
     val user = Firebase.auth.currentUser
     if(user != null) {
         db.collection("users").document(user.uid)
             .get()
             .addOnSuccessListener { document ->
-                userOrientation["IE"] = document.getDouble("IE") ?: 0.0
-                userOrientation["NS"] = document.getDouble("NS") ?: 0.0
-                userOrientation["FT"] = document.getDouble("FT") ?: 0.0
-                userOrientation["PJ"] = document.getDouble("PJ") ?: 0.0
-                navController.navigate("Map") { popUpTo("Home") }
+                userOrientation = document.get("taste") as HashMap<String, Any>
+                navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
             }
             .addOnFailureListener { exception ->
             }

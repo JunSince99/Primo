@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -60,6 +61,7 @@ import kotlin.collections.ArrayList
 fun DatePlanScreen(
     navController: NavController,
     requestManager:RequestManager,
+    listState: LazyListState = LazyListState(),
     modifier: Modifier = Modifier
 ) {
     val datePlanList = remember { mutableStateListOf<DatePlanInfo>() }
@@ -110,47 +112,6 @@ fun DatePlanScreen(
 
     Column(modifier = Modifier) {
 
-        TopAppBar(backgroundColor = Color.White) {
-            Row(modifier = Modifier)
-            {
-                Row(modifier = Modifier.fillMaxHeight(), horizontalArrangement = Arrangement.Start)
-                {
-                    Text(
-                        text = "PRIMO",
-                        style = Typography.h5.copy(fontSize = 24.sp),
-                        modifier = Modifier
-                            .padding(12.dp),
-                        color = Color.Black
-                    )
-                }
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .fillMaxHeight(),
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                )
-                {
-                    Column(
-                        modifier = Modifier.clickable { navController.navigate(PrimoScreen.SelectDateDate.name) },
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Add,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(30.dp),
-                            tint = Color.Black
-                        )
-                        Text(
-                            text = "데이트생성",
-                            color = Color.Black,
-                            style = Typography.h5.copy(fontSize = 10.sp)
-                        )
-                    }
-                }
-            }
-        }
 
         LazyColumnExampleTheme() {
             Surface(
@@ -158,7 +119,7 @@ fun DatePlanScreen(
                 color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
             ) {
                 Scaffold() { padding ->
-                    DatePlans(requestManager, Modifier.padding(padding), datePlanList,navController)
+                    DatePlans(requestManager, Modifier.padding(padding), datePlanList,navController,listState)
                 }
             }
         }
@@ -166,14 +127,16 @@ fun DatePlanScreen(
     }
 }
 
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun DatePlans(requestManager: RequestManager,
           modifier: Modifier = Modifier,
               datePlanList: SnapshotStateList<DatePlanInfo>,
-              navController: NavController
+              navController: NavController,
+              listState: LazyListState = LazyListState()
 )
 {
-    LazyColumn(modifier = modifier) {
+    LazyColumn(modifier = modifier, state = listState) {
         items(datePlanList.size){
                 DatePlan(
                     datePlanList[it],
@@ -244,7 +207,7 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                     .fillMaxWidth(),
                 onClick = {
                     val datePlanName = datePlanInfo.dateTitle
-                    navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
+                    getUserOrientation(navController,datePlanName,leaderUID)
                 }
             )
             Spacer(modifier = Modifier.weight(1.5f))

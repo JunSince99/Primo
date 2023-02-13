@@ -1,9 +1,7 @@
 package com.example.primo2.screen
 
 import android.util.Log
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.*
 import androidx.compose.material.BottomNavigation
 import androidx.compose.material.BottomNavigationItem
 import androidx.compose.material.Icon
@@ -25,11 +23,10 @@ import com.example.primo2.*
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 
 
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
-fun NavigationBar(navController: NavController,bottomBarState:Boolean){
-    AnimatedVisibility(visible = bottomBarState,
-        enter = slideInVertically(initialOffsetY = { it }),
-        exit = slideOutVertically(targetOffsetY = { it }),) {
+fun NavigationBar(navController: NavController,bottomBarState:Boolean) {
+    if (bottomBarState) {
         LazyColumnExampleTheme() {
             BottomNavigation(
                 modifier = Modifier,
@@ -60,7 +57,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean){
                     selectedContentColor = MaterialTheme.colors.primary,
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "DatePlans" } == true,
-                    onClick = { navController.navigate("DatePlans") { popUpTo("Home") }  }
+                    onClick = { navController.navigate("DatePlans") { popUpTo("Home") } }
                 ) // 서치 화면
                 BottomNavigationItem(
                     icon = {
@@ -72,7 +69,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean){
                     selectedContentColor = MaterialTheme.colors.primary,
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "Favorites" } == true,
-                    onClick = { navController.navigate("Favorites")  { popUpTo("Home") }}
+                    onClick = { navController.navigate("Favorites") { popUpTo("Home") } }
                 ) // 즐겨찾기?
                 BottomNavigationItem(
                     icon = {
@@ -85,10 +82,12 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean){
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "ManageAccount" } == true,
                     onClick = {
-                        if(partnerName == null) {
+                        if (partnerName == null) {
                             getPartnerInfo(navController)
+                        } else {
+                            navController.navigate("ManageAccount") { popUpTo("Home") }
+                        }
                     }
-                        else{navController.navigate("ManageAccount") { popUpTo("Home") }} }
                 ) // 계정 관리
             }
         }

@@ -1,12 +1,15 @@
 package com.example.primo2.screen
 
 import PostViewModel
+import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -47,6 +50,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 import org.intellij.lang.annotations.JdkConstants.HorizontalAlignment
 import java.text.SimpleDateFormat
 import java.time.LocalDate
@@ -70,7 +74,8 @@ fun HomeScreen(
     navController: NavController,
     requestManager: RequestManager,
     modifier: Modifier = Modifier,
-    viewModel: PostViewModel = viewModel()
+    viewModel: PostViewModel = viewModel(),
+    listState: LazyListState = LazyListState()
 ){
         val user = Firebase.auth.currentUser
         if(user == null) {
@@ -82,20 +87,21 @@ fun HomeScreen(
                 color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
             ) {
                 Scaffold() { padding ->
-                    Posts(requestManager, Modifier.padding(padding), viewModel)
+                    Posts(requestManager, Modifier.padding(padding), viewModel,listState)
                 }
             }
         }
 }
 
 // 게시글들을 띄우는 함수
+@SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun Posts(requestManager: RequestManager,
           modifier: Modifier = Modifier,
-          viewModel: PostViewModel = viewModel()
+          viewModel: PostViewModel = viewModel(),
+          listState: LazyListState = LazyListState()
 )
 {
-    Log.e("호출","인데")
     val uiState by viewModel.postState.collectAsState()
     if(uiState.isEmpty())
     {
@@ -105,12 +111,17 @@ fun Posts(requestManager: RequestManager,
         }
     }
 
-    LazyColumn(modifier = modifier) {
+    LazyColumn(modifier = modifier, state = listState) {
+
         items(uiState.size){
             Post(uiState[it],requestManager,it)
         }
     }
-
+    val coroutineScope = rememberCoroutineScope()
+    coroutineScope.launch {
+        // Animate scroll to the first item
+        listState.scrollToItem(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
+    }
 }
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class)
 @Composable
@@ -127,7 +138,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
     ) {
         if (postInfo.Contents[0] != null) // 사진 & 동영상
         {
-            Box(modifier = Modifier //박스로 안감싸주면 이미지,동영상 크기에 따라 들쭉날쭉거려서 박스로 감싸줬음 아마 제목,내용 이런것도 다 박스로 감싸서 정규화시켜줘야할듯
+            Box(modifier = Modifier
                 .fillMaxWidth()
             ) {
                 HorizontalPager(
@@ -192,7 +203,6 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                     modifier = Modifier
                         .fillMaxWidth()
                 )
-                Log.e("",""+postInfo.title)
             }
             Text(
                 text = "걷기 좋은 공원 | "+postInfo.Writer+"님",
@@ -231,14 +241,13 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                             modifier = Modifier
                                 .clip(CircleShape)
                                 .clickable {
-                                    if(postInfo.Like.containsKey(uid)){
+                                    if (postInfo.Like.containsKey(uid)) {
                                         postInfo.Like.remove(uid)
-                                    }
-                                    else{
+                                    } else {
                                         postInfo.Like[uid!!] = true
                                     }
                                     likeCount = postInfo.Like.count()
-                                    savePostLike(postInfo.Like,postInfo.postID!!)
+                                    savePostLike(postInfo.Like, postInfo.postID!!)
                                 }
                                 .padding(horizontal = 2.dp),
                             tint = likeColor

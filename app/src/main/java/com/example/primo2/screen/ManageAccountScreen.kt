@@ -70,14 +70,6 @@ fun ProfileBox(navController: NavController,requestManager: RequestManager, modi
             modifier = Modifier,
         ) {
             Column {
-                TopAppBar(backgroundColor = Color.White) {
-                    Text(
-                        text = "프로필",
-                        style = Typography.h5.copy(fontSize = 24.sp),
-                        modifier = Modifier
-                            .padding(12.dp)
-                    )
-                }
                 Spacer(modifier.size(25.dp))
                 Column(
                     modifier = Modifier
@@ -141,7 +133,6 @@ fun ProfileBox(navController: NavController,requestManager: RequestManager, modi
                                 modifier = Modifier
                                     .padding(4.dp)
                                     .clickable {
-                                        navController.navigate(PrimoScreen.RegisterPartnerID.name)
                                     },
                                 style = Typography.body1
                             )

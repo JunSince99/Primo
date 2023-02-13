@@ -13,7 +13,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -60,24 +62,25 @@ enum class PrimoScreen() {
     RegisterPartnerID,
     SelectDateDate
 }
-
 @Composable
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier,viewModel: PostViewModel = viewModel()) {
-
-    var selectDatePlan:String? = null
+    val homeListState:LazyListState = rememberLazyListState() // 홈 화면 스크롤 상태 저장
+    val datePlanListState:LazyListState = rememberLazyListState() // 데이트 플랜 스크롤 상태 저장
     val auth: FirebaseAuth = Firebase.auth
     val navController = rememberNavController()
     getPlaceInfo()
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
     val bottomBarState = rememberSaveable { (mutableStateOf(false)) } // 바텀 네비게이션바 보이게 할지 말지
+    val topBarState = rememberSaveable { (mutableStateOf(false)) } // 탑바 보이게 할지 말지
+    val navName = rememberSaveable { (mutableStateOf("")) }
     getPartnerInfo(navController,false)
     Scaffold(
+        topBar = { TopBar(navController,name = navName.value , TopBarState = topBarState.value, topBarText = "primo",homeListState, datePlanListState)},
         bottomBar = { NavigationBar(navController,bottomBarState.value) },
         backgroundColor = Color.White
     )  { innerPadding ->
-
+        navName.value = navController.currentDestination?.route ?: ""
         bottomBarState.value = checkBottomVisible(navController)
-        val uiState by viewModel.postState.collectAsState()
+        topBarState.value = checkTopVisible(navController)
         NavHost(
             navController = navController,
             startDestination = PrimoScreen.Home.name,
@@ -99,7 +102,8 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                         navController,
                         requestManager,
                         modifier = Modifier,
-                        viewModel
+                        viewModel,
+                        homeListState
                     )
             }
 
@@ -154,7 +158,8 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             composable(route = PrimoScreen.DatePlans.name) {
                 DatePlanScreen(
                     navController,
-                    requestManager
+                    requestManager,
+                    datePlanListState
                 )
             }
 
@@ -178,6 +183,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                                 popUpTo("Home")
                             }
                             bottomBarState.value = true
+                            topBarState.value = true
                         }
                     },
                     onRegisterScreenButtonClicked = {
@@ -307,7 +313,57 @@ fun checkBottomVisible (navController:NavController): Boolean{
     return bottomBarState
 }
 
+@Composable
+fun checkTopVisible (navController:NavController): Boolean{
+    val user = Firebase.auth.currentUser
+    var TopBarState:Boolean = false
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    if(user == null) {
+        TopBarState = false
+    }
+    else {
+        when (navBackStackEntry?.destination?.route) {
+            "Home" -> {
+                TopBarState = true
+            }
+            "Login" -> {
+                TopBarState = false
+            }
+            "Register" -> {
+                TopBarState = false
+            }
+            "MemberInit" -> {
+                TopBarState = false
+            }
+            "UploadPost" -> {
+                TopBarState = false
+            }
+            "Map" -> {
+                TopBarState = false
+            }
+            "Favorites" -> {
+                TopBarState = true
+            }
+            "ManageAccount" -> {
+                TopBarState = true
+            }
+            "RegisterPartnerID" ->{
+                TopBarState = false
+            }
+            "RegisterPartner" ->{
+                TopBarState = false
+            }
+            "SelectDateDate" ->{
+                TopBarState = false
+            }
+            "DatePlans" ->{
+                TopBarState = true
+            }
 
+        }
+    }
+    return TopBarState
+}
 @Preview
 @Composable
 fun LoginPreview(modifier: Modifier = Modifier) {

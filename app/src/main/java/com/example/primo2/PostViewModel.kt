@@ -22,6 +22,7 @@ class PostViewModel : ViewModel() {
     val postState: StateFlow<ArrayList<PostInfo>> = _postState.asStateFlow()
     var postList2: ArrayList<PostInfo> = arrayListOf()
     var isUpdate:Boolean = false
+
     fun updatePostInformation() {
         postList2.clear()
         val db = Firebase.firestore
@@ -42,7 +43,6 @@ class PostViewModel : ViewModel() {
                             pDocument.data["like"] as HashMap<String, Boolean>,
                         )
                     )
-                    Log.e("",""+ pDocument.getString("title") +  pDocument.getString("postDate"))
                 }
                 _postState.update { currentState ->
                     isUpdate = false
