@@ -7,6 +7,7 @@ import android.widget.ImageView
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+val tasteName:HashMap<String,String> = HashMap()
 
 data class PlaceInfo(
     val placeID: String = "",
@@ -41,6 +42,31 @@ fun getPlaceInfo(){
             .addOnFailureListener { exception ->
                 Log.e("오류","플레이스 오류 발생")
             }
+    }
+}
+
+fun getTasteName(){
+    if(tasteName.isEmpty())
+    {
+        tasteName["감성카페"] = "감성카페가 있는"
+        tasteName["맛집"] = "맛집이 있는"
+        tasteName["물"] = "예쁜 호수가 있는"
+        tasteName["사진스팟"] = "사진스팟이 있는"
+        tasteName["산책"] = "산책 하기 좋은"
+        tasteName["쇼핑"] = "쇼핑하기 좋은"
+        tasteName["액티비티"] = "액티비티한 활동을 즐길 수 있는"
+        tasteName["야경"] = "야경이 이쁜"
+        tasteName["역사적인"] = "역사가 살아 숨쉬는"
+        tasteName["예술적인"] = "예술적 감성을 느낄 수 있는"
+        tasteName["이국적인"] = "이국적 감성을 즐길 수 있는"
+        tasteName["자연"] = "자연을 즐길 수 있는"
+        tasteName["전통적인"] = "전통적인 감성을 즐길 수 있는"
+        tasteName["풍경"] = "풍경이 이쁜"
+
+        tasteName["두뇌"] = "지능을 뽐낼 수 있는"
+        tasteName["소통"] = "많은 소통을 할 수 있는"
+        tasteName["영화"] = "영화를 볼 수 있는"
+        tasteName["학습적인"] = "무언가를 배울 수 있는"
     }
 }
 /*

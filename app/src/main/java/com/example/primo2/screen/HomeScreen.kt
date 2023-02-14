@@ -119,7 +119,6 @@ fun Posts(requestManager: RequestManager,
     }
     val coroutineScope = rememberCoroutineScope()
     coroutineScope.launch {
-        // Animate scroll to the first item
         listState.scrollToItem(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
     }
 }
@@ -179,7 +178,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                                         .asDrawable()
                                         .load(uri)
                                         // .signature(signature)
-                                        .override(128)
+                                        .override(64)
                                 )
                             // .signature(signature)
                         }

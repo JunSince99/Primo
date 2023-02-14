@@ -25,7 +25,7 @@ data class MemberInfo(
     val photoUrl: String? = null,
     val partnerUID: String?  = null
 )
-fun getPartnerInfo(navController: NavController, move:Boolean = true){
+fun getPartnerInfo(){
     val db = Firebase.firestore
     val user = Firebase.auth.currentUser
     if(user != null) {
@@ -48,9 +48,7 @@ fun getPartnerInfo(navController: NavController, move:Boolean = true){
                             partnerPhotoURL = document2.getString("photoUrl") ?: ""
                             startDating = document2.getString("startDating")?:""
                             partnerOrientation = document2.data!!["taste"] as HashMap<String, Any>
-                            if(move) {
-                                navController.navigate("ManageAccount")
-                            }
+                            Log.e("파트너 호출", "파트너 호출")
                         }
 
                         .addOnFailureListener { exception ->
@@ -62,9 +60,45 @@ fun getPartnerInfo(navController: NavController, move:Boolean = true){
             }
     }
 }
-fun getUserOrientation(navController: NavController, datePlanName:String, leaderUID:String)
-{
 
+fun getPartnerInfoAndMove(navController: NavController){
+    val db = Firebase.firestore
+    val user = Firebase.auth.currentUser
+    if(user != null) {
+        db.collection("users").document(user.uid)
+            .get()
+            .addOnSuccessListener { document ->
+                myName = document.getString("name") ?: ""
+                leaderUID = document.getString("leaderUID")?:""
+                val partnerUID = document.getString("partnerUID") ?: ""
+                if(partnerUID == "")
+                {
+                    partnerName = ""
+                }
+                else {
+
+                    db.collection("users").document(partnerUID)
+                        .get()
+                        .addOnSuccessListener { document2 ->
+                            partnerName = document2.getString("name") ?: ""
+                            partnerPhotoURL = document2.getString("photoUrl") ?: ""
+                            startDating = document2.getString("startDating")?:""
+                            partnerOrientation = document2.data!!["taste"] as HashMap<String, Any>
+                            navController.navigate("ManageAccount")
+
+                        }
+
+                        .addOnFailureListener { exception ->
+                        }
+                }
+            }
+
+            .addOnFailureListener { exception ->
+            }
+    }
+}
+fun getUserOrientation()
+{
     val db = Firebase.firestore
     val user = Firebase.auth.currentUser
     if(user != null) {
@@ -72,9 +106,12 @@ fun getUserOrientation(navController: NavController, datePlanName:String, leader
             .get()
             .addOnSuccessListener { document ->
                 userOrientation = document.get("taste") as HashMap<String, Any>
-                navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
+                userOrientation = userOrientation.toList().sortedByDescending { it.second.toString().toDouble() }.toMap() as HashMap<String, Any>
+
             }
             .addOnFailureListener { exception ->
             }
     }
+
 }
+

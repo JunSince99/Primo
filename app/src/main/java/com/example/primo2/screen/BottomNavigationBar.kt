@@ -69,7 +69,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean) {
                     selectedContentColor = MaterialTheme.colors.primary,
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "Favorites" } == true,
-                    onClick = { navController.navigate("Favorites") { popUpTo("Home") } }
+                    onClick = { if(partnerName != null && userOrientation.isNotEmpty()) {navController.navigate("Favorites") { popUpTo("Home") } } }
                 ) // 즐겨찾기?
                 BottomNavigationItem(
                     icon = {
@@ -82,11 +82,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean) {
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "ManageAccount" } == true,
                     onClick = {
-                        if (partnerName == null) {
-                            getPartnerInfo(navController)
-                        } else {
-                            navController.navigate("ManageAccount") { popUpTo("Home") }
-                        }
+                            if(partnerName!= null){navController.navigate("ManageAccount") { popUpTo("Home") }}
                     }
                 ) // 계정 관리
             }

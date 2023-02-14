@@ -19,6 +19,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.navigation.NavController
 import com.example.primo2.activity.MainActivity
 import com.example.primo2.getPartnerInfo
+import com.example.primo2.getPartnerInfoAndMove
 import com.example.primo2.ui.theme.Typography
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
@@ -127,7 +128,9 @@ fun savePartner(partnerUID:String,startDating:String,navController:NavController
         transaction.update(docRef, "partnerUID", partnerUID)
         transaction.update(docRef, "leaderUID", user.uid)
         partnerUID
-    }.addOnSuccessListener { getPartnerInfo(navController) }
+    }.addOnSuccessListener {
+        getPartnerInfoAndMove(navController)
+    }
 
     val docRef2 = db.collection("users").document(partnerUID)
 

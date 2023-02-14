@@ -1,6 +1,7 @@
 package com.example.primo2.screen
 
 import PostViewModel
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.ContextWrapper
@@ -34,17 +35,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bumptech.glide.RequestManager
-import com.example.primo2.MemberInfo
-import com.example.primo2.PostInfo
+import com.example.primo2.*
 import com.example.primo2.activity.MainActivity
-import com.example.primo2.getPartnerInfo
-import com.example.primo2.getPlaceInfo
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior.ScrollState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DatabaseReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
 
 
@@ -64,15 +63,15 @@ enum class PrimoScreen() {
 }
 @Composable
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier,viewModel: PostViewModel = viewModel()) {
+    InitailLoading()
     val homeListState:LazyListState = rememberLazyListState() // 홈 화면 스크롤 상태 저장
     val datePlanListState:LazyListState = rememberLazyListState() // 데이트 플랜 스크롤 상태 저장
     val auth: FirebaseAuth = Firebase.auth
     val navController = rememberNavController()
-    getPlaceInfo()
     val bottomBarState = rememberSaveable { (mutableStateOf(false)) } // 바텀 네비게이션바 보이게 할지 말지
     val topBarState = rememberSaveable { (mutableStateOf(false)) } // 탑바 보이게 할지 말지
     val navName = rememberSaveable { (mutableStateOf("")) }
-    getPartnerInfo(navController,false)
+
     Scaffold(
         topBar = { TopBar(navController,name = navName.value , TopBarState = topBarState.value, topBarText = "primo",homeListState, datePlanListState)},
         bottomBar = { NavigationBar(navController,bottomBarState.value) },
@@ -400,5 +399,9 @@ fun LoginPreview(modifier: Modifier = Modifier) {
     }
 }
 
-
+fun InitailLoading(){
+    getPlaceInfo() // 장소 정보
+    getPartnerInfo() // 연인 정보
+    getUserOrientation() // 유저 정보
+}
 

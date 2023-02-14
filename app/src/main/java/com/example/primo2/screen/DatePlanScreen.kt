@@ -207,7 +207,8 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                     .fillMaxWidth(),
                 onClick = {
                     val datePlanName = datePlanInfo.dateTitle
-                    getUserOrientation(navController,datePlanName,leaderUID)
+                    navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
+                    //getUserOrientation(navController,datePlanName,leaderUID)
                 }
             )
             Spacer(modifier = Modifier.weight(1.5f))
