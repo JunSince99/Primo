@@ -34,7 +34,7 @@ fun TopBar(navController: NavController,name: String?,TopBarState:Boolean,topBar
     if((name == "Home" && homeListState.canScrollBackward)
         || (name == "DatePlans" && datePlanListState.canScrollBackward ))
     {
-        shadow = 10.dp
+        shadow = 0.dp
     }
     if(TopBarState) {
         if (name == "DatePlans") {
@@ -94,7 +94,7 @@ fun TopBar(navController: NavController,name: String?,TopBarState:Boolean,topBar
                         modifier = Modifier
                             .padding(12.dp),
                         color = Color.Black,
-                        style = Typography.h5.copy(fontSize = 20.sp),
+                        style = Typography.h5,
                     )
                 }
             }

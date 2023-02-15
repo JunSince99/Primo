@@ -125,76 +125,72 @@ fun Posts(requestManager: RequestManager,
 @Composable
 fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
     Surface(
+        color = Color.White,
         modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .shadow(
-                elevation = 10.dp,
-                shape = RoundedCornerShape(20)
-            )
-            .aspectRatio(16f / 10f)
+            .padding(vertical = 4.dp)
             .clickable { /*TODO*/ }
     ) {
-        if (postInfo.Contents[0] != null) // 사진 & 동영상
-        {
-            Box(modifier = Modifier
-                .fillMaxWidth()
-            ) {
-                HorizontalPager(
-                    modifier = Modifier.fillMaxSize(),
-                    count = postInfo.Contents.size
-                ) { page ->
-                    val uri = postInfo.Contents[page]
-                    val format = postInfo.Format[page]
-                    if (format.equals("video")) { // 동영상
-                        val mContext = LocalContext.current
-                        val mediaItem = MediaItem.Builder().setUri(Uri.parse(uri)).build()
-                        val mExoPlayer = remember(mContext) {
-                            ExoPlayer.Builder(mContext).build().apply {
-                                this.setMediaItem(mediaItem)
-                                playWhenReady = true
-                                prepare()
+        Column(
+            modifier = Modifier
+        ) {
+            if (postInfo.Contents[0] != null) // 사진 & 동영상
+            {
+                Box(modifier = Modifier
+                    .fillMaxWidth()
+                ) {
+                    HorizontalPager(
+                        modifier = Modifier.fillMaxSize(),
+                        count = postInfo.Contents.size
+                    ) { page ->
+                        val uri = postInfo.Contents[page]
+                        val format = postInfo.Format[page]
+                        if (format.equals("video")) { // 동영상
+                            val mContext = LocalContext.current
+                            val mediaItem = MediaItem.Builder().setUri(Uri.parse(uri)).build()
+                            val mExoPlayer = remember(mContext) {
+                                ExoPlayer.Builder(mContext).build().apply {
+                                    this.setMediaItem(mediaItem)
+                                    playWhenReady = true
+                                    prepare()
+                                }
                             }
-                        }
-                        AndroidView(factory = { context ->
-                            StyledPlayerView(context).apply {
-                                player = mExoPlayer
-                                resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
+                            AndroidView(factory = { context ->
+                                StyledPlayerView(context).apply {
+                                    player = mExoPlayer
+                                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
+                                }
+                            })
+                        } else {  // 이미지
+                            GlideImage(
+                                model = uri,
+                                contentDescription = null,
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RectangleShape)
+                                    .aspectRatio(16f / 10f)
+                                //.align(Alignment.CenterHorizontally)
+                            )
+                            {
+                                it
+                                    .thumbnail(
+                                        requestManager
+                                            .asDrawable()
+                                            .load(uri)
+                                            // .signature(signature)
+                                            .override(64)
+                                    )
+                                // .signature(signature)
                             }
-                        })
-                    } else {  // 이미지
-                        GlideImage(
-                            model = uri,
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier
-                                .fillMaxSize()
-                            //.align(Alignment.CenterHorizontally)
-                        )
-                        {
-                            it
-                                .thumbnail(
-                                    requestManager
-                                        .asDrawable()
-                                        .load(uri)
-                                        // .signature(signature)
-                                        .override(64)
-                                )
-                            // .signature(signature)
                         }
                     }
                 }
-            }
 
-        }
-        Column(
-            modifier = Modifier
-                .background(brush = SolidColor(Color.Black), alpha = 0.3f) // 이미지 어둡게
-        ) {
-            Spacer(modifier = Modifier.padding(16.dp))
+            }
             if (postInfo.title != null) {
                 Text(
                     text = postInfo.title,
-                    color =Color.White,
+                    color =Color.Black,
                     fontSize = 20.sp,
                     textAlign = TextAlign.Center,
                     fontWeight = Bold,
@@ -204,15 +200,12 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
             }
             Text(
                 text = "걷기 좋은 공원 | "+postInfo.Writer+"님",
-                color = Color.White,
+                color = Color.Black,
                 textAlign = TextAlign.Center,
                 fontSize = 16.sp,
                 modifier = Modifier
                     .fillMaxWidth()
             )
-
-            Spacer(modifier = Modifier.weight(1.5f))
-
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -225,7 +218,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                     var likeCount by remember { mutableStateOf(0) }
                     likeCount = postInfo.Like.count()
                     Row(modifier = Modifier){
-                        var likeColor:Color = Color.White
+                        var likeColor:Color = Color.Black
                         var iconImage:ImageVector = Icons.Filled.FavoriteBorder
                         if(postInfo.Like.containsKey(uid))
                         {
@@ -257,7 +250,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                                 .clip(CircleShape)
                                 .clickable { /*TODO*/ }
                                 .padding(horizontal = 2.dp),
-                            tint = Color.White
+                            tint = Color.Black
                         )
                         Icon(
                             imageVector = Icons.Outlined.Share,
@@ -266,11 +259,11 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                                 .clip(CircleShape)
                                 .clickable { /*TODO*/ }
                                 .padding(horizontal = 2.dp),
-                            tint = Color.White
+                            tint = Color.Black
                         )
                     }
                     Text(
-                        color =Color.White,
+                        color =Color.Black,
                         text = "좋아요" + likeCount + "개",
                         fontSize = 14.sp,
                         modifier = Modifier.padding(horizontal = 4.dp)
@@ -324,7 +317,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                             .fillMaxWidth()
                             .align(Alignment.Bottom)
                             .padding(horizontal = 4.dp),
-                        color = Color.White
+                        color = Color.Black
                     )
                 }
             }

@@ -73,7 +73,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
     val navName = rememberSaveable { (mutableStateOf("")) }
 
     Scaffold(
-        topBar = { TopBar(navController,name = navName.value , TopBarState = topBarState.value, topBarText = "primo",homeListState, datePlanListState)},
+        topBar = { TopBar(navController,name = navName.value , TopBarState = topBarState.value, topBarText = "Primo",homeListState, datePlanListState)},
         bottomBar = { NavigationBar(navController,bottomBarState.value) },
         backgroundColor = Color.White
     )  { innerPadding ->

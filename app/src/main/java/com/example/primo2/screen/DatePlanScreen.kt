@@ -3,6 +3,7 @@ package com.example.primo2.screen
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -20,15 +21,20 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role.Companion.Image
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
@@ -48,6 +54,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.naver.maps.map.compose.GroundOverlayDefaults.Image
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -157,80 +164,54 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .shadow(
-                elevation = 10.dp,
+                elevation = 1.dp,
                 shape = RoundedCornerShape(20)
             )
-            .aspectRatio(16f / 10f)
+            .aspectRatio(16f / 4f)
             .clickable { /*TODO*/ }
     ) {
-
-        Box(modifier = Modifier.fillMaxWidth()){
-            GlideImage(
-                model = "",
+        Row(
+            modifier = Modifier
+                .background(brush = SolidColor(Color.White), alpha = 0.1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Spacer(modifier = Modifier.padding(6.dp))
+            Image(
+                painter = painterResource(id = com.example.primo2.R.drawable.place_centralpark),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxSize()
-                //.align(Alignment.CenterHorizontally)
+                    .clip(CircleShape)
+                    .size(70.dp)
             )
-            {
-                it
-                    .thumbnail(
-                        requestManager
-                            .asDrawable()
-                            .load("")
-                            // .signature(signature)
-                            .override(128)
-                    )
-                // .signature(signature)
+            Spacer(modifier = Modifier.padding(6.dp))
+            Column (
+                modifier = Modifier,
+                    ) {
+                Text(
+                    text = datePlanInfo.dateTitle,
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                )
+                ClickableText(
+                    text = AnnotatedString("데이트 코스 관리"),
+                    modifier = Modifier,
+                    onClick = {
+                        val datePlanName = datePlanInfo.dateTitle
+                        navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
+                        //getUserOrientation(navController,datePlanName,leaderUID)
+                    }
+                )
+                Text(
+                    text = "데이트 코스 삭제",
+                    color = Color.Black,
+                    fontSize = 10.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                )
             }
-        }
-        Column(
-            modifier = Modifier
-                .background(brush = SolidColor(Color.Black), alpha = 0.3f)
-        ) {
-            Spacer(modifier = Modifier.padding(16.dp))
-            Text(
-                text = datePlanInfo.dateTitle,
-                color = Color.White,
-                fontSize = 20.sp,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.weight(1.5f))
-            ClickableText(
-                text = AnnotatedString("데이트 코스 관리"),
-                modifier = Modifier
-                    .fillMaxWidth(),
-                onClick = {
-                    val datePlanName = datePlanInfo.dateTitle
-                    navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
-                    //getUserOrientation(navController,datePlanName,leaderUID)
-                }
-            )
-            Spacer(modifier = Modifier.weight(1.5f))
-            Text(
-                text = "데이트 코스 삭제",
-                color = Color.White,
-                fontSize = 10.sp,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
-            Spacer(modifier = Modifier.weight(1.5f))
-            Text(
-                text = "데이트 코스 확인",
-                color = Color.White,
-                fontSize = 10.sp,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
         }
     }
 }
