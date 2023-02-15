@@ -60,7 +60,6 @@ import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
 
-private val SaveScroll = mutableMapOf<String, ScrollParams>()
 
 private data class ScrollParams(
     val index: Int,

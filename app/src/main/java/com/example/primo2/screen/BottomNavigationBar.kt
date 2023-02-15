@@ -69,7 +69,8 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean) {
                     selectedContentColor = MaterialTheme.colors.primary,
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "Favorites" } == true,
-                    onClick = { if(partnerName != null && userOrientation.isNotEmpty()) {navController.navigate("Favorites") { popUpTo("Home") } } }
+                    onClick = { if(partnerName != null && userOrientation.isNotEmpty()) {
+                        navController.navigate("Favorites") { popUpTo("Home") } } }
                 ) // 즐겨찾기?
                 BottomNavigationItem(
                     icon = {

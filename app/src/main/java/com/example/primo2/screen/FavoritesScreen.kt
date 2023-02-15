@@ -115,7 +115,6 @@ fun RecommendPlace(requestManager: RequestManager,name:String,placeNum:Int) {
     val imageList:ArrayList<String> = ArrayList()
     for(i in 0 until placeNum) {
         imageList.add(placeList[i].imageResource)
-        Log.e(""+name,""+ placeList[i].placeName )
     }
     LazyRow {
         items(placeNum){ index ->
