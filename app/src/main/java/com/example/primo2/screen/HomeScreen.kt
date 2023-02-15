@@ -15,8 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.Email
-import androidx.compose.material.icons.outlined.Share
+import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -187,88 +186,33 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                 }
 
             }
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
             if (postInfo.title != null) {
                 Text(
                     text = postInfo.title,
                     color =Color.Black,
                     fontSize = 20.sp,
-                    textAlign = TextAlign.Center,
-                    fontWeight = Bold,
                     modifier = Modifier
                         .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
                 )
             }
-            Text(
-                text = "걷기 좋은 공원 | "+postInfo.Writer+"님",
-                color = Color.Black,
-                textAlign = TextAlign.Center,
-                fontSize = 16.sp,
-                modifier = Modifier
-                    .fillMaxWidth()
-            )
+            Spacer(modifier = Modifier.padding(vertical = 4.dp))
+//            Text(
+//                text = "걷기 좋은 공원 | "+postInfo.Writer+"님",
+//                color = Color.Black,
+//                textAlign = TextAlign.Center,
+//                fontSize = 16.sp,
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//            )
             Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f, false)
                     .padding(horizontal = 16.dp)
             ) {
-                Column(modifier = Modifier
-                ) {
-                    val uid = FirebaseAuth.getInstance().currentUser?.uid
-                    var likeCount by remember { mutableStateOf(0) }
-                    likeCount = postInfo.Like.count()
-                    Row(modifier = Modifier){
-                        var likeColor:Color = Color.Black
-                        var iconImage:ImageVector = Icons.Filled.FavoriteBorder
-                        if(postInfo.Like.containsKey(uid))
-                        {
-                            likeColor = Color.Red
-                            iconImage = Icons.Filled.Favorite
-                        }
-
-                        Icon(
-                            imageVector = iconImage,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .clickable {
-                                    if (postInfo.Like.containsKey(uid)) {
-                                        postInfo.Like.remove(uid)
-                                    } else {
-                                        postInfo.Like[uid!!] = true
-                                    }
-                                    likeCount = postInfo.Like.count()
-                                    savePostLike(postInfo.Like, postInfo.postID!!)
-                                }
-                                .padding(horizontal = 2.dp),
-                            tint = likeColor
-                        )
-                        Icon(
-                            imageVector = Icons.Outlined.Email,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .clickable { /*TODO*/ }
-                                .padding(horizontal = 2.dp),
-                            tint = Color.Black
-                        )
-                        Icon(
-                            imageVector = Icons.Outlined.Share,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .clip(CircleShape)
-                                .clickable { /*TODO*/ }
-                                .padding(horizontal = 2.dp),
-                            tint = Color.Black
-                        )
-                    }
-                    Text(
-                        color =Color.Black,
-                        text = "좋아요" + likeCount + "개",
-                        fontSize = 14.sp,
-                        modifier = Modifier.padding(horizontal = 4.dp)
-                    )
-                }
                 if(postInfo.PostDate != null) {
 
                     var today = Calendar.getInstance()
@@ -310,16 +254,71 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                     }
 
                     Text(
-                        text = compareTime,
-                        fontSize = 14.sp,
-                        textAlign = TextAlign.Right,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .align(Alignment.Bottom)
-                            .padding(horizontal = 4.dp),
-                        color = Color.Black
+                        text = postInfo.Writer + " · " + compareTime,
+                        fontSize = 12.sp,
+                        modifier = Modifier,
+                        color = Color.DarkGray
                     )
                 }
+                Spacer(modifier = Modifier.padding(horizontal = 90.dp))
+                val uid = FirebaseAuth.getInstance().currentUser?.uid
+                var likeCount by remember { mutableStateOf(0) }
+                likeCount = postInfo.Like.count()
+                Row(modifier = Modifier){
+                    var likeColor:Color = Color.DarkGray
+                    var iconImage:ImageVector = Icons.Filled.FavoriteBorder
+                    if(postInfo.Like.containsKey(uid))
+                    {
+                        likeColor = Color.Red
+                        iconImage = Icons.Filled.Favorite
+                    }
+
+                    Icon(
+                        imageVector = iconImage,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable {
+                                if (postInfo.Like.containsKey(uid)) {
+                                    postInfo.Like.remove(uid)
+                                } else {
+                                    postInfo.Like[uid!!] = true
+                                }
+                                likeCount = postInfo.Like.count()
+                                savePostLike(postInfo.Like, postInfo.postID!!)
+                            }
+                            .padding(horizontal = 4.dp)
+                            .size(14.dp),
+                        tint = likeColor
+                    )
+                    Icon(
+                        imageVector = Icons.Outlined.Share,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable { /*TODO*/ }
+                            .padding(horizontal = 4.dp)
+                            .size(14.dp),
+                        tint = Color.DarkGray
+                    )
+                    Icon(
+                        imageVector = Icons.Outlined.MoreVert,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .clickable { /*TODO*/ }
+                            .padding(horizontal = 4.dp)
+                            .size(14.dp),
+
+                        tint = Color.DarkGray
+                    )
+                    }
+//                    Text(
+//                        color =Color.Black,
+//                        text = "좋아요" + likeCount + "개",
+//                        fontSize = 14.sp,
+//                        modifier = Modifier.padding(horizontal = 4.dp)
+//                    )
             }
         }
     }
