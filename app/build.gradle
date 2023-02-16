@@ -104,4 +104,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-location:16.0.0'
 
     implementation("org.burnoutcrew.composereorderable:reorderable:0.9.6")
+
+    implementation("androidx.compose.material3:material3:1.0.1")
+    implementation("androidx.compose.material3:material3-window-size-class:1.0.1")
 }

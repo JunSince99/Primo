@@ -18,10 +18,14 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material.*
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -61,6 +65,7 @@ enum class PrimoScreen() {
     RegisterPartnerID,
     SelectDateDate
 }
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier,viewModel: PostViewModel = viewModel()) {
     InitailLoading()
@@ -72,8 +77,10 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
     val topBarState = rememberSaveable { (mutableStateOf(false)) } // 탑바 보이게 할지 말지
     val navName = rememberSaveable { (mutableStateOf("")) }
 
+
+    val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
     Scaffold(
-        topBar = { TopBar(navController,name = navName.value , TopBarState = topBarState.value, topBarText = "Primo",homeListState, datePlanListState)},
+        topBar = { TopBar(navController,name = navName.value , TopBarState = topBarState.value, topBarText = "Primo",homeListState, datePlanListState,scrollBehavior)},
         bottomBar = { NavigationBar(navController,bottomBarState.value) },
         backgroundColor = Color.White
     )  { innerPadding ->
@@ -83,7 +90,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
         NavHost(
             navController = navController,
             startDestination = PrimoScreen.Home.name,
-            modifier = modifier.padding(innerPadding)
+            modifier = modifier.padding(innerPadding).nestedScroll(scrollBehavior.nestedScrollConnection),
         ) {
 
             //홈 화면
