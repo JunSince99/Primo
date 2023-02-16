@@ -1,41 +1,87 @@
 package com.example.primo2.screen
 
 import android.util.Log
-import androidx.compose.animation.*
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import androidx.navigation.NavDestination.Companion.hierarchy
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.example.primo2.*
-import com.example.primo2.ui.theme.LazyColumnExampleTheme
-import com.example.primo2.ui.theme.Typography
 
 
-@OptIn(ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(navController: NavController,name: String?,TopBarState:Boolean,topBarText:String,homeListState: LazyListState, datePlanListState: LazyListState) {
-    var shadow = 0.dp
-
-    if((name == "Home" && homeListState.canScrollBackward)
-        || (name == "DatePlans" && datePlanListState.canScrollBackward ))
-    {
-        shadow = 0.dp
+fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, topBarText:String, homeListState: LazyListState, datePlanListState: LazyListState, scrollBehavior: TopAppBarScrollBehavior) {
+    if(TopBarState) {
+        val topAppBarElementColor = Color.Black
+        if (name == "DatePlans") {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Primo",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                actions = {
+                        IconButton(onClick = { navController.navigate(PrimoScreen.SelectDateDate.name) }) {
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Add,
+                                    contentDescription = "데이트 추가"
+                                )
+                                Text(
+                                    text = "데이트생성",
+                                    color = Color.Black,
+                                    fontSize = 8.sp
+                                )
+                            }
+                        }
+                },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = Color.White,
+                    scrolledContainerColor = Color.White,
+                    navigationIconContentColor = topAppBarElementColor,
+                    titleContentColor = Color.Black,
+                    actionIconContentColor = topAppBarElementColor,
+                ),
+                scrollBehavior = scrollBehavior,
+            )
+        } else {
+            TopAppBar(
+                title = {
+                    Text(
+                        "Primo",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = Color.White,
+                    scrolledContainerColor = Color.White,
+                    navigationIconContentColor = topAppBarElementColor,
+                    titleContentColor = Color.Black,
+                    actionIconContentColor = topAppBarElementColor,
+                ),
+                scrollBehavior = scrollBehavior,
+            )
+        }
     }
+/*
     if(TopBarState) {
         if (name == "DatePlans") {
             TopAppBar(
@@ -99,5 +145,6 @@ fun TopBar(navController: NavController,name: String?,TopBarState:Boolean,topBar
                 }
             }
         }
-    }
+    }*/
+
 }
