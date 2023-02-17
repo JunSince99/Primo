@@ -33,6 +33,11 @@ val Typography = Typography(
         fontFamily = spoqasans,
         fontWeight = FontWeight.Bold,
         fontSize = 28.sp
+    ),
+    h2 = TextStyle(
+        fontFamily = spoqasans,
+        fontWeight = FontWeight.Bold,
+        fontSize = 20.sp
     )
     /* Other default text styles to override
     button = TextStyle(

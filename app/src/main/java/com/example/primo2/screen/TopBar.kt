@@ -18,6 +18,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.primo2.ui.theme.Typography
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,6 +32,7 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     Text(
                         "Primo",
                         maxLines = 1,
+                        style = Typography.h1,
                         overflow = TextOverflow.Ellipsis
                     )
                 },
@@ -67,6 +69,7 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     Text(
                         "Primo",
                         maxLines = 1,
+                        style = Typography.h1,
                         overflow = TextOverflow.Ellipsis
                     )
                 },

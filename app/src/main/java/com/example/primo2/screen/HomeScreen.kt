@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.font.FontWeight.Companion.Bold
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -38,6 +39,8 @@ import com.example.primo2.MemberInfo
 import com.example.primo2.PostInfo
 import com.example.primo2.getWriterInfomation
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
+import com.example.primo2.ui.theme.Typography
+import com.example.primo2.ui.theme.spoqasans
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.android.exoplayer2.ExoPlayer
@@ -58,6 +61,7 @@ import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Calendar
 import java.util.Date
+import kotlin.text.Typography
 
 
 private data class ScrollParams(
@@ -126,203 +130,224 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
     Surface(
         color = Color.White,
         modifier = Modifier
-            .padding(vertical = 4.dp)
             .clickable { /*TODO*/ }
     ) {
         Column(
             modifier = Modifier
         ) {
-            if (postInfo.Contents[0] != null) // 사진 & 동영상
-            {
-                Box(modifier = Modifier
-                    .fillMaxWidth()
-                ) {
-                    HorizontalPager(
-                        modifier = Modifier.fillMaxSize(),
-                        count = postInfo.Contents.size
-                    ) { page ->
-                        val uri = postInfo.Contents[page]
-                        val format = postInfo.Format[page]
-                        if (format.equals("video")) { // 동영상
-                            val mContext = LocalContext.current
-                            val mediaItem = MediaItem.Builder().setUri(Uri.parse(uri)).build()
-                            val mExoPlayer = remember(mContext) {
-                                ExoPlayer.Builder(mContext).build().apply {
-                                    this.setMediaItem(mediaItem)
-                                    playWhenReady = true
-                                    prepare()
+            Box(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .clip(RoundedCornerShape(15.dp))
+
+            ) {
+                if (postInfo.Contents[0] != null) // 사진 & 동영상
+                {
+                    Box(modifier = Modifier
+                        .fillMaxWidth()
+                    ) {
+                        val contrast = 1f // 0f..10f (1 should be default)
+                        val brightness = -50f // -255f..255f (0 should be default)
+                        val colorMatrix = floatArrayOf(
+                            contrast, 0f, 0f, 0f, brightness,
+                            0f, contrast, 0f, 0f, brightness,
+                            0f, 0f, contrast, 0f, brightness,
+                            0f, 0f, 0f, 1f, 0f
+                        )
+                        HorizontalPager(
+                            modifier = Modifier.fillMaxSize(),
+                            count = postInfo.Contents.size
+                        ) { page ->
+                            val uri = postInfo.Contents[page]
+                            val format = postInfo.Format[page]
+                            if (format.equals("video")) { // 동영상
+                                val mContext = LocalContext.current
+                                val mediaItem = MediaItem.Builder().setUri(Uri.parse(uri)).build()
+                                val mExoPlayer = remember(mContext) {
+                                    ExoPlayer.Builder(mContext).build().apply {
+                                        this.setMediaItem(mediaItem)
+                                        playWhenReady = true
+                                        prepare()
+                                    }
                                 }
-                            }
-                            AndroidView(factory = { context ->
-                                StyledPlayerView(context).apply {
-                                    player = mExoPlayer
-                                    resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
+                                AndroidView(factory = { context ->
+                                    StyledPlayerView(context).apply {
+                                        player = mExoPlayer
+                                        resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
+                                    }
+                                })
+                            } else {  // 이미지
+                                GlideImage(
+                                    model = uri,
+                                    contentDescription = null,
+                                    colorFilter = ColorFilter.colorMatrix(ColorMatrix(colorMatrix)),
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .clip(RectangleShape)
+                                        .aspectRatio(16f / 10f)
+                                    //.align(Alignment.CenterHorizontally)
+                                )
+                                {
+                                    it
+                                        .thumbnail(
+                                            requestManager
+                                                .asDrawable()
+                                                .load(uri)
+                                                // .signature(signature)
+                                                .override(64)
+                                        )
+                                    // .signature(signature)
                                 }
-                            })
-                        } else {  // 이미지
-                            GlideImage(
-                                model = uri,
-                                contentDescription = null,
-                                contentScale = ContentScale.Crop,
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .clip(RectangleShape)
-                                    .aspectRatio(16f / 10f)
-                                //.align(Alignment.CenterHorizontally)
-                            )
-                            {
-                                it
-                                    .thumbnail(
-                                        requestManager
-                                            .asDrawable()
-                                            .load(uri)
-                                            // .signature(signature)
-                                            .override(64)
-                                    )
-                                // .signature(signature)
                             }
                         }
                     }
                 }
+            }
 
-            }
-            Spacer(modifier = Modifier.padding(vertical = 4.dp))
-            if (postInfo.title != null) {
-                Text(
-                    text = postInfo.title,
-                    color =Color.Black,
-                    fontSize = 20.sp,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                )
-            }
-            Spacer(modifier = Modifier.padding(vertical = 4.dp))
-//            Text(
-//                text = "걷기 좋은 공원 | "+postInfo.Writer+"님",
-//                color = Color.Black,
-//                textAlign = TextAlign.Center,
-//                fontSize = 16.sp,
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             ) {
-                if(postInfo.PostDate != null) {
+                Text(
+                    text = "송도",
+                    fontSize = 14.sp,
+                    color = Color.Black,
+                    fontFamily = spoqasans,
+                    fontWeight = FontWeight.Medium,
+                )
+                Spacer(modifier = Modifier.padding(1.dp))
+                if (postInfo.title != null) {
+                    Text(
+                        text = postInfo.title,
+                        color = Color.Black,
+                        style = Typography.h2,
+                        modifier = Modifier
+                    )
+                }
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    if (postInfo.PostDate != null) {
 
-                    var today = Calendar.getInstance()
-                    var compareTime = "error"
-                    var sf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                    var date = sf.parse(postInfo.PostDate)
-                    var calcuDate = (today.time.time - date.time) / (60 * 1000)
-                    var timeUnit = "error"
+                        var today = Calendar.getInstance()
+                        var compareTime = "error"
+                        var sf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                        var date = sf.parse(postInfo.PostDate)
+                        var calcuDate = (today.time.time - date.time) / (60 * 1000)
+                        var timeUnit = "error"
 
-                    if(calcuDate <= 0)
-                    {
-                        compareTime = "방금 전"
-                    }
-                    else
-                    {
-                        timeUnit = "분 전"
-                        compareTime = calcuDate.toString() + "개월 전"
-                        if(calcuDate >= 60)
-                        {
-                            calcuDate/=60
-                            timeUnit = "시간 전"
-                            if(calcuDate >= 24)
-                            {
-                                calcuDate/=24
-                                timeUnit = "일 전"
-                                if(calcuDate >= 30)
-                                {
-                                    calcuDate/=30
-                                    timeUnit = "개월 전"
-                                    if(calcuDate >= 12)
-                                    {
-                                        calcuDate/=12
-                                        timeUnit = "년 전"
+                        if (calcuDate <= 0) {
+                            compareTime = "방금 전"
+                        } else {
+                            timeUnit = "분 전"
+                            compareTime = calcuDate.toString() + "개월 전"
+                            if (calcuDate >= 60) {
+                                calcuDate /= 60
+                                timeUnit = "시간 전"
+                                if (calcuDate >= 24) {
+                                    calcuDate /= 24
+                                    timeUnit = "일 전"
+                                    if (calcuDate >= 30) {
+                                        calcuDate /= 30
+                                        timeUnit = "개월 전"
+                                        if (calcuDate >= 12) {
+                                            calcuDate /= 12
+                                            timeUnit = "년 전"
+                                        }
                                     }
                                 }
                             }
+                            compareTime = calcuDate.toString() + timeUnit
                         }
-                        compareTime = calcuDate.toString() + timeUnit
+                        Text(
+                            text = "걷기 좋은 공원",
+                            fontSize = 14.sp,
+                            color = Color.DarkGray,
+                            fontFamily = spoqasans,
+                            fontWeight = FontWeight.Normal,
+                        )
+                        Text(
+                            text = compareTime,
+                            fontSize = 12.sp,
+                            modifier = Modifier,
+                            color = Color.DarkGray
+                        )
                     }
-
-                    Text(
-                        text = postInfo.Writer + " · " + compareTime,
-                        fontSize = 12.sp,
-                        modifier = Modifier,
-                        color = Color.DarkGray
-                    )
                 }
-                Spacer(modifier = Modifier.padding(horizontal = 90.dp))
-                val uid = FirebaseAuth.getInstance().currentUser?.uid
-                var likeCount by remember { mutableStateOf(0) }
-                likeCount = postInfo.Like.count()
-                Row(modifier = Modifier){
-                    var likeColor:Color = Color.DarkGray
-                    var iconImage:ImageVector = Icons.Filled.FavoriteBorder
-                    if(postInfo.Like.containsKey(uid))
-                    {
-                        likeColor = Color.Red
-                        iconImage = Icons.Filled.Favorite
-                    }
+                Spacer(modifier = Modifier.padding(8.dp))
+            }
+        }
+    }
+}
 
-                    Icon(
-                        imageVector = iconImage,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable {
-                                if (postInfo.Like.containsKey(uid)) {
-                                    postInfo.Like.remove(uid)
-                                } else {
-                                    postInfo.Like[uid!!] = true
-                                }
-                                likeCount = postInfo.Like.count()
-                                savePostLike(postInfo.Like, postInfo.postID!!)
-                            }
-                            .padding(horizontal = 4.dp)
-                            .size(14.dp),
-                        tint = likeColor
-                    )
-                    Icon(
-                        imageVector = Icons.Outlined.Share,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { /*TODO*/ }
-                            .padding(horizontal = 4.dp)
-                            .size(14.dp),
-                        tint = Color.DarkGray
-                    )
-                    Icon(
-                        imageVector = Icons.Outlined.MoreVert,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .clickable { /*TODO*/ }
-                            .padding(horizontal = 4.dp)
-                            .size(14.dp),
+//Box( 아이콘 형식
+//contentAlignment = Alignment.Center,
+//modifier = Modifier
+//.size(28.dp)
+//.clip(CircleShape)
+//.clickable { /*TODO*/ }
+//) {
+//    Icon(
+//        imageVector = Icons.Outlined.FavoriteBorder,
+//        contentDescription = null,
+//        modifier = Modifier
+//            .size(18.dp),
+//        tint = Color.Black
+//    )
 
-                        tint = Color.DarkGray
-                    )
-                    }
+
+//                Spacer(modifier = Modifier.padding(horizontal = 90.dp))
+//                val uid = FirebaseAuth.getInstance().currentUser?.uid
+//                var likeCount by remember { mutableStateOf(0) }
+//                likeCount = postInfo.Like.count()
+//                Row(modifier = Modifier){
+//                    var likeColor:Color = Color.DarkGray
+//                    var iconImage:ImageVector = Icons.Filled.FavoriteBorder
+//                    if(postInfo.Like.containsKey(uid))
+//                    {
+//                        likeColor = Color.Red
+//                        iconImage = Icons.Filled.Favorite
+//                    }
+
+//                    Icon(
+//                        imageVector = iconImage,
+//                        contentDescription = null,
+//                        modifier = Modifier
+//                            .clip(CircleShape)
+//                            .clickable {
+//                                if (postInfo.Like.containsKey(uid)) {
+//                                    postInfo.Like.remove(uid)
+//                                } else {
+//                                    postInfo.Like[uid!!] = true
+//                                }
+//                                likeCount = postInfo.Like.count()
+//                                savePostLike(postInfo.Like, postInfo.postID!!)
+//                            }
+//                            .padding(horizontal = 4.dp)
+//                            .size(14.dp),
+//                        tint = likeColor
+//                    )
+//                    Icon(
+//                        imageVector = Icons.Outlined.Share,
+//                        contentDescription = null,
+//                        modifier = Modifier
+//                            .clip(CircleShape)
+//                            .clickable { /*TODO*/ }
+//                            .padding(horizontal = 4.dp)
+//                            .size(14.dp),
+//                        tint = Color.DarkGray
+//                    )
 //                    Text(
 //                        color =Color.Black,
 //                        text = "좋아요" + likeCount + "개",
 //                        fontSize = 14.sp,
 //                        modifier = Modifier.padding(horizontal = 4.dp)
 //                    )
-            }
-        }
-    }
-}
 
 fun savePostLike(likeInfo: HashMap<String,Boolean>,documentID: String)
 {
