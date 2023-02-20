@@ -3,24 +3,26 @@ package com.example.primo2.screen
 import android.util.Log
 import android.widget.Space
 import android.widget.Toast
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.*
+import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
-import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
@@ -372,15 +374,21 @@ fun BottomSheetContent(
         }
         else{
             onBottomNaviSizeChange(65.dp)
-            Box(modifier = Modifier
-                .align(Alignment.End)
-                .height(30.dp)
-                .width(100.dp)
-                .background(Color.Black)
-                .clickable { reorderBest(courseList) })
+            Box(
+                modifier = Modifier
+                    .padding(vertical = 12.dp, horizontal = 12.dp)
+                    .align(Alignment.End)
+                    //.border(1.dp,Color.LightGray, RoundedCornerShape(20))
+                    .background(
+                        color = Color.LightGray,
+                        shape = RoundedCornerShape(20),
+                    )
+                    .clip(RoundedCornerShape(20))
+                    .clickable { reorderBest(courseList) })
             {
-                Text(text = "거리순 정렬",color= Color.White)
+                Text(text = "거리순 정렬",color= Color.Black, modifier = Modifier.padding(4.dp))
             }
+
             LazyColumn(
                 state = state.listState,
                 modifier = Modifier
@@ -392,25 +400,32 @@ fun BottomSheetContent(
                     ReorderableItem(state, key = item) { isDragging ->
                         val placeName:String = placeListHashMap[item]?.placeName.toString()
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
-                        Column(modifier = Modifier.padding(50.dp,20.dp) ) {
-                            Box(
+                        Surface(
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                                .shadow(
+                                    elevation = 1.dp,
+                                    shape = RoundedCornerShape(20)
+                                )
+                                .aspectRatio(16f / 4f)
+                                .detectReorder(state)
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally,
                                 modifier = Modifier
-                                    .shadow(elevation.value)
-                                    .background(Color.Black)
-                                    .fillMaxWidth()
-                                    .height(80.dp)
-                                    .detectReorder(state)
                             ) {
                                 Text(
                                     text = placeName,
-                                    color = Color.White,
+                                    color = Color.Black,
                                     fontSize = 20.sp,
                                     textAlign = TextAlign.Center,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier
-                                        .fillMaxWidth()
+                                        .padding(2.dp)
                                 )
                             }
+
                         }
                     }
 
@@ -428,32 +443,38 @@ fun BottomSheetContent(
                         }
                         LaunchedEffect(isVisible)
                         {
-                            delay(1000L)
+                            delay(700L)
                             isVisible = true
                         }
-                        AnimatedVisibility(visible = isVisible) {
-                            Text(
-                                text = "> $distance$distanceUnit",
-                                color = Color.Black,
-                                fontSize = 20.sp,
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            )
+                        Surface (modifier = Modifier.height(20.dp)){
+                            AnimatedVisibility(
+                                visible = isVisible,
+                                enter = fadeIn(),
+                                exit = fadeOut()
+                            ) {
+                                Row(
+                                    horizontalArrangement = Arrangement.Center,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Outlined.MoreVert,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .size(16.dp),
+                                        tint = Color.Black
+                                    )
+                                    Text(
+                                        text = "$distance$distanceUnit",
+                                        color = Color.Black,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.Normal,
+                                        modifier = Modifier
+                                    )
+                                }
+                            }
                         }
-                        AnimatedVisibility(visible = !isVisible) {
-                            Text(
-                                text = "",
-                                color = Color.Black,
-                                fontSize = 20.sp,
-                                textAlign = TextAlign.Center,
-                                fontWeight = FontWeight.Bold,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                            )
-                        }
-
                     }
                 }
             }

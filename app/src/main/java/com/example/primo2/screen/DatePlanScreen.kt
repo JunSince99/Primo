@@ -168,11 +168,14 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                 shape = RoundedCornerShape(20)
             )
             .aspectRatio(16f / 4f)
-            .clickable { /*TODO*/ }
+            .clickable {
+                val datePlanName = datePlanInfo.dateTitle
+                navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
+                //getUserOrientation(navController,datePlanName,leaderUID)
+            }
     ) {
         Row(
-            modifier = Modifier
-                .background(brush = SolidColor(Color.White), alpha = 0.1f),
+            modifier = Modifier,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier = Modifier.padding(6.dp))
@@ -195,20 +198,12 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
                 )
-                ClickableText(
-                    text = AnnotatedString("데이트 코스 관리"),
-                    modifier = Modifier,
-                    onClick = {
-                        val datePlanName = datePlanInfo.dateTitle
-                        navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
-                        //getUserOrientation(navController,datePlanName,leaderUID)
-                    }
-                )
+                Spacer(modifier = Modifier.padding(2.dp))
                 Text(
-                    text = "데이트 코스 삭제",
-                    color = Color.Black,
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
+                    text = "2023-03-20",
+                    color = Color.DarkGray,
+                    fontSize = 11.sp,
+                    fontWeight = FontWeight.Normal,
                     modifier = Modifier
                 )
             }

@@ -147,7 +147,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                         .fillMaxWidth()
                     ) {
                         val contrast = 1f // 0f..10f (1 should be default)
-                        val brightness = -50f // -255f..255f (0 should be default)
+                        val brightness = -0f // -255f..255f (0 should be default)
                         val colorMatrix = floatArrayOf(
                             contrast, 0f, 0f, 0f, brightness,
                             0f, contrast, 0f, 0f, brightness,
