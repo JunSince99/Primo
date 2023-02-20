@@ -1,17 +1,15 @@
 package com.example.primo2.screen
 
 import android.util.Log
+import android.widget.Space
 import android.widget.Toast
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
@@ -42,10 +40,8 @@ import androidx.test.core.app.ApplicationProvider.getApplicationContext
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.primo2.DatePlanInfo
+import com.example.primo2.*
 import com.example.primo2.R
-import com.example.primo2.placeList
-import com.example.primo2.userOrientation
 import com.google.accompanist.permissions.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -56,14 +52,13 @@ import com.google.firebase.ktx.Firebase
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.*
 import com.naver.maps.map.compose.LocationTrackingMode
+import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.overlay.OverlayImage
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.distinctUntilChanged
+import com.naver.maps.map.overlay.PolylineOverlay
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.*
-import kotlin.math.absoluteValue
-import kotlin.math.roundToInt
+import kotlin.math.*
 
 @Composable
 fun informationPlace(modifier: Modifier = Modifier)
@@ -81,8 +76,8 @@ fun MapScreen(
     leaderUID: String?,
     modifier: Modifier = Modifier
 ){
-    var courseList = remember { mutableStateListOf<String>() }
 
+    val courseList = remember { mutableStateListOf<String>() }
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
     courseList.clear()
     database.child(datePlanName!!).child("course").get().addOnSuccessListener {
@@ -176,40 +171,88 @@ fun MapScreen(
 
             )
             {
+                val courseCoordiList = ArrayList<LatLng>()
+                for(i in 0 until courseList.size){
+                    courseCoordiList.add(LatLng(placeListHashMap[courseList[i]]!!.latitude,placeListHashMap[courseList[i]]!!.longitude))
+                }
+                if(courseCoordiList.size > 1) {
+                    PolylineOverlay(courseCoordiList.toList()
+                        ,pattern = arrayOf(5.dp,10.dp)
+                        ,width = 3.dp
+                        ,joinType = LineJoin.Round
+                        ,color = Color.Gray)
+                }
 
                 for (i in 0 until placeList.size) {
-                    var fitness:Double = fitnessCalc(userOrientation,i)
-                    Marker(
-                        icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
-                        width = 40.dp,
-                        height = 40.dp,
-                        state = MarkerState(
-                            position = LatLng(
-                                placeList[i].latitude,
-                                placeList[i].longitude
-                            )
-                        ),
-                        captionText = placeList[i].placeName+"\n"+"적합도 : " + fitness.roundToInt() + "%",
-                        captionMinZoom = 12.2,
-                        minZoom = 12.2,
-                        onClick = { overlay ->
-                            bottomNaviInfo = placeList[i].information
-                            bottomNaviID = placeList[i].placeID
-                            bottomNaviTitle = placeList[i].placeName
-                            bottomNaviPaint = placeList[i].imageResource
-                            showMapInfo = true
+                    val courseIndex = courseList.indexOf(placeList[i].placeID)
+                    if (courseIndex != -1) {
+                        Marker(
+                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
+                            width = 40.dp,
+                            height = 40.dp,
+                            state = MarkerState(
+                                position = LatLng(
+                                    placeList[i].latitude,
+                                    placeList[i].longitude
+                                )
+                            ),
+                            captionText = placeList[i].placeName + "\n" + (courseIndex + 1),
+                            captionColor = Color.Green,
+                            onClick = { overlay ->
+                                bottomNaviInfo = placeList[i].information
+                                bottomNaviID = placeList[i].placeID
+                                bottomNaviTitle = placeList[i].placeName
+                                bottomNaviPaint = placeList[i].imageResource
+                                showMapInfo = true
 
-                            scope.launch {
-                                scaffoldState.bottomSheetState.apply{
-                                    if (!isCollapsed) {collapse()}
+                                scope.launch {
+                                    scaffoldState.bottomSheetState.apply {
+                                        if (!isCollapsed) {
+                                            collapse()
+                                        }
+                                    }
                                 }
-                            }
 
-                            true
-                        },
-                        tag = i,
-                        zIndex = fitness.roundToInt() // 겹칠때 적합도 높은게 위로 가게
-                    )
+                                true
+                            },
+                            tag = i,
+                        )
+                    } else {
+                        var fitness: Double = fitnessCalc(userOrientation, i)
+                        Marker(
+                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
+                            width = 40.dp,
+                            height = 40.dp,
+                            state = MarkerState(
+                                position = LatLng(
+                                    placeList[i].latitude,
+                                    placeList[i].longitude
+                                )
+                            ),
+                            captionText = placeList[i].placeName + "\n" + "적합도 : " + fitness.roundToInt() + "%",
+                            captionMinZoom = 12.2,
+                            minZoom = 12.2,
+                            onClick = { overlay ->
+                                bottomNaviInfo = placeList[i].information
+                                bottomNaviID = placeList[i].placeID
+                                bottomNaviTitle = placeList[i].placeName
+                                bottomNaviPaint = placeList[i].imageResource
+                                showMapInfo = true
+
+                                scope.launch {
+                                    scaffoldState.bottomSheetState.apply {
+                                        if (!isCollapsed) {
+                                            collapse()
+                                        }
+                                    }
+                                }
+
+                                true
+                            },
+                            tag = i,
+                            zIndex = fitness.roundToInt() // 겹칠때 적합도 높은게 위로 가게
+                        )
+                    }
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
             }
@@ -266,8 +309,13 @@ fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateLis
                             onShowMapInfo(false)
                             if (courseList.indexOf(ID) == -1) {
                                 courseList.add(ID)
-                                val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
-                                database.child(datePlanName!!).child("course").setValue(courseList)
+                                val database = Firebase.database.reference
+                                    .child("DatePlan")
+                                    .child(leaderUID.toString())
+                                database
+                                    .child(datePlanName!!)
+                                    .child("course")
+                                    .setValue(courseList)
                             } else {
                                 Toast
                                     .makeText(context, "이미 추가된 장소입니다.", Toast.LENGTH_SHORT)
@@ -292,12 +340,13 @@ fun BottomSheetContent(
     onBottomNaviSizeChange: (Dp) -> Unit,
     onShowMapInfo: (Boolean) -> Unit
 ) { // 스와이프 한후에 보이는 전체
+    var isVisible by remember{ mutableStateOf(true) }
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         courseList.add(to.index,courseList.removeAt(from.index))
+        isVisible = false
         database.child(datePlanName!!).child("course").setValue(courseList)
     })
-    val context = LocalContext.current
     Column {
         if(showMapInfo) {
             onBottomNaviSizeChange(65.dp)
@@ -323,6 +372,15 @@ fun BottomSheetContent(
         }
         else{
             onBottomNaviSizeChange(65.dp)
+            Box(modifier = Modifier
+                .align(Alignment.End)
+                .height(30.dp)
+                .width(100.dp)
+                .background(Color.Black)
+                .clickable { reorderBest(courseList) })
+            {
+                Text(text = "거리순 정렬",color= Color.White)
+            }
             LazyColumn(
                 state = state.listState,
                 modifier = Modifier
@@ -332,8 +390,9 @@ fun BottomSheetContent(
             ) {
                 items(courseList, { it }) { item ->
                     ReorderableItem(state, key = item) { isDragging ->
+                        val placeName:String = placeListHashMap[item]?.placeName.toString()
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
-                        Column(modifier = Modifier.padding(5.dp,20.dp) ) {
+                        Column(modifier = Modifier.padding(50.dp,20.dp) ) {
                             Box(
                                 modifier = Modifier
                                     .shadow(elevation.value)
@@ -343,7 +402,7 @@ fun BottomSheetContent(
                                     .detectReorder(state)
                             ) {
                                 Text(
-                                    text = item,
+                                    text = placeName,
                                     color = Color.White,
                                     fontSize = 20.sp,
                                     textAlign = TextAlign.Center,
@@ -351,9 +410,50 @@ fun BottomSheetContent(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                 )
-
                             }
                         }
+                    }
+
+                    if(courseList.indexOf(item) != courseList.size - 1 )
+                    {
+                        var distance = getDistance(placeListHashMap[item]!!.latitude,
+                            placeListHashMap[item]!!.longitude,
+                        placeListHashMap[courseList[courseList.indexOf(item)+1]]!!.latitude,
+                            placeListHashMap[courseList[courseList.indexOf(item)+1]]!!.longitude)
+                        var distanceUnit = "m"
+                        if(distance >= 1000)
+                        {
+                            distance /= 1000
+                            distanceUnit = "km"
+                        }
+                        LaunchedEffect(isVisible)
+                        {
+                            delay(1000L)
+                            isVisible = true
+                        }
+                        AnimatedVisibility(visible = isVisible) {
+                            Text(
+                                text = "> $distance$distanceUnit",
+                                color = Color.Black,
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+                        }
+                        AnimatedVisibility(visible = !isVisible) {
+                            Text(
+                                text = "",
+                                color = Color.Black,
+                                fontSize = 20.sp,
+                                textAlign = TextAlign.Center,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                            )
+                        }
+
                     }
                 }
             }
@@ -382,6 +482,35 @@ fun fitnessCalc(userOrientation: HashMap<String, Any>,num :Int) : Double{
         fitness = 100.0
     }
     return fitness
+}
+
+fun getDistance(lat1: Double, long1: Double,lat2:Double, long2:Double) : Int{
+    val R = 6372.8 * 1000
+    val dLat = Math.toRadians(lat2- lat1)
+    val dLong = Math.toRadians(long2 - long1)
+    val a = sin(dLat/2).pow(2.0) + sin(dLong / 2).pow(2.0) * cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2))
+    val c = 2 * asin(sqrt(a))
+    return (R * c).toInt()
+}
+
+fun reorderBest(courseList: SnapshotStateList<String>)
+{
+    for(i in 0 until courseList.size-1)
+    {
+        var bestIndex = -1
+        var bestDistance = 100000
+        for(j in i+1 until courseList.size )
+        {
+            val tryDistance = getDistance(placeListHashMap[courseList[i]]!!.latitude, placeListHashMap[courseList[i]]!!.longitude,
+                placeListHashMap[courseList[j]]!!.latitude, placeListHashMap[courseList[j]]!!.longitude)
+            if(tryDistance < bestDistance)
+            {
+                bestDistance = tryDistance
+                bestIndex = j
+            }
+        }
+        courseList.add(i+1,courseList.removeAt(bestIndex))
+    }
 }
 /*
 @Preview(showBackground = true)

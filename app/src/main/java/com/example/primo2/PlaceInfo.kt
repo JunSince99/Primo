@@ -18,6 +18,7 @@ data class PlaceInfo(
     val longitude: Double = 0.0,
     val placeHashMap: HashMap<String,Any>? = null
 )
+val placeListHashMap: HashMap<String, PlaceInfo> = HashMap()
 val placeList: ArrayList<PlaceInfo> = ArrayList()
 fun getPlaceInfo(){
     val db = Firebase.firestore
@@ -36,6 +37,9 @@ fun getPlaceInfo(){
                     val longitude = document.data["longitude"] as Double
                     val information = document.data["information"] as String
                     placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap))
+                }
+                for(i in 0 until placeList.size) {
+                    placeListHashMap[placeList[i].placeID] = placeList[i]
                 }
             }
 
