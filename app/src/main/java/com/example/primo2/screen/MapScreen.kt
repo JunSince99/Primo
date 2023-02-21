@@ -29,8 +29,10 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -135,27 +137,17 @@ fun MapScreen(
     )
     {
         modifier.padding(it)
+        var searchKeyword by remember { mutableStateOf("") }
         Box(
             Modifier
                 .fillMaxSize()) {
+
             val cameraPositionState = rememberCameraPositionState()
             val position by remember {
                 derivedStateOf {
                     cameraPositionState.position
                 }
             }
-            /*
-        LaunchedEffect(cameraPositionState.isMoving){
-            if(cameraPositionState.isMoving)
-            {
-                Log.e("카메라 움직임", "줌레벨 :")
-                Log.e("카메라 움직임", "줌레벨 : "+cameraPositionState.position.zoom)
-            }
-            else{
-                Log.e("카메라 멈춤", "줌레벨 :")
-                Log.e("카메라 멈춤", "줌레벨 : "+cameraPositionState.position.zoom)
-            }
-        }*/
             NaverMap(cameraPositionState = cameraPositionState,
                 locationSource = rememberFusedLocationSource(),
                 properties = mapProperties,
@@ -257,6 +249,26 @@ fun MapScreen(
                     }
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
+            }
+            //검색창
+            Column(modifier = Modifier.padding(10.dp)) {
+                TextField(
+                    value = searchKeyword,
+                    onValueChange = { text ->
+                        searchKeyword = text },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    textStyle = TextStyle.Default.copy(fontSize = 10.sp,),
+                    label = {Text("검색")},
+                    singleLine = true,
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.White,
+                        cursorColor = Color.Black,
+                        focusedIndicatorColor = Color.Black,
+                        focusedLabelColor = Color.Black
+                    )
+                )
             }
             Column {
                 //ShowLocationPermission()

@@ -69,6 +69,7 @@ enum class PrimoScreen() {
 @Composable
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier,viewModel: PostViewModel = viewModel()) {
     InitailLoading()
+    val datePlanList = remember { mutableStateListOf<DatePlanInfo>() }
     val homeListState:LazyListState = rememberLazyListState() // 홈 화면 스크롤 상태 저장
     val datePlanListState:LazyListState = rememberLazyListState() // 데이트 플랜 스크롤 상태 저장
     val auth: FirebaseAuth = Firebase.auth
@@ -165,7 +166,8 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 DatePlanScreen(
                     navController,
                     requestManager,
-                    datePlanListState
+                    datePlanListState,
+                    datePlanList
                 )
             }
 
@@ -252,7 +254,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 SelectDateDateScreen(
                     onSubmitButtonClicked = {
                         //navController.navigate(PrimoScreen.RegisterPartnerID.name)
-                    },activity,navController
+                    },activity,navController,datePlanList
                 )
 
             }

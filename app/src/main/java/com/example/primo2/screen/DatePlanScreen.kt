@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -16,34 +17,30 @@ import androidx.compose.material.*
 import androidx.compose.material.R
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role.Companion.Image
-import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.primo2.DatePlanInfo
-import com.example.primo2.getUserOrientation
-import com.example.primo2.leaderUID
+import com.example.primo2.*
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.example.primo2.ui.theme.Typography
-import com.example.primo2.userOrientation
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -54,13 +51,8 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.Query
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
-import com.naver.maps.map.compose.GroundOverlayDefaults.Image
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.*
-import kotlin.collections.ArrayList
+import kotlin.math.roundToInt
 
 @SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalMaterialApi::class)
@@ -69,9 +61,9 @@ fun DatePlanScreen(
     navController: NavController,
     requestManager:RequestManager,
     listState: LazyListState = LazyListState(),
+    datePlanList: SnapshotStateList<DatePlanInfo>,
     modifier: Modifier = Modifier
 ) {
-    val datePlanList = remember { mutableStateListOf<DatePlanInfo>() }
     var imageUrlList:List<String> = listOf()
 //Firebase.database.reference.child("DatePlan").child(user!!.uid)
     val user = Firebase.auth.currentUser
@@ -98,7 +90,6 @@ fun DatePlanScreen(
                             )
                         }
                         course.add("")
-
                         datePlanList.add(
                             DatePlanInfo(
                                 title,
@@ -108,6 +99,9 @@ fun DatePlanScreen(
                             )
                         )
                     }
+                        datePlanList.sortByDescending {
+                                it.dateStartDate
+                        }
                 }
                 override fun onCancelled(databaseError: DatabaseError) {
                     //실패
@@ -137,7 +131,7 @@ fun DatePlanScreen(
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun DatePlans(requestManager: RequestManager,
-          modifier: Modifier = Modifier,
+              modifier: Modifier = Modifier,
               datePlanList: SnapshotStateList<DatePlanInfo>,
               navController: NavController,
               listState: LazyListState = LazyListState()
@@ -145,21 +139,27 @@ fun DatePlans(requestManager: RequestManager,
 {
     LazyColumn(modifier = modifier, state = listState) {
         items(datePlanList.size){
-                DatePlan(
-                    datePlanList[it],
-                    requestManager,
-                    it,
-                    navController,
-                    leaderUID,
-                )
+            DatePlan(
+                datePlanList[it],
+                requestManager,
+                it,
+                navController,
+                leaderUID,
+            )
         }
     }
 }
 
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,navController: NavController,leaderUID:String) {
+    val swipeSize = 86.dp
+    val swipeableState = rememberSwipeableState(0)
+    val sizePx = with(LocalDensity.current) { swipeSize.toPx() }
+    val anchors = mapOf(0f to 0, -sizePx to 1)
     Surface(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -173,24 +173,67 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                 navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
                 //getUserOrientation(navController,datePlanName,leaderUID)
             }
+            .swipeable(
+                swipeableState,
+                anchors = anchors,
+                thresholds = { _, _ -> FractionalThreshold(0.8f) },
+                orientation = Orientation.Horizontal
+            )
     ) {
+        Row(modifier = Modifier
+            .background(color = Color.Red),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
+
+        ) {
+            Icon(
+                imageVector = Icons.Default.Delete,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(30.dp),
+                tint = Color.White
+            )
+            Spacer(modifier = Modifier.padding(10.dp,0.dp))
+        }
         Row(
-            modifier = Modifier,
+            modifier = Modifier
+                .offset { if(swipeableState.offset.value.roundToInt() < 0) {
+                    IntOffset(swipeableState.offset.value.roundToInt(), 0)
+                }
+                    else{
+                    IntOffset(0, 0)
+                }
+                }
+                .background(Color.White),
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier = Modifier.padding(6.dp))
-            Image(
-                painter = painterResource(id = com.example.primo2.R.drawable.place_centralpark),
+            var url =""
+            if(datePlanInfo.course.isNotEmpty()) {
+                url = placeListHashMap[datePlanInfo.course[0]]?.imageResource ?:"https://firebasestorage.googleapis.com/v0/b/primo-92b68.appspot.com/o/places%2F%ED%95%98%EB%8A%98.jpg?alt=media&token=dce6f873-3c4c-46e5-bf27-72bcc2a7ddcc"
+            }
+            GlideImage(
+                model = url,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .clip(CircleShape)
                     .size(70.dp)
             )
+            {
+                it
+                    .thumbnail(
+                        requestManager
+                            .asDrawable()
+                            .load(url)
+                            .override(64)
+                    )
+                // .signature(signature)
+            }
             Spacer(modifier = Modifier.padding(6.dp))
             Column (
                 modifier = Modifier,
-                    ) {
+            ) {
                 Text(
                     text = datePlanInfo.dateTitle,
                     color = Color.Black,
@@ -200,7 +243,7 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                 )
                 Spacer(modifier = Modifier.padding(2.dp))
                 Text(
-                    text = "2023-03-20",
+                    text = datePlanInfo.dateStartDate,
                     color = Color.DarkGray,
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Normal,

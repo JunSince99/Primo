@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.BiasAbsoluteAlignment
 import androidx.compose.ui.Modifier
@@ -45,6 +46,7 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import java.text.SimpleDateFormat
 import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 var date:String = ""
@@ -54,6 +56,7 @@ fun SelectDateDateScreen(
     onSubmitButtonClicked: () -> Unit = {},
     activity: Activity,
     navController: NavController,
+    datePlanList: SnapshotStateList<DatePlanInfo>,
     modifier: Modifier = Modifier
 ) {
     /*
@@ -67,7 +70,16 @@ fun SelectDateDateScreen(
 
         AndroidView(factory = { CalendarView(it) }, update = {
             it.setOnDateChangeListener { calendarView, year, month, day ->
-                date = "$year-${month+1}-$day"
+                val yearStr = year.toString()
+                var monthStr = (month+1).toString()
+                if(monthStr.toInt() < 10){
+                    monthStr = "0$monthStr"
+                }
+                var dayStr = day.toString()
+                if(dayStr.toInt() < 10){
+                    dayStr = "0$dayStr"
+                }
+                date = "$yearStr-$monthStr-$dayStr"
             }
         }, modifier = modifier.fillMaxSize())
 
@@ -159,10 +171,27 @@ fun SelectDateDateScreen(
                 }, horizontalArrangement = Arrangement.Center)
                 {
                     Box(modifier = Modifier.weight(1f).clickable {
-                        writeDatePlan(date,dateTitle)
-                        navController.navigate(PrimoScreen.DatePlans.name)
+                        var isDuplication = false
+                        for(i in 0 until datePlanList.size){
+                            if(datePlanList[i].dateTitle == dateTitle)
+                            {
+                                isDuplication = true
+                                break
+                            }
+                        }
+                        if(isDuplication == true)
                         {
-                            popUpTo("DatePlans")
+                            Toast.makeText(
+                                activity, "중복 타이틀 입니다.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                        else {
+                            writeDatePlan(date, dateTitle)
+                            navController.navigate(PrimoScreen.DatePlans.name)
+                            {
+                                popUpTo("DatePlans")
+                            }
                         }
                     })
                     {
