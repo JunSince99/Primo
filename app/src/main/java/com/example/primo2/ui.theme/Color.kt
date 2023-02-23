@@ -13,3 +13,6 @@ val DarkRed = Color(0xFFB00020)
 val Black = Color(0x00000000)
 val White = Color(0xFFFFFFFF)
 val HideColor = Color(0x2F000000)
+val moreLightGray = Color(0xFFF2F2F2)
+
+val LightRed = Color(0xFFFFB2B3)

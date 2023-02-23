@@ -218,7 +218,7 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .clip(CircleShape)
-                    .size(70.dp)
+                    .size(60.dp)
             )
             {
                 it

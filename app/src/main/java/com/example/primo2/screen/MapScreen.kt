@@ -11,6 +11,7 @@ import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -46,6 +47,8 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.*
 import com.example.primo2.R
+import com.example.primo2.ui.theme.LightRed
+import com.example.primo2.ui.theme.moreLightGray
 import com.google.accompanist.permissions.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -275,7 +278,6 @@ fun MapScreen(
             }
         }
     }
-
 }
 @Composable
 fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateList<String>,onShowMapInfo: (Boolean) -> Unit,leaderUID: String?,datePlanName: String?) { // 위로 스와이프 하기전에 보이는거
@@ -388,17 +390,17 @@ fun BottomSheetContent(
             onBottomNaviSizeChange(65.dp)
             Box(
                 modifier = Modifier
-                    .padding(vertical = 12.dp, horizontal = 12.dp)
-                    .align(Alignment.End)
+                    .padding(vertical = 16.dp, horizontal = 16.dp)
+                    .align(Alignment.Start)
                     //.border(1.dp,Color.LightGray, RoundedCornerShape(20))
                     .background(
-                        color = Color.LightGray,
+                        color = moreLightGray,
                         shape = RoundedCornerShape(20),
                     )
                     .clip(RoundedCornerShape(20))
                     .clickable { reorderBest(courseList) })
             {
-                Text(text = "거리순 정렬",color= Color.Black, modifier = Modifier.padding(4.dp))
+                Text(text = "거리순 정렬",color= Color.Black, modifier = Modifier.padding(8.dp))
             }
 
             LazyColumn(
@@ -410,7 +412,7 @@ fun BottomSheetContent(
             ) {
                 items(courseList, { it }) { item ->
                     ReorderableItem(state, key = item) { isDragging ->
-                        val placeName:String = placeListHashMap[item]?.placeName.toString()
+                        val placeName: String = placeListHashMap[item]?.placeName.toString()
                         val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
                         Surface(
                             modifier = Modifier
@@ -419,23 +421,104 @@ fun BottomSheetContent(
                                     elevation = 1.dp,
                                     shape = RoundedCornerShape(20)
                                 )
-                                .aspectRatio(16f / 4f)
+                                .aspectRatio(16f / 3f)
                                 .detectReorder(state)
                         ) {
-                            Column(
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = Alignment.CenterHorizontally,
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
                                 modifier = Modifier
                             ) {
-                                Text(
-                                    text = placeName,
-                                    color = Color.Black,
-                                    fontSize = 20.sp,
-                                    textAlign = TextAlign.Center,
-                                    fontWeight = FontWeight.Bold,
+                                Box(
                                     modifier = Modifier
-                                        .padding(2.dp)
+                                        .padding(16.dp)
+                                        .aspectRatio(1f)
+                                        .background(
+                                            color = LightRed,
+                                            shape = CircleShape,
+                                        )
+                                ) {
+                                    Text(
+                                        text = "1",
+                                        color = Color.White,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.ExtraBold,
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                    )
+                                }
+                                Divider(
+                                    color = moreLightGray,
+                                    modifier = Modifier
+                                        .width(1.dp)
+                                        .height(40.dp),
                                 )
+                                Spacer(modifier = Modifier.padding(8.dp))
+                                Column(
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier
+                                ) {
+                                    Text(
+                                        text = placeName,
+                                        color = Color.Black,
+                                        fontSize = 20.sp,
+                                        textAlign = TextAlign.Center,
+                                        fontWeight = FontWeight.Medium,
+                                        modifier = Modifier
+                                    )
+                                    Spacer(modifier = Modifier.padding(1.dp))
+                                    Row {
+                                        Box(
+                                            modifier = Modifier
+                                                .border(
+                                                    1.dp,
+                                                    Color.LightGray,
+                                                    RoundedCornerShape(60)
+                                                )
+                                        ) {
+                                            Text(
+                                                text = "걷기 좋은",
+                                                color = Color.Black,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                modifier = Modifier.padding(6.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.padding(4.dp))
+                                        Box(
+                                            modifier = Modifier
+                                                .border(
+                                                    1.dp,
+                                                    Color.LightGray,
+                                                    RoundedCornerShape(60)
+                                                )
+                                        ) {
+                                            Text(
+                                                text = "공원",
+                                                color = Color.Black,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                modifier = Modifier.padding(6.dp)
+                                            )
+                                        }
+                                        Spacer(modifier = Modifier.padding(4.dp))
+                                        Box(
+                                            modifier = Modifier
+                                                .border(
+                                                    1.dp,
+                                                    Color.LightGray,
+                                                    RoundedCornerShape(60)
+                                                )
+                                        ) {
+                                            Text(
+                                                text = "전통",
+                                                color = Color.Black,
+                                                fontSize = 11.sp,
+                                                fontWeight = FontWeight.Normal,
+                                                modifier = Modifier.padding(6.dp)
+                                            )
+                                        }
+                                    }
+                                }
                             }
 
                         }
