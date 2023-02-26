@@ -423,7 +423,7 @@ fun BottomSheetContent(
                                     elevation = 1.dp,
                                     shape = RoundedCornerShape(20)
                                 )
-                                .aspectRatio(20f / 4f)
+                                .aspectRatio(20f / 5f)
                                 .detectReorder(state)
                         ) {
                             Row(
@@ -433,11 +433,13 @@ fun BottomSheetContent(
                                 Box(
                                     modifier = Modifier
                                         .padding(16.dp)
+                                        .size(40.dp)
                                         .aspectRatio(1f)
                                         .background(
                                             color = LightRed,
                                             shape = CircleShape,
                                         )
+
                                 ) {
                                     Text(
                                         text = "1",
@@ -452,7 +454,7 @@ fun BottomSheetContent(
                                     color = moreLightGray,
                                     modifier = Modifier
                                         .width(1.dp)
-                                        .height(40.dp),
+                                        .height(60.dp),
                                 )
                                 Row(
                                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -473,7 +475,7 @@ fun BottomSheetContent(
                                             fontWeight = FontWeight.Medium,
                                             modifier = Modifier
                                         )
-                                        Spacer(modifier = Modifier.padding(1.dp))
+                                        Spacer(modifier = Modifier.padding(3.dp))
                                         Row {
                                             placetag("걷기 좋은")
                                             placetag("공원")
