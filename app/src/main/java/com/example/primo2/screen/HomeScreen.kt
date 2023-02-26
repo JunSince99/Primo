@@ -107,6 +107,9 @@ fun Posts(requestManager: RequestManager,
     val uiState by viewModel.postState.collectAsState()
     if(uiState.isEmpty())
     {
+        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                CircularProgressIndicator()
+        }
         if(!viewModel.isUpdate) {
             viewModel.updatePostInformation()
             viewModel.isUpdate = true

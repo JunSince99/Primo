@@ -55,7 +55,6 @@ import java.util.*
 import kotlin.math.roundToInt
 
 @SuppressLint("CoroutineCreationDuringComposition")
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun DatePlanScreen(
     navController: NavController,
@@ -121,6 +120,11 @@ fun DatePlanScreen(
             ) {
                 Scaffold() { padding ->
                     DatePlans(requestManager, Modifier.padding(padding), datePlanList,navController,listState)
+                }
+                Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                    if(datePlanList.isEmpty()){
+                        CircularProgressIndicator()
+                    }
                 }
             }
         }
@@ -197,12 +201,12 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
         }
         Row(
             modifier = Modifier
-                .offset { if(swipeableState.offset.value.roundToInt() < 0) {
-                    IntOffset(swipeableState.offset.value.roundToInt(), 0)
-                }
-                    else{
-                    IntOffset(0, 0)
-                }
+                .offset {
+                    if (swipeableState.offset.value.roundToInt() < 0) {
+                        IntOffset(swipeableState.offset.value.roundToInt(), 0)
+                    } else {
+                        IntOffset(0, 0)
+                    }
                 }
                 .background(Color.White),
             verticalAlignment = Alignment.CenterVertically
