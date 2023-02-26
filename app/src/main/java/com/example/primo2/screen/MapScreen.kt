@@ -423,7 +423,7 @@ fun BottomSheetContent(
                                     elevation = 1.dp,
                                     shape = RoundedCornerShape(20)
                                 )
-                                .aspectRatio(16f / 3f)
+                                .aspectRatio(20f / 4f)
                                 .detectReorder(state)
                         ) {
                             Row(
