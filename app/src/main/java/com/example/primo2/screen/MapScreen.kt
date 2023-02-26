@@ -16,6 +16,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -452,75 +454,39 @@ fun BottomSheetContent(
                                         .width(1.dp)
                                         .height(40.dp),
                                 )
-                                Spacer(modifier = Modifier.padding(8.dp))
-                                Column(
-                                    verticalArrangement = Arrangement.Center,
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = 16.dp)
                                 ) {
-                                    Text(
-                                        text = placeName,
-                                        color = Color.Black,
-                                        fontSize = 20.sp,
-                                        textAlign = TextAlign.Center,
-                                        fontWeight = FontWeight.Medium,
+                                    Column(
+                                        verticalArrangement = Arrangement.Center,
                                         modifier = Modifier
-                                    )
-                                    Spacer(modifier = Modifier.padding(1.dp))
-                                    Row {
-                                        Box(
+                                    ) {
+                                        Text(
+                                            text = placeName,
+                                            color = Color.Black,
+                                            fontSize = 20.sp,
+                                            textAlign = TextAlign.Center,
+                                            fontWeight = FontWeight.Medium,
                                             modifier = Modifier
-                                                .border(
-                                                    1.dp,
-                                                    Color.LightGray,
-                                                    RoundedCornerShape(60)
-                                                )
-                                        ) {
-                                            Text(
-                                                text = "걷기 좋은",
-                                                color = Color.Black,
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Normal,
-                                                modifier = Modifier.padding(6.dp)
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.padding(4.dp))
-                                        Box(
-                                            modifier = Modifier
-                                                .border(
-                                                    1.dp,
-                                                    Color.LightGray,
-                                                    RoundedCornerShape(60)
-                                                )
-                                        ) {
-                                            Text(
-                                                text = "공원",
-                                                color = Color.Black,
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Normal,
-                                                modifier = Modifier.padding(6.dp)
-                                            )
-                                        }
-                                        Spacer(modifier = Modifier.padding(4.dp))
-                                        Box(
-                                            modifier = Modifier
-                                                .border(
-                                                    1.dp,
-                                                    Color.LightGray,
-                                                    RoundedCornerShape(60)
-                                                )
-                                        ) {
-                                            Text(
-                                                text = "전통",
-                                                color = Color.Black,
-                                                fontSize = 11.sp,
-                                                fontWeight = FontWeight.Normal,
-                                                modifier = Modifier.padding(6.dp)
-                                            )
+                                        )
+                                        Spacer(modifier = Modifier.padding(1.dp))
+                                        Row {
+                                            placetag("걷기 좋은")
+                                            placetag("공원")
+                                            placetag("전통")
                                         }
                                     }
+                                    Icon(
+                                        imageVector = Icons.Default.Menu,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                    )
                                 }
                             }
-
                         }
                     }
 
@@ -575,6 +541,27 @@ fun BottomSheetContent(
             }
         }
     }
+}
+
+@Composable
+fun placetag(tagname : String){
+    Box(
+        modifier = Modifier
+            .border(
+                1.dp,
+                Color.LightGray,
+                RoundedCornerShape(60)
+            )
+    ) {
+        Text(
+            text = tagname,
+            color = Color.Black,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Normal,
+            modifier = Modifier.padding(6.dp)
+        )
+    }
+    Spacer(modifier = Modifier.padding(4.dp))
 }
 
 
