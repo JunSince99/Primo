@@ -529,11 +529,11 @@ fun BottomSheetContent(
                         var distance = getDistance(placeListHashMap[item]!!.latitude,
                             placeListHashMap[item]!!.longitude,
                         placeListHashMap[courseList[courseList.indexOf(item)+1]]!!.latitude,
-                            placeListHashMap[courseList[courseList.indexOf(item)+1]]!!.longitude)
+                            placeListHashMap[courseList[courseList.indexOf(item)+1]]!!.longitude).toString()
                         var distanceUnit = "m"
-                        if(distance >= 1000)
+                        if(distance.toDouble() >= 1000)
                         {
-                            distance /= 1000
+                            distance = (round(distance.toDouble() / 100) /10).toString()
                             distanceUnit = "km"
                         }
                         LaunchedEffect(isVisible)
@@ -606,7 +606,7 @@ fun getDistance(lat1: Double, long1: Double,lat2:Double, long2:Double) : Int{
     val dLong = Math.toRadians(long2 - long1)
     val a = sin(dLat/2).pow(2.0) + sin(dLong / 2).pow(2.0) * cos(Math.toRadians(lat1)) * cos(Math.toRadians(lat2))
     val c = 2 * asin(sqrt(a))
-    return (R * c).toInt()
+    return round(R * c).toInt()
 }
 
 fun reorderBest(courseList: SnapshotStateList<String>)
