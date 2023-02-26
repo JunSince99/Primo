@@ -442,7 +442,7 @@ fun BottomSheetContent(
 
                                 ) {
                                     Text(
-                                        text = "1",
+                                        text = (courseList.indexOf(item)+1).toString(),
                                         color = Color.White,
                                         fontSize = 16.sp,
                                         fontWeight = FontWeight.ExtraBold,
