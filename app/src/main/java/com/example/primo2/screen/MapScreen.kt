@@ -37,6 +37,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.toLowerCase
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -67,6 +68,9 @@ import com.naver.maps.map.overlay.PolylineOverlay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.*
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.math.*
 
 @Composable
@@ -75,7 +79,7 @@ fun informationPlace(modifier: Modifier = Modifier)
     Text(text = "즐겨찾기 페이지", style = MaterialTheme.typography.h4)
 }
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalPermissionsApi::class,
-    ExperimentalMaterialApi::class
+    ExperimentalMaterialApi::class, ExperimentalGlideComposeApi::class
 )
 @Composable
 fun MapScreen(
@@ -256,24 +260,93 @@ fun MapScreen(
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
             }
             //검색창
+
+            Column(modifier=Modifier) {
+                Box(modifier = Modifier) {
+                    TextField(
+                        value = searchKeyword,
+                        onValueChange = { text ->
+                            searchKeyword = text
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        textStyle = TextStyle.Default.copy(fontSize = 10.sp,),
+                        label = { Text("검색") },
+                        singleLine = true,
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = Color.White,
+                            cursorColor = Color.Black,
+                            focusedIndicatorColor = Color.Black,
+                            focusedLabelColor = Color.Black
+                        )
+                    )
+                }
+            }
             Column(modifier = Modifier.padding(10.dp)) {
-                TextField(
-                    value = searchKeyword,
-                    onValueChange = { text ->
-                        searchKeyword = text },
+                Box(modifier = Modifier) {
+                    TextField(
+                        value = searchKeyword,
+                        onValueChange = { text ->
+                            searchKeyword = text
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        textStyle = TextStyle.Default.copy(fontSize = 10.sp,),
+                        label = { Text("검색") },
+                        singleLine = true,
+                        colors = TextFieldDefaults.textFieldColors(
+                            backgroundColor = Color.White,
+                            cursorColor = Color.Black,
+                            focusedIndicatorColor = Color.Black,
+                            focusedLabelColor = Color.Black
+                        )
+                    )
+                }
+                val searchPlaceList:ArrayList<Int> = ArrayList()
+                if(searchKeyword.isNotBlank()){
+                    searchPlaceList.clear()
+                    for(i in 0 until placeList.size){
+                        if(placeList[i].placeName.contains(searchKeyword)){
+                            searchPlaceList.add(i)
+                        }
+                    }
+                }
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(50.dp),
-                    textStyle = TextStyle.Default.copy(fontSize = 10.sp,),
-                    label = {Text("검색")},
-                    singleLine = true,
-                    colors = TextFieldDefaults.textFieldColors(
-                        backgroundColor = Color.White,
-                        cursorColor = Color.Black,
-                        focusedIndicatorColor = Color.Black,
-                        focusedLabelColor = Color.Black
-                    )
-                )
+                        .height(190.dp)
+                ) {
+                    items(searchPlaceList) { item ->
+                        Column(modifier = Modifier
+                            .height(50.dp)
+                            .fillMaxWidth()
+                            .background(Color.White)) {
+                            Row(modifier = Modifier) {
+                                val url = placeList[item].imageResource
+                                GlideImage(
+                                    model = url, contentDescription = "", modifier = Modifier
+                                        .height(40.dp)
+                                        .width(40.dp), contentScale = ContentScale.Crop
+
+                                )
+                                {
+                                    it
+                                        .thumbnail(
+                                            requestManager
+                                                .asDrawable()
+                                                .load(url)
+                                                // .signature(signature)
+                                                .override(64)
+                                        )
+                                    // .signature(signature)
+                                }
+                                Text(text = placeList[item].placeName)
+                            }
+                        }
+                    }
+                }
             }
             Column {
                 //ShowLocationPermission()
