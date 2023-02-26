@@ -423,7 +423,7 @@ fun BottomSheetContent(
                                     elevation = 1.dp,
                                     shape = RoundedCornerShape(20)
                                 )
-                                .aspectRatio(20f / 5f)
+                                .aspectRatio(20f / 4.5f)
                                 .detectReorder(state)
                         ) {
                             Row(
@@ -475,7 +475,7 @@ fun BottomSheetContent(
                                             fontWeight = FontWeight.Medium,
                                             modifier = Modifier
                                         )
-                                        Spacer(modifier = Modifier.padding(3.dp))
+                                        Spacer(modifier = Modifier.padding(4.dp))
                                         Row {
                                             placetag("걷기 좋은")
                                             placetag("공원")
