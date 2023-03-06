@@ -91,7 +91,9 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
         NavHost(
             navController = navController,
             startDestination = PrimoScreen.Home.name,
-            modifier = modifier.padding(innerPadding).nestedScroll(scrollBehavior.nestedScrollConnection),
+            modifier = modifier
+                .padding(innerPadding)
+                .nestedScroll(scrollBehavior.nestedScrollConnection),
         ) {
 
             //홈 화면
@@ -163,12 +165,13 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
 
             //데이트 계획 관리
             composable(route = PrimoScreen.DatePlans.name) {
-                DatePlanScreen(
+                /*DatePlanScreen(
                     navController,
                     requestManager,
                     datePlanListState,
                     datePlanList
-                )
+                )*/
+                CalendarScreen()
             }
 
 
