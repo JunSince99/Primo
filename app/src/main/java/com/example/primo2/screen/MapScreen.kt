@@ -462,7 +462,7 @@ fun BottomSheetContent(
             Text(text = info, fontFamily = FontFamily.Cursive)
         }
         else{
-            onBottomNaviSizeChange(65.dp)
+            onBottomNaviSizeChange(300.dp)
             Box(
                 modifier = Modifier
                     .padding(vertical = 16.dp, horizontal = 16.dp)
@@ -482,7 +482,7 @@ fun BottomSheetContent(
                 state = state.listState,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(500.dp)
+                    .height(400.dp)
                     .reorderable(state)
             ) {
                 items(courseList, { it }) { item ->

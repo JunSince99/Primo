@@ -3,6 +3,8 @@ package com.example.primo2.screen
 import android.annotation.SuppressLint
 import android.net.Uri
 import android.util.Log
+import android.widget.CalendarView
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -24,15 +26,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
 import androidx.navigation.NavController
 import coil.compose.AsyncImagePainter.State.Empty.painter
 import com.bumptech.glide.RequestManager
@@ -128,7 +135,6 @@ fun DatePlanScreen(
                 }
             }
         }
-
     }
 }
 
@@ -160,10 +166,11 @@ fun DatePlans(requestManager: RequestManager,
 )
 @Composable
 fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,navController: NavController,leaderUID:String) {
-    val swipeSize = 86.dp
+    val swipeSize = 75.dp
     val swipeableState = rememberSwipeableState(0)
     val sizePx = with(LocalDensity.current) { swipeSize.toPx() }
     val anchors = mapOf(0f to 0, -sizePx to 1)
+    var visible by remember { mutableStateOf(false) }
     Surface(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -184,6 +191,61 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                 orientation = Orientation.Horizontal
             )
     ) {
+
+        if(visible)
+        {
+            Dialog(onDismissRequest = { visible = false }) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .wrapContentHeight()
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(color = Color.White)
+                ) {
+                    Text(
+                        modifier = Modifier
+                            .padding(24.dp),
+                        text = "삭제한 일정은 복구할 수 없습니다, 삭제하시겠습니까?",
+                        style = Typography.h5.copy(fontSize = 12.sp),
+                    )
+                    Row(modifier = Modifier
+                        .fillMaxWidth().height(40.dp)
+                        .drawBehind {
+                            drawLine(Color.LightGray, Offset(0f,0f),
+                                Offset(size.width,0f), strokeWidth = 1.dp.toPx())
+                            drawLine(Color.LightGray, Offset(size.width/2,0f),
+                                Offset(size.width/2,size.height), strokeWidth = 1.dp.toPx())
+                        }, horizontalArrangement = Arrangement.Center)
+                    {
+                        val database = Firebase.database.reference.child("DatePlan").child(leaderUID).child(datePlanInfo.dateTitle)
+                        Box(modifier = Modifier.weight(1f).clickable {
+                            visible = false
+                            database.removeValue()
+                        })
+                        {
+                            Text(
+                                text = AnnotatedString("삭제"),
+                                style = TextStyle(
+                                    fontSize = 14.sp
+                                ),
+                                modifier = Modifier.align(Alignment.Center).padding(10.dp)
+                            )
+                        }
+                        Box(modifier = Modifier.weight(1f).clickable { visible = false })
+                        {
+                            Text(
+                                text = AnnotatedString("취소"),
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                ),
+                                modifier = Modifier.align(Alignment.Center).padding(10.dp)
+                            )
+                        }
+
+                    }
+                }
+            }
+        }
         Row(modifier = Modifier
             .background(color = Color.Red),
             horizontalArrangement = Arrangement.End,
@@ -194,8 +256,11 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                 imageVector = Icons.Default.Delete,
                 contentDescription = null,
                 modifier = Modifier
-                    .size(30.dp),
-                tint = Color.White
+                    .size(30.dp)
+                    .clickable {
+                        visible = true
+                               },
+                tint = Color.White,
             )
             Spacer(modifier = Modifier.padding(10.dp,0.dp))
         }
