@@ -7,10 +7,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.example.primo2.ui.theme.spoqasans
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
@@ -27,7 +29,12 @@ fun Day(day: CalendarDay) {
     ) {
         Text(
             text = day.date.dayOfMonth.toString(),
-            color = if (day.position == DayPosition.MonthDate) Color.Black else Color.White
+            color = if (day.position != DayPosition.MonthDate) {Color.White}
+                    else if ( day.date.dayOfWeek == DayOfWeek.SUNDAY) {Color.Red}
+                    else if ( day.date.dayOfWeek == DayOfWeek.SATURDAY) {Color.Red}
+                    else Color.Black,
+            fontFamily = spoqasans,
+            fontWeight = FontWeight.Medium
         )
 
     }
@@ -42,7 +49,9 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
                     .weight(1f),
                 textAlign = TextAlign.Center,
                 text = dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.getDefault()),
-                color = Color.Gray
+                color = Color.Gray,
+                fontFamily = spoqasans,
+                fontWeight = FontWeight.Medium
             )
         }
     }
@@ -53,7 +62,7 @@ fun CalendarScreen(
     modifier: Modifier = Modifier
 ) {
     val currentMonth = remember { YearMonth.now() }
-    val startMonth = remember { currentMonth.minusMonths(2) } // Adjust as needed
+    val startMonth = remember { currentMonth.minusMonths(3) } // Adjust as needed
     val endMonth = remember { currentMonth.plusMonths(4) } // Adjust as needed
     val firstDayOfWeek = remember { firstDayOfWeekFromLocale() } // Available from the library
     val daysOfWeek = daysOfWeek()
@@ -64,7 +73,6 @@ fun CalendarScreen(
         firstDayOfWeek = firstDayOfWeek,
         outDateStyle = OutDateStyle.EndOfRow
     )
-
     HorizontalCalendar(
         modifier = Modifier,
         state = state,
@@ -73,6 +81,7 @@ fun CalendarScreen(
             DaysOfWeekTitle(daysOfWeek = daysOfWeek) // Use the title as month header
         },
         calendarScrollPaged = true,
+        userScrollEnabled = true,
         contentPadding = PaddingValues(4.dp)
     )
 }
