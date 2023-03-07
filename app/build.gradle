@@ -110,5 +110,5 @@ dependencies {
     implementation("androidx.compose.material3:material3:1.0.1")
     implementation("androidx.compose.material3:material3-window-size-class:1.0.1")
 
-    implementation 'com.kizitonwose.calendar:compose:2.2.0'
+    implementation 'com.kizitonwose.calendar:compose:2.1.1'
 }
