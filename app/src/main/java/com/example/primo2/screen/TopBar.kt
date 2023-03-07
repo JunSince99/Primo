@@ -14,12 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.primo2.ui.theme.Typography
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,14 +30,11 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
             TopAppBar(
                 title = {
                         Text(
-                            "Primo",
+                            text = month,
                             maxLines = 1,
                             style = Typography.h1,
                             overflow = TextOverflow.Ellipsis
                         )
-                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
-                        Text(text = month)
-                    }
                 },
                 actions = {
                     /*

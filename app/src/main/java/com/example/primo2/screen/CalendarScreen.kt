@@ -3,6 +3,7 @@ package com.example.primo2.screen
 import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
+import androidx.compose.material.swipeable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -21,6 +22,12 @@ import com.kizitonwose.calendar.core.*
 import java.time.*
 import java.time.format.TextStyle
 import java.util.*
+
+fun Dateform(year : YearMonth) : String {
+    var temp = year.toString().replace("-","년 ")
+    if (year.monthValue < 10) temp = temp.substring(0,6) + temp.substring(7) + "일"
+    return temp
+}
 
 @Composable
 fun Day(day: CalendarDay) {
@@ -84,10 +91,10 @@ fun CalendarScreen(
         monthHeader = {
             DaysOfWeekTitle(daysOfWeek = daysOfWeek) // Use the title as month header
         },
-        calendarScrollPaged = true,
+        calendarScrollPaged = false,
         userScrollEnabled = true,
-        contentPadding = PaddingValues(4.dp)
+        contentPadding = PaddingValues(8.dp)
     )
-    onMonthChange(state.firstVisibleMonth.yearMonth.toString())
+    onMonthChange(Dateform(state.firstVisibleMonth.yearMonth))
 }
 
