@@ -236,6 +236,9 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
 
             // 회원 등록 화면
             composable(route = PrimoScreen.MemberInit.name) {
+                BackHandler(true) { // backstack이 Home 일 때만 앱종료
+                    activity.finish()
+                }
                 MemberInitScreen(
                     onSubmitButtonClicked = {
                         navController.navigate(PrimoScreen.RegisterPartnerID.name)

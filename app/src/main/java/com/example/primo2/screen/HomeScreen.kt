@@ -79,28 +79,32 @@ fun HomeScreen(
     listState: LazyListState = LazyListState()
 ){
 
-        LazyColumnExampleTheme() {
-            Surface(
-                modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
-                color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
-            ) {
-                Scaffold() { padding ->
-                    Posts(requestManager, Modifier.padding(padding), viewModel,listState)
-                }
+    val user = Firebase.auth.currentUser
+    if(user == null) {
+        navController.navigate(PrimoScreen.Login.name)
+    }
+    else {
+            LaunchedEffect(true) {
+                val db = Firebase.firestore
+                val docRef = db.collection("users").document(user!!.uid)
+                docRef.get()// 유저 정보 불러오기
+                    .addOnSuccessListener { document ->
+                        if (!document.exists()) {
+                            navController.navigate(PrimoScreen.MemberInit.name)
+                        }
+                    }
             }
         }
-        val user = Firebase.auth.currentUser
-        if(user == null) {
-            navController.navigate(PrimoScreen.Login.name)
-        }
-        val db = Firebase.firestore
-        val docRef = db.collection("users").document(user!!.uid)
-        docRef.get()// 유저 정보 불러오기
-            .addOnSuccessListener { document ->
-                if (!document.exists()) {
-                    navController.navigate(PrimoScreen.MemberInit.name)
-                }
+    LazyColumnExampleTheme() {
+        Surface(
+            modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
+            color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
+        ) {
+            Scaffold() { padding ->
+                Posts(requestManager, Modifier.padding(padding), viewModel,listState)
             }
+        }
+    }
 }
 
 // 게시글들을 띄우는 함수
@@ -115,7 +119,9 @@ fun Posts(requestManager: RequestManager,
     val uiState by viewModel.postState.collectAsState()
     if(uiState.isEmpty())
     {
-        Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                 CircularProgressIndicator()
         }
         if(!viewModel.isUpdate) {
