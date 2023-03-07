@@ -23,20 +23,24 @@ import com.example.primo2.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, topBarText:String, homeListState: LazyListState, datePlanListState: LazyListState, scrollBehavior: TopAppBarScrollBehavior) {
+fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, topBarText:String, homeListState: LazyListState, datePlanListState: LazyListState, scrollBehavior: TopAppBarScrollBehavior,month:String) {
     if(TopBarState) {
         val topAppBarElementColor = Color.Black
         if (name == "DatePlans") {
             TopAppBar(
                 title = {
-                    Text(
-                        "Primo",
-                        maxLines = 1,
-                        style = Typography.h1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                        Text(
+                            "Primo",
+                            maxLines = 1,
+                            style = Typography.h1,
+                            overflow = TextOverflow.Ellipsis
+                        )
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
+                        Text(text = month)
+                    }
                 },
                 actions = {
+                    /*
                         IconButton(onClick = { navController.navigate(PrimoScreen.SelectDateDate.name) }) {
                             Column(
                                 modifier = Modifier.fillMaxSize(),
@@ -53,6 +57,8 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                                 )
                             }
                         }
+
+                     */
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.White,

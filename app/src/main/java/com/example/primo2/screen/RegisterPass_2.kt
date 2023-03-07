@@ -3,6 +3,7 @@ package com.example.primo2.screen
 import android.util.Patterns
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -22,7 +23,8 @@ import com.example.primo2.ui.theme.Typography
 
 @Composable
 fun RegisterPass_2(
-    onRegisterButtonClicked: () -> Unit = {},
+    onRegisterButtonClicked: (userPassword:String?) -> Unit = {},
+    userEmail:String?,
     modifier: Modifier = Modifier
 ){
     Column(
@@ -95,7 +97,11 @@ fun RegisterPass_2(
             label = {Text("비밀번호 확인")},
             visualTransformation = PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(
-                keyboardType = KeyboardType.Password
+                keyboardType = KeyboardType.Password,
+                imeAction = ImeAction.Done
+            ),
+            keyboardActions = KeyboardActions(
+                onDone = {onRegisterButtonClicked(password)}
             ),
             isError = isSamePass,
             colors = TextFieldDefaults.textFieldColors(
@@ -115,10 +121,3 @@ fun RegisterPass_2(
     }
 }
 
-@Preview
-@Composable
-fun RegisterPreview2() {
-    LazyColumnExampleTheme() {
-        RegisterPass_2()
-    }
-}

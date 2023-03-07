@@ -187,6 +187,7 @@ fun LoginScreen(
                 onClick = {
                     //회원가입 페이지로
                     onRegisterScreenButtonClicked()
+
                 }
             )
         }

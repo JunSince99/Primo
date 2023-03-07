@@ -7,6 +7,8 @@ import androidx.compose.ui.Modifier
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.example.primo2.screen.PrimoApp
+import com.example.primo2.screen.PrimoScreen
+import com.google.firebase.auth.FirebaseAuth
 
 
 class MainActivity : AppCompatActivity() {

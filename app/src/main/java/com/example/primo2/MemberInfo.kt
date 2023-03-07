@@ -105,13 +105,16 @@ fun getUserOrientation()
         db.collection("users").document(user.uid)
             .get()
             .addOnSuccessListener { document ->
-                userOrientation = document.get("taste") as HashMap<String, Any>
-                userOrientation = userOrientation.toList().sortedByDescending { it.second.toString().toDouble() }.toMap() as HashMap<String, Any>
-
+                if(document.exists()) {
+                    userOrientation = document.get("taste") as HashMap<String, Any>
+                    userOrientation = userOrientation.toList()
+                        .sortedByDescending { it.second.toString().toDouble() }
+                        .toMap() as HashMap<String, Any>
+                }
             }
             .addOnFailureListener { exception ->
+                Log.e("실패","실패")
             }
     }
-
 }
 

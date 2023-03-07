@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -28,7 +29,7 @@ import com.example.primo2.ui.theme.Typography
 
 @Composable
 fun RegisterEmail_1( // focus 처리
-    onRegisterButtonClicked: () -> Unit = {},
+    onRegisterButtonClicked: (userEmail:String) -> Unit = {},
     modifier: Modifier = Modifier
 ){
     Column(
@@ -65,7 +66,10 @@ fun RegisterEmail_1( // focus 처리
                 if (isErrorInID)
                     Icon(Icons.Filled.Info, "Error", tint = MaterialTheme.colors.error)
             },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+            keyboardActions = KeyboardActions(
+                onDone = {onRegisterButtonClicked(email)}
+            ),
 
             colors = TextFieldDefaults.textFieldColors(
                 backgroundColor = Color.White,

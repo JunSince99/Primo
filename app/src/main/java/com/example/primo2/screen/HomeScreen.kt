@@ -37,7 +37,6 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.MemberInfo
 import com.example.primo2.PostInfo
-import com.example.primo2.getWriterInfomation
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.example.primo2.ui.theme.Typography
 import com.example.primo2.ui.theme.spoqasans
@@ -79,10 +78,7 @@ fun HomeScreen(
     viewModel: PostViewModel = viewModel(),
     listState: LazyListState = LazyListState()
 ){
-        val user = Firebase.auth.currentUser
-        if(user == null) {
-            navController.navigate(PrimoScreen.Login.name)
-        }
+
         LazyColumnExampleTheme() {
             Surface(
                 modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
@@ -93,6 +89,18 @@ fun HomeScreen(
                 }
             }
         }
+        val user = Firebase.auth.currentUser
+        if(user == null) {
+            navController.navigate(PrimoScreen.Login.name)
+        }
+        val db = Firebase.firestore
+        val docRef = db.collection("users").document(user!!.uid)
+        docRef.get()// 유저 정보 불러오기
+            .addOnSuccessListener { document ->
+                if (!document.exists()) {
+                    navController.navigate(PrimoScreen.MemberInit.name)
+                }
+            }
 }
 
 // 게시글들을 띄우는 함수

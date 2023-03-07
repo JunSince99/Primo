@@ -1,5 +1,6 @@
 package com.example.primo2.screen
 
+import android.util.Log
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -14,6 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.primo2.ui.theme.spoqasans
 import com.kizitonwose.calendar.compose.HorizontalCalendar
+import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
 import java.time.*
@@ -59,6 +61,8 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
 
 @Composable
 fun CalendarScreen(
+    month:String,
+    onMonthChange:(String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val currentMonth = remember { YearMonth.now() }
@@ -84,10 +88,6 @@ fun CalendarScreen(
         userScrollEnabled = true,
         contentPadding = PaddingValues(4.dp)
     )
+    onMonthChange(state.firstVisibleMonth.yearMonth.toString())
 }
 
-@Preview
-@Composable
-fun PreviewCalender() {
-    CalendarScreen()
-}

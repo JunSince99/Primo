@@ -55,6 +55,7 @@ enum class PrimoScreen() {
     Home,
     Login,
     Register,
+    Register2,
     MemberInit,
     UploadPost,
     Map,
@@ -77,11 +78,10 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
     val bottomBarState = rememberSaveable { (mutableStateOf(false)) } // 바텀 네비게이션바 보이게 할지 말지
     val topBarState = rememberSaveable { (mutableStateOf(false)) } // 탑바 보이게 할지 말지
     val navName = rememberSaveable { (mutableStateOf("")) }
-
-
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
+    var month by rememberSaveable {(mutableStateOf("3"))}
     Scaffold(
-        topBar = { TopBar(navController,name = navName.value , TopBarState = topBarState.value, topBarText = "Primo",homeListState, datePlanListState,scrollBehavior)},
+        topBar = { TopBar(navController,name = navName.value , TopBarState = topBarState.value, topBarText = "Primo",homeListState, datePlanListState,scrollBehavior,month)},
         bottomBar = { NavigationBar(navController,bottomBarState.value) },
         backgroundColor = Color.White
     )  { innerPadding ->
@@ -101,19 +101,19 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 BackHandler(navController.previousBackStackEntry?.destination?.route == "Home") { // backstack이 Home 일 때만 앱종료
                     activity.finish()
                 }
-                    HomeScreen(
-                        onUploadButtonClicked = {
-                            navController.navigate(PrimoScreen.UploadPost.name)
-                            {
-                                popUpTo("Home")
-                            }
-                        },
-                        navController,
-                        requestManager,
-                        modifier = Modifier,
-                        viewModel,
-                        homeListState
-                    )
+                HomeScreen(
+                    onUploadButtonClicked = {
+                        navController.navigate(PrimoScreen.UploadPost.name)
+                        {
+                            popUpTo("Home")
+                        }
+                    },
+                    navController,
+                    requestManager,
+                    modifier = Modifier,
+                    viewModel,
+                    homeListState
+                )
             }
 
 
@@ -171,7 +171,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                     datePlanListState,
                     datePlanList
                 )*/
-                CalendarScreen()
+                CalendarScreen(month,onMonthChange = {month = it})
             }
 
 
@@ -208,12 +208,28 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             //가입 화면
             composable(route = PrimoScreen.Register.name) {
                 RegisterEmail_1(
-                    onRegisterButtonClicked = {
-                        navController.navigate(PrimoScreen.Home.name)
-                        {
-                            popUpTo("Home")
-                        }
+                    onRegisterButtonClicked = { userEmail ->
+                        navController.navigate("${PrimoScreen.Register2.name}/$userEmail")
                     }
+                )
+            }
+            val pass2 = PrimoScreen.Register2.name
+            composable(route = "$pass2/{userEmail}",
+                arguments = listOf(
+                    navArgument("userEmail"){
+                        type = NavType.StringType
+                    }
+                )
+            ) { entry->
+                val userEmail = entry.arguments?.getString("userEmail")!!
+                RegisterPass_2(
+                    onRegisterButtonClicked = { userPassword ->
+                        auth.createUserWithEmailAndPassword(userEmail, userPassword!!)
+                            .addOnSuccessListener { task ->
+                                navController.navigate(PrimoScreen.Home.name)
+                            }
+                    }
+                ,userEmail
                 )
             }
 
@@ -288,6 +304,9 @@ fun checkBottomVisible (navController:NavController): Boolean{
             "Login" -> {
                 bottomBarState = false
             }
+            "Register2" -> {
+                bottomBarState = false
+            }
             "Register" -> {
                 bottomBarState = false
             }
@@ -341,6 +360,9 @@ fun checkTopVisible (navController:NavController): Boolean{
                 TopBarState = false
             }
             "Register" -> {
+                TopBarState = false
+            }
+            "Register2" -> {
                 TopBarState = false
             }
             "MemberInit" -> {
