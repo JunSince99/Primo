@@ -15,9 +15,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.AddCircle
-import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -136,6 +134,7 @@ fun MapScreen(
         }
     }
     database!!.child(datePlanName!!).child("course").addValueEventListener(courseListener)
+
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
@@ -258,51 +257,115 @@ fun MapScreen(
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
             }
-            //검색창
-
-            Column(modifier=Modifier) {
-                Box(modifier = Modifier) {
-                    TextField(
-                        value = searchKeyword,
-                        onValueChange = { text ->
-                            searchKeyword = text
-                        },
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(60.dp)
+                    .background(Color.White)
+                    .shadow(5.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                ) {
+                    Box(
+                        contentAlignment = Alignment.Center,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        textStyle = TextStyle.Default.copy(fontSize = 10.sp,),
-                        label = { Text("검색") },
-                        singleLine = true,
-                        colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = Color.White,
-                            cursorColor = Color.Black,
-                            focusedIndicatorColor = Color.Black,
-                            focusedLabelColor = Color.Black
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .clickable { /*TODO*/ }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBack,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(20.dp),
+                            tint = Color.Black
                         )
-                    )
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            text = "다음 데이트",
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                            fontFamily = spoqasans,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 20.sp
+                        )
+                        Text(
+                            text = "3월 23일 목",
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                            fontFamily = spoqasans,
+                            fontWeight = FontWeight.Normal
+                        )
+                    }
+
+                    Box(
+                        contentAlignment = Alignment.Center,
+                        modifier = Modifier
+                            .size(28.dp)
+                            .clip(CircleShape)
+                            .clickable { /*TODO*/ }
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Search,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(20.dp),
+                            tint = Color.Black
+                        )
+                    }
                 }
             }
-            Column(modifier = Modifier.padding(10.dp)) {
-                Box(modifier = Modifier) {
-                    TextField(
-                        value = searchKeyword,
-                        onValueChange = { text ->
-                            searchKeyword = text
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp),
-                        textStyle = TextStyle.Default.copy(fontSize = 10.sp,),
-                        label = { Text("검색") },
-                        singleLine = true,
-                        colors = TextFieldDefaults.textFieldColors(
-                            backgroundColor = Color.White,
-                            cursorColor = Color.Black,
-                            focusedIndicatorColor = Color.Black,
-                            focusedLabelColor = Color.Black
-                        )
-                    )
-                }
+            //검색창
+
+//            Column(modifier=Modifier) {
+//                Box(modifier = Modifier) {
+//                    TextField(
+//                        value = searchKeyword,
+//                        onValueChange = { text ->
+//                            searchKeyword = text
+//                        },
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .height(50.dp),
+//                        textStyle = TextStyle.Default.copy(fontSize = 10.sp,),
+//                        label = { Text("검색") },
+//                        singleLine = true,
+//                        colors = TextFieldDefaults.textFieldColors(
+//                            backgroundColor = Color.White,
+//                            cursorColor = Color.Black,
+//                            focusedIndicatorColor = Color.Black,
+//                            focusedLabelColor = Color.Black
+//                        )
+//                    )
+//                }
+//            }
+//            Column(modifier = Modifier.padding(10.dp)) {
+//                Box(modifier = Modifier) {
+//                    TextField(
+//                        value = searchKeyword,
+//                        onValueChange = { text ->
+//                            searchKeyword = text
+//                        },
+//                        modifier = Modifier
+//                            .fillMaxWidth()
+//                            .height(50.dp),
+//                        textStyle = TextStyle.Default.copy(fontSize = 10.sp,),
+//                        label = { Text("검색") },
+//                        singleLine = true,
+//                        colors = TextFieldDefaults.textFieldColors(
+//                            backgroundColor = Color.White,
+//                            cursorColor = Color.Black,
+//                            focusedIndicatorColor = Color.Black,
+//                            focusedLabelColor = Color.Black
+//                        )
+//                    )
+//                }
                 val searchPlaceList:ArrayList<Int> = ArrayList()
                 if(searchKeyword.isNotBlank()){
                     searchPlaceList.clear()
@@ -352,7 +415,7 @@ fun MapScreen(
             }
         }
     }
-}
+
 @Composable
 fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateList<String>,onShowMapInfo: (Boolean) -> Unit,leaderUID: String?,datePlanName: String?) { // 위로 스와이프 하기전에 보이는거
     val context = LocalContext.current
@@ -461,10 +524,26 @@ fun BottomSheetContent(
             Text(text = info, fontFamily = FontFamily.Cursive)
         }
         else{
-            onBottomNaviSizeChange(300.dp)
+            onBottomNaviSizeChange(400.dp)
+
+            Spacer(modifier = Modifier.padding(4.dp))
+
             Box(
                 modifier = Modifier
-                    .padding(vertical = 16.dp, horizontal = 16.dp)
+                    .fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(width = 30.dp, height = 2.dp)
+                        .align(Alignment.Center)
+                        .background(color = Color.LightGray)
+                )
+            }
+
+            Spacer(modifier = Modifier.padding(4.dp))
+            Box(
+                modifier = Modifier
+                    .padding(vertical = 0.dp, horizontal = 16.dp)
                     .align(Alignment.Start)
                     //.border(1.dp,Color.LightGray, RoundedCornerShape(20))
                     .background(
@@ -472,18 +551,18 @@ fun BottomSheetContent(
                         shape = RoundedCornerShape(20),
                     )
                     .clip(RoundedCornerShape(20))
-                    .clickable { reorderBest(courseList) })
-            {
+                    .clickable { reorderBest(courseList) }
+            ) {
                 Text(text = "거리순 정렬",color= Color.Black, modifier = Modifier.padding(8.dp))
             }
 
-            var colorset = arrayOf(LightRed, LightYellow, LightSkyBlue, LightGreen, LightPurple)
+            var colorset = arrayOf(LightRed, LightPurple, LightSkyBlue, LightGreen, LightYellow)
 
             LazyColumn(
                 state = state.listState,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(400.dp)
+                    .height(600.dp)
                     .reorderable(state)
             ) {
                 items(courseList, { it }) { item ->
@@ -513,7 +592,6 @@ fun BottomSheetContent(
                                             color = colorset[courseList.indexOf(item)],
                                             shape = CircleShape,
                                         )
-
                                 ) {
                                     Text(
                                         text = (courseList.indexOf(item)+1).toString(),

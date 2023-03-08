@@ -235,7 +235,7 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
         monthHeader = {
             DaysOfWeekTitle(daysOfWeek = daysOfWeek) // Use the title as month header
         },
-        calendarScrollPaged = true,
+        calendarScrollPaged = false,
         userScrollEnabled = true,
         contentPadding = PaddingValues(8.dp),
     )
