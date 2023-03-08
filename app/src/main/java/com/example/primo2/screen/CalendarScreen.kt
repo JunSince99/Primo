@@ -194,17 +194,20 @@ fun DatePlans(requestManager: RequestManager,
               month: YearMonth
 )
 {
-    LazyColumn(modifier = modifier, state = listState) {
-        item {   ShowCalendar(onMonthChange) }
-        items(datePlanList.size){
-            if(datePlanList[it].dateStartDate.split("-")[1].toInt() == month.month.value) {
-                DatePlan(
-                    datePlanList[it],
-                    requestManager,
-                    it,
-                    navController,
-                    leaderUID,
-                )
+    Column {
+
+        ShowCalendar(onMonthChange)
+        LazyColumn(modifier = modifier, state = listState) {
+            items(datePlanList.size) {
+                if (datePlanList[it].dateStartDate.split("-")[1].toInt() == month.month.value) {
+                    DatePlan(
+                        datePlanList[it],
+                        requestManager,
+                        it,
+                        navController,
+                        leaderUID,
+                    )
+                }
             }
         }
     }
@@ -234,7 +237,7 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
         },
         calendarScrollPaged = true,
         userScrollEnabled = true,
-        contentPadding = PaddingValues(8.dp)
+        contentPadding = PaddingValues(8.dp),
     )
     onMonthChange(state.firstVisibleMonth.yearMonth)
 }
