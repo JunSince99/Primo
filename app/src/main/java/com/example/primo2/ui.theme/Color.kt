@@ -16,3 +16,7 @@ val HideColor = Color(0x2F000000)
 val moreLightGray = Color(0xFFF2F2F2)
 
 val LightRed = Color(0xFFFFB2B3)
+val LightPurple = Color(0xFFB4B8FF)
+val LightSkyBlue = Color(0xFFB1F7FF)
+val LightGreen = Color(0xFFAEFFBB)
+val LightYellow = Color(0xFFF9FF8B)

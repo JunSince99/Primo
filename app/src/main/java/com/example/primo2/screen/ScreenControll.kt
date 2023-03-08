@@ -171,7 +171,14 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                     datePlanListState,
                     datePlanList
                 )*/
-                CalendarScreen(month,onMonthChange = {month = it})
+                CalendarScreen(
+                    month,
+                    onMonthChange = {month = it},
+                    requestManager,
+                    datePlanList,
+                    navController,
+                    datePlanListState
+                    )
             }
 
 

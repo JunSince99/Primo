@@ -50,8 +50,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.*
 import com.example.primo2.R
-import com.example.primo2.ui.theme.LightRed
-import com.example.primo2.ui.theme.moreLightGray
+import com.example.primo2.ui.theme.*
 import com.google.accompanist.permissions.*
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.DataSnapshot
@@ -478,6 +477,8 @@ fun BottomSheetContent(
                 Text(text = "거리순 정렬",color= Color.Black, modifier = Modifier.padding(8.dp))
             }
 
+            var colorset = arrayOf(LightRed, LightYellow, LightSkyBlue, LightGreen, LightPurple)
+
             LazyColumn(
                 state = state.listState,
                 modifier = Modifier
@@ -509,7 +510,7 @@ fun BottomSheetContent(
                                         .size(40.dp)
                                         .aspectRatio(1f)
                                         .background(
-                                            color = LightRed,
+                                            color = colorset[courseList.indexOf(item)],
                                             shape = CircleShape,
                                         )
 
