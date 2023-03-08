@@ -64,7 +64,6 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     titleContentColor = Color.Black,
                     actionIconContentColor = topAppBarElementColor,
                 ),
-                scrollBehavior = scrollBehavior,
             )
         } else {
             TopAppBar(

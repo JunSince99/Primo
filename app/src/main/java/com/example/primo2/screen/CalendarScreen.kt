@@ -181,7 +181,7 @@ fun CalendarScreen(
 
     Column {
         HorizontalCalendar(
-            modifier = Modifier,
+            modifier = Modifier.fillMaxWidth().height(400.dp),
             state = state,
             dayContent = { Day(it) },
             monthHeader = {
@@ -200,7 +200,9 @@ fun CalendarScreen(
                 Scaffold() { padding ->
                     DatePlans(requestManager, Modifier.padding(padding), datePlanList,navController,listState)
                 }
-                Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                     if(datePlanList.isEmpty()){
                         CircularProgressIndicator()
                     }
@@ -280,7 +282,9 @@ fun DatePlanScreen(
                 Scaffold() { padding ->
                     DatePlans(requestManager, Modifier.padding(padding), datePlanList,navController,listState)
                 }
-                Column(modifier = Modifier.fillMaxWidth().fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                Column(modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
                     if(datePlanList.isEmpty()){
                         CircularProgressIndicator()
                     }
@@ -362,36 +366,49 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                         style = Typography.h5.copy(fontSize = 12.sp),
                     )
                     Row(modifier = Modifier
-                        .fillMaxWidth().height(40.dp)
+                        .fillMaxWidth()
+                        .height(40.dp)
                         .drawBehind {
-                            drawLine(Color.LightGray, Offset(0f,0f),
-                                Offset(size.width,0f), strokeWidth = 1.dp.toPx())
-                            drawLine(Color.LightGray, Offset(size.width/2,0f),
-                                Offset(size.width/2,size.height), strokeWidth = 1.dp.toPx())
+                            drawLine(
+                                Color.LightGray, Offset(0f, 0f),
+                                Offset(size.width, 0f), strokeWidth = 1.dp.toPx()
+                            )
+                            drawLine(
+                                Color.LightGray, Offset(size.width / 2, 0f),
+                                Offset(size.width / 2, size.height), strokeWidth = 1.dp.toPx()
+                            )
                         }, horizontalArrangement = Arrangement.Center)
                     {
                         val database = Firebase.database.reference.child("DatePlan").child(leaderUID).child(datePlanInfo.dateTitle)
-                        Box(modifier = Modifier.weight(1f).clickable {
-                            visible = false
-                            database.removeValue()
-                        })
+                        Box(modifier = Modifier
+                            .weight(1f)
+                            .clickable {
+                                visible = false
+                                database.removeValue()
+                            })
                         {
                             Text(
                                 text = AnnotatedString("삭제"),
                                 style = androidx.compose.ui.text.TextStyle(
                                     fontSize = 14.sp
                                 ),
-                                modifier = Modifier.align(Alignment.Center).padding(10.dp)
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .padding(10.dp)
                             )
                         }
-                        Box(modifier = Modifier.weight(1f).clickable { visible = false })
+                        Box(modifier = Modifier
+                            .weight(1f)
+                            .clickable { visible = false })
                         {
                             Text(
                                 text = AnnotatedString("취소"),
                                 style = androidx.compose.ui.text.TextStyle(
                                     fontSize = 14.sp,
                                 ),
-                                modifier = Modifier.align(Alignment.Center).padding(10.dp)
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .padding(10.dp)
                             )
                         }
 
