@@ -252,7 +252,7 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
     var visible by remember { mutableStateOf(false) }
     Column {
         Text(
-            text = datePlanInfo.dateStartDate.substring(8, 10) + "알",
+            text = datePlanInfo.dateStartDate.substring(8, 10) + "일",
             color = Color.Black,
             fontSize = 16.sp,
             fontWeight = FontWeight.Medium,
