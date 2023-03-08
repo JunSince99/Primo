@@ -120,47 +120,50 @@ fun CalendarScreen(
     val user = Firebase.auth.currentUser
     val db = Firebase.firestore
     var leaderUID = ""
-    db.collection("users").document(user!!.uid)
-        .get()
-        .addOnSuccessListener { document ->
-            leaderUID = document.getString("leaderUID") as String
-            val database = Firebase.database.reference.child("DatePlan").child(leaderUID)
-            val postListener = object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    datePlanList.clear()
-                    imageUrlList = listOf()
-                    for (datePlanSnapshot in dataSnapshot.children) {
-                        val title = datePlanSnapshot.child("dateTitle").value.toString()
-                        val startDate = datePlanSnapshot.child("startDate").value.toString()
-                        val endDate = datePlanSnapshot.child("endDate").value.toString()
-                        val course: MutableList<String> = mutableListOf()
-                        val courseCount = datePlanSnapshot.child("course").childrenCount
-                        for (i in 0 until courseCount) {
-                            course.add(
-                                datePlanSnapshot.child("course").child(i.toString()).value.toString()
+    LaunchedEffect(true) {
+        db.collection("users").document(user!!.uid)
+            .get()
+            .addOnSuccessListener { document ->
+                leaderUID = document.getString("leaderUID") as String
+                val database = Firebase.database.reference.child("DatePlan").child(leaderUID)
+                val postListener = object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        datePlanList.clear()
+                        imageUrlList = listOf()
+                        for (datePlanSnapshot in dataSnapshot.children) {
+                            val title = datePlanSnapshot.child("dateTitle").value.toString()
+                            val startDate = datePlanSnapshot.child("startDate").value.toString()
+                            val endDate = datePlanSnapshot.child("endDate").value.toString()
+                            val course: MutableList<String> = mutableListOf()
+                            val courseCount = datePlanSnapshot.child("course").childrenCount
+                            for (i in 0 until courseCount) {
+                                course.add(
+                                    datePlanSnapshot.child("course")
+                                        .child(i.toString()).value.toString()
+                                )
+                            }
+                            course.add("")
+                            datePlanList.add(
+                                DatePlanInfo(
+                                    title,
+                                    startDate,
+                                    endDate,
+                                    course
+                                )
                             )
                         }
-                        course.add("")
-                        datePlanList.add(
-                            DatePlanInfo(
-                                title,
-                                startDate,
-                                endDate,
-                                course
-                            )
-                        )
+                        datePlanList.sortByDescending {
+                            it.dateStartDate
+                        }
                     }
-                    datePlanList.sortByDescending {
-                        it.dateStartDate
-                    }
-                }
-                override fun onCancelled(databaseError: DatabaseError) {
-                    //실패
-                }
-            }
-            database.addValueEventListener(postListener)
-        }
 
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        //실패
+                    }
+                }
+                database.addValueEventListener(postListener)
+            }
+    }
     Column {
         Surface(
             modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
