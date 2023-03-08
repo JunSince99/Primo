@@ -49,6 +49,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import java.time.YearMonth
 
 
 enum class PrimoScreen() {
@@ -79,7 +80,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
     val topBarState = rememberSaveable { (mutableStateOf(false)) } // 탑바 보이게 할지 말지
     val navName = rememberSaveable { (mutableStateOf("")) }
     val scrollBehavior = TopAppBarDefaults.enterAlwaysScrollBehavior(rememberTopAppBarState())
-    var month by rememberSaveable {(mutableStateOf("3"))}
+    var month by rememberSaveable {(mutableStateOf(YearMonth.of(2023,3)))}
     Scaffold(
         topBar = { TopBar(navController,name = navName.value , TopBarState = topBarState.value, topBarText = "Primo",homeListState, datePlanListState,scrollBehavior,month)},
         bottomBar = { NavigationBar(navController,bottomBarState.value) },

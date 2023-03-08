@@ -20,17 +20,23 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.primo2.ui.theme.Typography
+import java.time.YearMonth
 
+fun Dateform(year : YearMonth) : String {
+    var temp = year.toString().replace("-","년 ")
+    if (year.monthValue < 10) temp = temp.substring(0,6) + temp.substring(7) + "월"
+    return temp
+}
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, topBarText:String, homeListState: LazyListState, datePlanListState: LazyListState, scrollBehavior: TopAppBarScrollBehavior,month:String) {
+fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, topBarText:String, homeListState: LazyListState, datePlanListState: LazyListState, scrollBehavior: TopAppBarScrollBehavior,month:YearMonth) {
     if(TopBarState) {
         val topAppBarElementColor = Color.Black
         if (name == "DatePlans") {
             TopAppBar(
                 title = {
                         Text(
-                            text = month,
+                            text = Dateform(month),
                             maxLines = 1,
                             style = Typography.h1,
                             overflow = TextOverflow.Ellipsis

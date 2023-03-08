@@ -52,7 +52,6 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import com.kizitonwose.calendar.compose.HorizontalCalendar
-import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
 import java.time.*
@@ -60,11 +59,6 @@ import java.time.format.TextStyle
 import java.util.*
 import kotlin.math.roundToInt
 
-fun Dateform(year : YearMonth) : String {
-    var temp = year.toString().replace("-","년 ")
-    if (year.monthValue < 10) temp = temp.substring(0,6) + temp.substring(7) + "월"
-    return temp
-}
 
 @Composable
 fun Day(day: CalendarDay) {
@@ -112,26 +106,14 @@ fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
 @SuppressLint("CoroutineCreationDuringComposition")
 @Composable
 fun CalendarScreen(
-    month:String,
-    onMonthChange:(String) -> Unit,
+    month: YearMonth,
+    onMonthChange:(YearMonth) -> Unit,
     requestManager: RequestManager,
     datePlanList: SnapshotStateList<DatePlanInfo>,
     navController: NavController,
     listState: LazyListState = LazyListState(),
     modifier: Modifier = Modifier
 ) {
-    val currentMonth = remember { YearMonth.now() }
-    val startMonth = remember { currentMonth.minusMonths(3) } // Adjust as needed
-    val endMonth = remember { currentMonth.plusMonths(4) } // Adjust as needed
-    val firstDayOfWeek = remember { firstDayOfWeekFromLocale() } // Available from the library
-    val daysOfWeek = daysOfWeek()
-    val state = rememberCalendarState(
-        startMonth = startMonth,
-        endMonth = endMonth,
-        firstVisibleMonth = currentMonth,
-        firstDayOfWeek = firstDayOfWeek,
-        outDateStyle = OutDateStyle.EndOfRow
-    )
 
     var imageUrlList:List<String> = listOf()
 //Firebase.database.reference.child("DatePlan").child(user!!.uid)
@@ -176,118 +158,22 @@ fun CalendarScreen(
                     //실패
                 }
             }
-            database!!.addValueEventListener(postListener)
+            database.addValueEventListener(postListener)
         }
 
     Column {
-        HorizontalCalendar(
-            modifier = Modifier.fillMaxWidth().height(400.dp),
-            state = state,
-            dayContent = { Day(it) },
-            monthHeader = {
-                DaysOfWeekTitle(daysOfWeek = daysOfWeek) // Use the title as month header
-            },
-            calendarScrollPaged = true,
-            userScrollEnabled = true,
-            contentPadding = PaddingValues(8.dp)
-        )
-
-        LazyColumnExampleTheme() {
-            Surface(
-                modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
-                color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
-            ) {
-                Scaffold() { padding ->
-                    DatePlans(requestManager, Modifier.padding(padding), datePlanList,navController,listState)
-                }
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                    if(datePlanList.isEmpty()){
-                        CircularProgressIndicator()
-                    }
-                }
+        Surface(
+            modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
+            color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
+        ) {
+            Scaffold() { padding ->
+                DatePlans(requestManager, Modifier.padding(padding), datePlanList,navController,listState,onMonthChange,month)
             }
-        }
-
-    }
-    onMonthChange(Dateform(state.firstVisibleMonth.yearMonth))
-}
-
-
-@SuppressLint("CoroutineCreationDuringComposition")
-@Composable
-fun DatePlanScreen(
-    navController: NavController,
-    requestManager:RequestManager,
-    listState: LazyListState = LazyListState(),
-    datePlanList: SnapshotStateList<DatePlanInfo>,
-    modifier: Modifier = Modifier
-) {
-    var imageUrlList:List<String> = listOf()
-//Firebase.database.reference.child("DatePlan").child(user!!.uid)
-    val user = Firebase.auth.currentUser
-    val db = Firebase.firestore
-    var leaderUID = ""
-    db.collection("users").document(user!!.uid)
-        .get()
-        .addOnSuccessListener { document ->
-            leaderUID = document.getString("leaderUID") as String
-            val database = Firebase.database.reference.child("DatePlan").child(leaderUID)
-            val postListener = object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    datePlanList.clear()
-                    imageUrlList = listOf()
-                    for (datePlanSnapshot in dataSnapshot.children) {
-                        val title = datePlanSnapshot.child("dateTitle").value.toString()
-                        val startDate = datePlanSnapshot.child("startDate").value.toString()
-                        val endDate = datePlanSnapshot.child("endDate").value.toString()
-                        val course: MutableList<String> = mutableListOf()
-                        val courseCount = datePlanSnapshot.child("course").childrenCount
-                        for (i in 0 until courseCount) {
-                            course.add(
-                                datePlanSnapshot.child("course").child(i.toString()).value.toString()
-                            )
-                        }
-                        course.add("")
-                        datePlanList.add(
-                            DatePlanInfo(
-                                title,
-                                startDate,
-                                endDate,
-                                course
-                            )
-                        )
-                    }
-                    datePlanList.sortByDescending {
-                        it.dateStartDate
-                    }
-                }
-                override fun onCancelled(databaseError: DatabaseError) {
-                    //실패
-                }
-            }
-            database!!.addValueEventListener(postListener)
-        }
-
-
-    Column(modifier = Modifier) {
-
-
-        LazyColumnExampleTheme() {
-            Surface(
-                modifier = Modifier, // 속성 정하는거(패딩, 크기 등)
-                color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
-            ) {
-                Scaffold() { padding ->
-                    DatePlans(requestManager, Modifier.padding(padding), datePlanList,navController,listState)
-                }
-                Column(modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-                    if(datePlanList.isEmpty()){
-                        CircularProgressIndicator()
-                    }
+            Column(modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
+                if(datePlanList.isEmpty()){
+                    CircularProgressIndicator()
                 }
             }
         }
@@ -300,22 +186,55 @@ fun DatePlans(requestManager: RequestManager,
               modifier: Modifier = Modifier,
               datePlanList: SnapshotStateList<DatePlanInfo>,
               navController: NavController,
-              listState: LazyListState = LazyListState()
+              listState: LazyListState = LazyListState(),
+              onMonthChange: (YearMonth) -> Unit,
+              month: YearMonth
 )
 {
     LazyColumn(modifier = modifier, state = listState) {
+        item {   ShowCalendar(onMonthChange) }
         items(datePlanList.size){
-            DatePlan(
-                datePlanList[it],
-                requestManager,
-                it,
-                navController,
-                leaderUID,
-            )
+            if(datePlanList[it].dateStartDate.split("-")[1].toInt() == month.month.value) {
+                DatePlan(
+                    datePlanList[it],
+                    requestManager,
+                    it,
+                    navController,
+                    leaderUID,
+                )
+            }
         }
     }
 }
-
+@Composable
+fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
+    val currentMonth = remember { YearMonth.now() }
+    val startMonth = remember { currentMonth.minusMonths(3) } // Adjust as needed
+    val endMonth = remember { currentMonth.plusMonths(4) } // Adjust as needed
+    val firstDayOfWeek = remember { firstDayOfWeekFromLocale() } // Available from the library
+    val daysOfWeek = daysOfWeek()
+    val state = rememberCalendarState(
+        startMonth = startMonth,
+        endMonth = endMonth,
+        firstVisibleMonth = currentMonth,
+        firstDayOfWeek = firstDayOfWeek,
+        outDateStyle = OutDateStyle.EndOfRow
+    )
+    HorizontalCalendar(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(400.dp),
+        state = state,
+        dayContent = { Day(it) },
+        monthHeader = {
+            DaysOfWeekTitle(daysOfWeek = daysOfWeek) // Use the title as month header
+        },
+        calendarScrollPaged = true,
+        userScrollEnabled = true,
+        contentPadding = PaddingValues(8.dp)
+    )
+    onMonthChange(state.firstVisibleMonth.yearMonth)
+}
 
 @OptIn(
     ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class,
@@ -339,7 +258,6 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
             .clickable {
                 val datePlanName = datePlanInfo.dateTitle
                 navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
-                //getUserOrientation(navController,datePlanName,leaderUID)
             }
             .swipeable(
                 swipeableState,
@@ -348,7 +266,6 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
                 orientation = Orientation.Horizontal
             )
     ) {
-
         if(visible)
         {
             Dialog(onDismissRequest = { visible = false }) {
