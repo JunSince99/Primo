@@ -69,7 +69,7 @@ fun Day(day: CalendarDay) {
             .clip(CircleShape)
             .clickable(
                 enabled = day.position == DayPosition.MonthDate,
-                onClick = { }
+                onClick = {/*TODO*/}
             ), // This is important for square sizing!
         contentAlignment = Alignment.Center
     ) {
@@ -229,7 +229,7 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
     HorizontalCalendar(
         modifier = Modifier
             .fillMaxWidth()
-            .height(400.dp),
+            .height(360.dp),
         state = state,
         dayContent = { Day(it) },
         monthHeader = {
@@ -253,164 +253,181 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
     val sizePx = with(LocalDensity.current) { swipeSize.toPx() }
     val anchors = mapOf(0f to 0, -sizePx to 1)
     var visible by remember { mutableStateOf(false) }
-    Surface(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .shadow(
-                elevation = 1.dp,
-                shape = RoundedCornerShape(20)
-            )
-            .aspectRatio(16f / 4f)
-            .clickable {
-                val datePlanName = datePlanInfo.dateTitle
-                navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
+    Column {
+        Text(
+            text = datePlanInfo.dateStartDate.substring(8, 10) + "일",
+            color = Color.Black,
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Medium,
+            fontFamily = spoqasans,
+            modifier = Modifier
+                .padding(horizontal = 16.dp)
+        )
+        Surface(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .shadow(
+                    elevation = 1.dp,
+                    shape = RoundedCornerShape(20)
+                )
+                .aspectRatio(16f / 4f)
+                .clickable {
+                    val datePlanName = datePlanInfo.dateTitle
+                    navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
+                }
+                .swipeable(
+                    swipeableState,
+                    anchors = anchors,
+                    thresholds = { _, _ -> FractionalThreshold(0.8f) },
+                    orientation = Orientation.Horizontal
+                )
+        ) {
+            if (visible) {
+                Dialog(onDismissRequest = { visible = false }) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .wrapContentHeight()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(color = Color.White)
+                    ) {
+                        Text(
+                            modifier = Modifier
+                                .padding(24.dp),
+                            text = "삭제한 일정은 복구할 수 없습니다, 삭제하시겠습니까?",
+                            style = Typography.h5.copy(fontSize = 12.sp),
+                        )
+                        Row(modifier = Modifier
+                            .fillMaxWidth()
+                            .height(40.dp)
+                            .drawBehind {
+                                drawLine(
+                                    Color.LightGray, Offset(0f, 0f),
+                                    Offset(size.width, 0f), strokeWidth = 1.dp.toPx()
+                                )
+                                drawLine(
+                                    Color.LightGray,
+                                    Offset(size.width / 2, 0f),
+                                    Offset(size.width / 2, size.height),
+                                    strokeWidth = 1.dp.toPx()
+                                )
+                            }, horizontalArrangement = Arrangement.Center
+                        )
+                        {
+                            val database =
+                                Firebase.database.reference.child("DatePlan").child(leaderUID)
+                                    .child(datePlanInfo.dateTitle)
+                            Box(modifier = Modifier
+                                .weight(1f)
+                                .clickable {
+                                    visible = false
+                                    database.removeValue()
+                                })
+                            {
+                                Text(
+                                    text = AnnotatedString("삭제"),
+                                    style = androidx.compose.ui.text.TextStyle(
+                                        fontSize = 14.sp
+                                    ),
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .padding(10.dp)
+                                )
+                            }
+                            Box(modifier = Modifier
+                                .weight(1f)
+                                .clickable { visible = false })
+                            {
+                                Text(
+                                    text = AnnotatedString("취소"),
+                                    style = androidx.compose.ui.text.TextStyle(
+                                        fontSize = 14.sp,
+                                    ),
+                                    modifier = Modifier
+                                        .align(Alignment.Center)
+                                        .padding(10.dp)
+                                )
+                            }
+
+                        }
+                    }
+                }
             }
-            .swipeable(
-                swipeableState,
-                anchors = anchors,
-                thresholds = { _, _ -> FractionalThreshold(0.8f) },
-                orientation = Orientation.Horizontal
-            )
-    ) {
-        if(visible)
-        {
-            Dialog(onDismissRequest = { visible = false }) {
-                Column(
+            Row(
+                modifier = Modifier
+                    .background(color = Color.Red),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Delete,
+                    contentDescription = null,
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(color = Color.White)
+                        .size(30.dp)
+                        .clickable {
+                            visible = true
+                        },
+                    tint = Color.White,
+                )
+                Spacer(modifier = Modifier.padding(10.dp, 0.dp))
+            }
+            Row(
+                modifier = Modifier
+                    .offset {
+                        if (swipeableState.offset.value.roundToInt() < 0) {
+                            IntOffset(swipeableState.offset.value.roundToInt(), 0)
+                        } else {
+                            IntOffset(0, 0)
+                        }
+                    }
+                    .background(Color.White),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.padding(6.dp))
+                var url = ""
+                if (datePlanInfo.course.isNotEmpty()) {
+                    url = placeListHashMap[datePlanInfo.course[0]]?.imageResource
+                        ?: "https://firebasestorage.googleapis.com/v0/b/primo-92b68.appspot.com/o/places%2F%ED%95%98%EB%8A%98.jpg?alt=media&token=dce6f873-3c4c-46e5-bf27-72bcc2a7ddcc"
+                }
+                GlideImage(
+                    model = url,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(60.dp)
+                )
+                {
+                    it
+                        .thumbnail(
+                            requestManager
+                                .asDrawable()
+                                .load(url)
+                                .override(64)
+                        )
+                    // .signature(signature)
+                }
+                Spacer(modifier = Modifier.padding(6.dp))
+                Column(
+                    modifier = Modifier,
                 ) {
                     Text(
+                        text = datePlanInfo.dateTitle,
+                        color = Color.Black,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
                         modifier = Modifier
-                            .padding(24.dp),
-                        text = "삭제한 일정은 복구할 수 없습니다, 삭제하시겠습니까?",
-                        style = Typography.h5.copy(fontSize = 12.sp),
                     )
-                    Row(modifier = Modifier
-                        .fillMaxWidth()
-                        .height(40.dp)
-                        .drawBehind {
-                            drawLine(
-                                Color.LightGray, Offset(0f, 0f),
-                                Offset(size.width, 0f), strokeWidth = 1.dp.toPx()
-                            )
-                            drawLine(
-                                Color.LightGray, Offset(size.width / 2, 0f),
-                                Offset(size.width / 2, size.height), strokeWidth = 1.dp.toPx()
-                            )
-                        }, horizontalArrangement = Arrangement.Center)
-                    {
-                        val database = Firebase.database.reference.child("DatePlan").child(leaderUID).child(datePlanInfo.dateTitle)
-                        Box(modifier = Modifier
-                            .weight(1f)
-                            .clickable {
-                                visible = false
-                                database.removeValue()
-                            })
-                        {
-                            Text(
-                                text = AnnotatedString("삭제"),
-                                style = androidx.compose.ui.text.TextStyle(
-                                    fontSize = 14.sp
-                                ),
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .padding(10.dp)
-                            )
-                        }
-                        Box(modifier = Modifier
-                            .weight(1f)
-                            .clickable { visible = false })
-                        {
-                            Text(
-                                text = AnnotatedString("취소"),
-                                style = androidx.compose.ui.text.TextStyle(
-                                    fontSize = 14.sp,
-                                ),
-                                modifier = Modifier
-                                    .align(Alignment.Center)
-                                    .padding(10.dp)
-                            )
-                        }
-
-                    }
-                }
-            }
-        }
-        Row(modifier = Modifier
-            .background(color = Color.Red),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-
-        ) {
-            Icon(
-                imageVector = Icons.Default.Delete,
-                contentDescription = null,
-                modifier = Modifier
-                    .size(30.dp)
-                    .clickable {
-                        visible = true
-                    },
-                tint = Color.White,
-            )
-            Spacer(modifier = Modifier.padding(10.dp,0.dp))
-        }
-        Row(
-            modifier = Modifier
-                .offset {
-                    if (swipeableState.offset.value.roundToInt() < 0) {
-                        IntOffset(swipeableState.offset.value.roundToInt(), 0)
-                    } else {
-                        IntOffset(0, 0)
-                    }
-                }
-                .background(Color.White),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(modifier = Modifier.padding(6.dp))
-            var url =""
-            if(datePlanInfo.course.isNotEmpty()) {
-                url = placeListHashMap[datePlanInfo.course[0]]?.imageResource ?:"https://firebasestorage.googleapis.com/v0/b/primo-92b68.appspot.com/o/places%2F%ED%95%98%EB%8A%98.jpg?alt=media&token=dce6f873-3c4c-46e5-bf27-72bcc2a7ddcc"
-            }
-            GlideImage(
-                model = url,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(60.dp)
-            )
-            {
-                it
-                    .thumbnail(
-                        requestManager
-                            .asDrawable()
-                            .load(url)
-                            .override(64)
+                    Spacer(modifier = Modifier.padding(2.dp))
+                    Text(
+                        text = "인천광역시 송도동",
+                        color = Color.DarkGray,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
                     )
-                // .signature(signature)
-            }
-            Spacer(modifier = Modifier.padding(6.dp))
-            Column (
-                modifier = Modifier,
-            ) {
-                Text(
-                    text = datePlanInfo.dateTitle,
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                )
-                Spacer(modifier = Modifier.padding(2.dp))
-                Text(
-                    text = datePlanInfo.dateStartDate,
-                    color = Color.DarkGray,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Normal,
-                    modifier = Modifier
-                )
+                }
             }
         }
     }
