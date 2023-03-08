@@ -70,6 +70,8 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.math.*
 
+val colorset = arrayOf(LightRed, LightPurple, LightSkyBlue, LightGreen, LightYellow)
+
 @Composable
 fun informationPlace(modifier: Modifier = Modifier)
 {
@@ -86,7 +88,6 @@ fun MapScreen(
     leaderUID: String?,
     modifier: Modifier = Modifier
 ){
-
     val courseList = remember { mutableStateListOf<String>() }
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
     courseList.clear()
@@ -178,8 +179,8 @@ fun MapScreen(
                 }
                 if(courseCoordiList.size > 1) {
                     PolylineOverlay(courseCoordiList.toList()
-                        ,pattern = arrayOf(5.dp,10.dp)
-                        ,width = 3.dp
+                        ,pattern = arrayOf(10.dp,5.dp)
+                        ,width = 2.dp
                         ,joinType = LineJoin.Round
                         ,color = Color.Gray)
                 }
@@ -188,17 +189,17 @@ fun MapScreen(
                     val courseIndex = courseList.indexOf(placeList[i].placeID)
                     if (courseIndex != -1) {
                         Marker(
-                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
-                            width = 40.dp,
-                            height = 40.dp,
+                            icon = OverlayImage.fromResource(R.drawable.circle),
+                            width = 20.dp,
+                            height = 20.dp,
                             state = MarkerState(
                                 position = LatLng(
-                                    placeList[i].latitude,
-                                    placeList[i].longitude
+                                    placeList[i].latitude-0.0006,
+                                    placeList[i].longitude+0.0002
                                 )
                             ),
-                            captionText = placeList[i].placeName + "\n" + (courseIndex + 1),
-                            captionColor = Color.Green,
+                            //captionText = placeList[i].placeName + "\n" + (courseIndex + 1),
+                            //captionColor = Color.Green,
                             onClick = { overlay ->
                                 bottomNaviInfo = placeList[i].information
                                 bottomNaviID = placeList[i].placeID
@@ -219,40 +220,40 @@ fun MapScreen(
                             tag = i,
                         )
                     } else {
-                        var fitness: Double = fitnessCalc(userOrientation, i)
-                        Marker(
-                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
-                            width = 40.dp,
-                            height = 40.dp,
-                            state = MarkerState(
-                                position = LatLng(
-                                    placeList[i].latitude,
-                                    placeList[i].longitude
-                                )
-                            ),
-                            captionText = placeList[i].placeName + "\n" + "적합도 : " + fitness.roundToInt() + "%",
-                            captionMinZoom = 12.2,
-                            minZoom = 12.2,
-                            onClick = { overlay ->
-                                bottomNaviInfo = placeList[i].information
-                                bottomNaviID = placeList[i].placeID
-                                bottomNaviTitle = placeList[i].placeName
-                                bottomNaviPaint = placeList[i].imageResource
-                                showMapInfo = true
-
-                                scope.launch {
-                                    scaffoldState.bottomSheetState.apply {
-                                        if (!isCollapsed) {
-                                            collapse()
-                                        }
-                                    }
-                                }
-
-                                true
-                            },
-                            tag = i,
-                            zIndex = fitness.roundToInt() // 겹칠때 적합도 높은게 위로 가게
-                        )
+//                        var fitness: Double = fitnessCalc(userOrientation, i)
+//                        Marker(
+//                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
+//                            width = 40.dp,
+//                            height = 40.dp,
+//                            state = MarkerState(
+//                                position = LatLng(
+//                                    placeList[i].latitude,
+//                                    placeList[i].longitude
+//                                )
+//                            ),
+//                            captionText = placeList[i].placeName + "\n" + "적합도 : " + fitness.roundToInt() + "%",
+//                            captionMinZoom = 12.2,
+//                            minZoom = 12.2,
+//                            onClick = { overlay ->
+//                                bottomNaviInfo = placeList[i].information
+//                                bottomNaviID = placeList[i].placeID
+//                                bottomNaviTitle = placeList[i].placeName
+//                                bottomNaviPaint = placeList[i].imageResource
+//                                showMapInfo = true
+//
+//                                scope.launch {
+//                                    scaffoldState.bottomSheetState.apply {
+//                                        if (!isCollapsed) {
+//                                            collapse()
+//                                        }
+//                                    }
+//                                }
+//
+//                                true
+//                            },
+//                            tag = i,
+//                            zIndex = fitness.roundToInt() // 겹칠때 적합도 높은게 위로 가게
+//                        )
                     }
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
@@ -555,9 +556,6 @@ fun BottomSheetContent(
             ) {
                 Text(text = "거리순 정렬",color= Color.Black, modifier = Modifier.padding(8.dp))
             }
-
-            var colorset = arrayOf(LightRed, LightPurple, LightSkyBlue, LightGreen, LightYellow)
-
             LazyColumn(
                 state = state.listState,
                 modifier = Modifier
