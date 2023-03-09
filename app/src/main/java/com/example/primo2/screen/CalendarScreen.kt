@@ -2,12 +2,17 @@ package com.example.primo2.screen
 
 import android.annotation.SuppressLint
 import android.util.Log
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.animateScrollBy
+import androidx.compose.foundation.gestures.rememberScrollableState
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.gestures.snapping.rememberSnapFlingBehavior
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
@@ -33,6 +38,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
@@ -69,7 +75,7 @@ fun Day(day: CalendarDay) {
             .clip(CircleShape)
             .clickable(
                 enabled = day.position == DayPosition.MonthDate,
-                onClick = {/*TODO*/}
+                onClick = {/*TODO*/ }
             ), // This is important for square sizing!
         contentAlignment = Alignment.Center
     ) {
@@ -195,7 +201,6 @@ fun DatePlans(requestManager: RequestManager,
 )
 {
     Column {
-        //d
         ShowCalendar(onMonthChange)
         LazyColumn(modifier = modifier, state = listState) {
             items(datePlanList.size) {
@@ -212,6 +217,7 @@ fun DatePlans(requestManager: RequestManager,
         }
     }
 }
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
     val currentMonth = remember { YearMonth.now() }
@@ -235,11 +241,26 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
         monthHeader = {
             DaysOfWeekTitle(daysOfWeek = daysOfWeek) // Use the title as month header
         },
-        calendarScrollPaged = false,
+        calendarScrollPaged = true,
         userScrollEnabled = true,
         contentPadding = PaddingValues(8.dp),
-    )
-    onMonthChange(state.firstVisibleMonth.yearMonth)
+
+        )
+    val calendarIndex = state.layoutInfo.visibleMonthsInfo.lastIndex
+    if (calendarIndex != -1) {
+        LaunchedEffect(state.layoutInfo.visibleMonthsInfo[calendarIndex]) {
+            if (calendarIndex == 1) {
+                if (state.layoutInfo.visibleMonthsInfo[0].month.yearMonth == startMonth) {
+                    onMonthChange(state.layoutInfo.visibleMonthsInfo[0].month.yearMonth)
+                } else if (state.layoutInfo.visibleMonthsInfo[1].month.yearMonth == endMonth){
+                    onMonthChange(state.layoutInfo.visibleMonthsInfo[1].month.yearMonth)
+                }
+            } else {
+                onMonthChange(state.layoutInfo.visibleMonthsInfo[1].month.yearMonth)
+            }
+        }
+    }
+
 }
 
 @OptIn(
