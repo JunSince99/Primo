@@ -121,8 +121,6 @@ fun CalendarScreen(
     modifier: Modifier = Modifier
 ) {
 
-    var imageUrlList:List<String> = listOf()
-//Firebase.database.reference.child("DatePlan").child(user!!.uid)
     val user = Firebase.auth.currentUser
     val db = Firebase.firestore
     var leaderUID = ""
@@ -135,7 +133,6 @@ fun CalendarScreen(
                 val postListener = object : ValueEventListener {
                     override fun onDataChange(dataSnapshot: DataSnapshot) {
                         datePlanList.clear()
-                        imageUrlList = listOf()
                         for (datePlanSnapshot in dataSnapshot.children) {
                             val title = datePlanSnapshot.child("dateTitle").value.toString()
                             val startDate = datePlanSnapshot.child("startDate").value.toString()

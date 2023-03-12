@@ -28,6 +28,7 @@ import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalConsumer
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
@@ -57,6 +58,8 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.CameraPosition
+import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.compose.*
 import com.naver.maps.map.compose.LocationTrackingMode
 import com.naver.maps.map.overlay.Overlay
@@ -88,6 +91,10 @@ fun MapScreen(
     leaderUID: String?,
     modifier: Modifier = Modifier
 ){
+    val configuration = LocalConfiguration.current
+
+    val screenHeight = configuration.screenHeightDp.dp
+
     val courseList = remember { mutableStateListOf<String>() }
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
     courseList.clear()
@@ -109,6 +116,12 @@ fun MapScreen(
         mutableStateOf(
             MapUiSettings(isLocationButtonEnabled = true, isIndoorLevelPickerEnabled = true)
         )
+    }
+    val cameraPositionState = rememberCameraPositionState()
+    val position by remember {
+        derivedStateOf {
+            cameraPositionState.position
+        }
     }
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -139,7 +152,7 @@ fun MapScreen(
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
-            BottomSheetContent(bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,datePlanName,leaderUID,courseList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it})
+            BottomSheetContent(bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,datePlanName,leaderUID,courseList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it}, cameraPositionState)
         },
         sheetPeekHeight = bottomNaviSize,
     )
@@ -148,14 +161,8 @@ fun MapScreen(
         var searchKeyword by remember { mutableStateOf("") }
         Box(
             Modifier
-                .fillMaxSize()) {
+                .height(screenHeight - bottomNaviSize)) {
 
-            val cameraPositionState = rememberCameraPositionState()
-            val position by remember {
-                derivedStateOf {
-                    cameraPositionState.position
-                }
-            }
             NaverMap(cameraPositionState = cameraPositionState,
                 locationSource = rememberFusedLocationSource(),
                 properties = mapProperties,
@@ -194,8 +201,8 @@ fun MapScreen(
                             height = 20.dp,
                             state = MarkerState(
                                 position = LatLng(
-                                    placeList[i].latitude-0.0006,
-                                    placeList[i].longitude+0.0002
+                                    placeList[i].latitude,
+                                    placeList[i].longitude
                                 )
                             ),
                             //captionText = placeList[i].placeName + "\n" + (courseIndex + 1),
@@ -481,7 +488,7 @@ fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateLis
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalNaverMapApi::class)
 @Composable
 fun BottomSheetContent(
     ID:String,
@@ -492,7 +499,8 @@ fun BottomSheetContent(
     leaderUID: String?,
     courseList: SnapshotStateList<String>,
     onBottomNaviSizeChange: (Dp) -> Unit,
-    onShowMapInfo: (Boolean) -> Unit
+    onShowMapInfo: (Boolean) -> Unit,
+    cameraPositionState: CameraPositionState
 ) { // 스와이프 한후에 보이는 전체
     var isVisible by remember{ mutableStateOf(true) }
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
@@ -575,7 +583,6 @@ fun BottomSheetContent(
                                     shape = RoundedCornerShape(20)
                                 )
                                 .aspectRatio(20f / 4.5f)
-                                .detectReorder(state)
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -623,7 +630,12 @@ fun BottomSheetContent(
                                             fontSize = 20.sp,
                                             textAlign = TextAlign.Center,
                                             fontWeight = FontWeight.Medium,
-                                            modifier = Modifier
+                                            modifier = Modifier.clickable{
+                                                cameraPositionState.move(CameraUpdate.scrollTo(
+                                                    LatLng(placeListHashMap[item]!!.latitude,
+                                                        placeListHashMap[item]!!.longitude)
+                                                ))
+                                            }
                                         )
                                         Spacer(modifier = Modifier.padding(4.dp))
                                         Row {
@@ -635,7 +647,7 @@ fun BottomSheetContent(
                                     Icon(
                                         imageVector = Icons.Default.Menu,
                                         contentDescription = null,
-                                        modifier = Modifier
+                                        modifier = Modifier.detectReorder(state)
                                     )
                                 }
                             }
