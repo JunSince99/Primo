@@ -17,12 +17,14 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.primo2.*
+import com.example.primo2.R
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 
 
@@ -53,7 +55,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean) {
                 BottomNavigationItem(
                     icon = {
                         Icon(
-                            imageVector = Icons.Default.Search,
+                            painter = painterResource(id = R.drawable.ic_outline_calendar_month_24),
                             contentDescription = null
                         )
                     },
@@ -61,7 +63,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean) {
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "DatePlans" } == true,
                     onClick = { navController.navigate("DatePlans") { popUpTo("Home") } }
-                ) // 서치 화면
+                ) // 달력 화면
                 BottomNavigationItem(
                     icon = {
                         Icon(

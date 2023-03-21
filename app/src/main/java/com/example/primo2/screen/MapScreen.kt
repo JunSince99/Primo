@@ -266,35 +266,35 @@ fun MapScreen(
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
             }
             Surface(
+                color = Color.White,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(60.dp)
-                    .background(Color.White)
-                    .shadow(5.dp)
             ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier
-                            .size(28.dp)
-                            .clip(CircleShape)
-                            .clickable { /*TODO*/ }
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
+                            .fillMaxWidth()
                     ) {
-                        Icon(
-                            imageVector = Icons.Default.ArrowBack,
-                            contentDescription = null,
+                        Box(
+                            contentAlignment = Alignment.Center,
                             modifier = Modifier
-                                .size(20.dp),
-                            tint = Color.Black
-                        )
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .clickable { /*TODO*/ }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(20.dp),
+                                tint = Color.Black
+                            )
+                        }
                         Text(
                             text = "다음 데이트",
                             textAlign = TextAlign.Center,
@@ -303,6 +303,26 @@ fun MapScreen(
                             fontWeight = FontWeight.Medium,
                             fontSize = 20.sp
                         )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .clickable { /*TODO*/ }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(20.dp),
+                                tint = Color.Black
+                            )
+                        }
+                    }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                    ) {
                         Text(
                             text = "3월 23일 목",
                             textAlign = TextAlign.Center,
@@ -310,23 +330,15 @@ fun MapScreen(
                             fontFamily = spoqasans,
                             fontWeight = FontWeight.Normal
                         )
-                    }
-
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier
-                            .size(28.dp)
-                            .clip(CircleShape)
-                            .clickable { /*TODO*/ }
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Search,
-                            contentDescription = null,
-                            modifier = Modifier
-                                .size(20.dp),
-                            tint = Color.Black
+                        Text( //버튼으로 만들어서 누르면 상세 정보 볼 수 있게 할까 아니면 이렇게 걍 예상 총 금액만 보여줄까
+                            text = "예상 비용 : 54,000원",
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                            fontFamily = spoqasans,
+                            fontWeight = FontWeight.Normal
                         )
                     }
+                    Spacer(modifier = Modifier.padding(4.dp))
                 }
             }
             //검색창

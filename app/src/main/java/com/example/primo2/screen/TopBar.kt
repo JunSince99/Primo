@@ -81,6 +81,14 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                         overflow = TextOverflow.Ellipsis
                     )
                 },
+                actions = {
+                          IconButton(onClick = { /*TODO*/ }) {
+                              Icon(
+                                  imageVector = Icons.Filled.Add,
+                                  contentDescription = "데이트 추가"
+                              )
+                          }
+                },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.White,
                     scrolledContainerColor = Color.White,

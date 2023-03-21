@@ -67,7 +67,7 @@ import kotlin.math.roundToInt
 
 
 @Composable
-fun Day(day: CalendarDay) {
+fun Day(day: CalendarDay) { //일
     Box(
         modifier = Modifier
             .aspectRatio(1f)
@@ -76,7 +76,7 @@ fun Day(day: CalendarDay) {
             .clickable(
                 enabled = day.position == DayPosition.MonthDate,
                 onClick = {/*TODO*/ }
-            ), // This is important for square sizing!
+            ),
         contentAlignment = Alignment.Center
     ) {
         Text(
@@ -93,7 +93,7 @@ fun Day(day: CalendarDay) {
 }
 
 @Composable
-fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) {
+fun DaysOfWeekTitle(daysOfWeek: List<DayOfWeek>) { //요일
     Row(modifier = Modifier.fillMaxWidth()) {
         for (dayOfWeek in daysOfWeek) {
             Text(
@@ -229,10 +229,12 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
         firstDayOfWeek = firstDayOfWeek,
         outDateStyle = OutDateStyle.EndOfRow
     )
+    var calendarheight = 360.dp
+
     HorizontalCalendar(
         modifier = Modifier
             .fillMaxWidth()
-            .height(360.dp),
+            .height(calendarheight),
         state = state,
         dayContent = { Day(it) },
         monthHeader = {
@@ -241,8 +243,8 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
         calendarScrollPaged = true,
         userScrollEnabled = true,
         contentPadding = PaddingValues(8.dp),
-
         )
+
     val calendarIndex = state.layoutInfo.visibleMonthsInfo.lastIndex
     if (calendarIndex != -1) {
         LaunchedEffect(state.layoutInfo.visibleMonthsInfo[calendarIndex]) {
