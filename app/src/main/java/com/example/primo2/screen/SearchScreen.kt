@@ -4,6 +4,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -28,6 +30,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.example.primo2.placeList
 import com.example.primo2.ui.theme.moreLightGray
 
 @Composable
@@ -44,9 +50,17 @@ fun SearchScreen(
 }
 
 @Composable
-fun Search() {
+fun Search(requestManager: RequestManager) {
     var searchKeyword by remember { mutableStateOf("") }
-
+    val searchPlaceList:ArrayList<Int> = ArrayList()
+    if(searchKeyword.isNotBlank()){
+        searchPlaceList.clear()
+        for(i in 0 until placeList.size){
+            if(placeList[i].placeName.contains(searchKeyword)){
+                searchPlaceList.add(i)
+            }
+        }
+    }
     Surface(
         modifier = Modifier
             .fillMaxSize(),
@@ -112,17 +126,22 @@ fun Search() {
                     unfocusedIndicatorColor = moreLightGray
                 )
             )
-            place()
-            place()
-            place()
-            place()
-
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(190.dp)
+            ) {
+                items(searchPlaceList) { item ->
+                    Place(item,requestManager)
+                }
+            }
         }
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun place(){
+fun Place(item:Int,requestManager: RequestManager){
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -130,21 +149,34 @@ fun place(){
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Image(
-            painter = painterResource(id = com.example.primo2.R.drawable.dog),
+
+        val url = placeList[item].imageResource
+        GlideImage(
+            model = url,
             contentDescription = "",
-            contentScale = ContentScale.Crop,
             modifier = Modifier
                 .clip(CircleShape)
-                .size(50.dp)
+                .size(50.dp),
+            contentScale = ContentScale.Crop
+
         )
+        {
+            it
+                .thumbnail(
+                    requestManager
+                        .asDrawable()
+                        .load(url)
+                        // .signature(signature)
+                        .override(64)
+                )
+        }
         Spacer(modifier = Modifier.padding(6.dp))
         Column(
             verticalArrangement = Arrangement.Center,
             modifier = Modifier
         ) {
             Text(
-                text = "장소 이름",
+                text = placeList[item].placeName,
                 color = Color.Black,
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center,

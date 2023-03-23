@@ -89,6 +89,7 @@ fun MapScreen(
     requestManager:RequestManager,
     datePlanName:String?,
     leaderUID: String?,
+    onSearchButtonClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ){
     val configuration = LocalConfiguration.current
@@ -159,10 +160,10 @@ fun MapScreen(
     {
         modifier.padding(it)
         var searchKeyword by remember { mutableStateOf("") }
+
         Box(
             Modifier
                 .height(screenHeight - bottomNaviSize)) {
-
             NaverMap(cameraPositionState = cameraPositionState,
                 locationSource = rememberFusedLocationSource(),
                 properties = mapProperties,
@@ -265,82 +266,6 @@ fun MapScreen(
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
             }
-            Surface(
-                color = Color.White,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .clickable { /*TODO*/ }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(20.dp),
-                                tint = Color.Black
-                            )
-                        }
-                        Text(
-                            text = "다음 데이트",
-                            textAlign = TextAlign.Center,
-                            color = Color.Black,
-                            fontFamily = spoqasans,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 20.sp
-                        )
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .clickable { /*TODO*/ }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(20.dp),
-                                tint = Color.Black
-                            )
-                        }
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                    ) {
-                        Text(
-                            text = "3월 23일 목",
-                            textAlign = TextAlign.Center,
-                            color = Color.Black,
-                            fontFamily = spoqasans,
-                            fontWeight = FontWeight.Normal
-                        )
-                        Text( //버튼으로 만들어서 누르면 상세 정보 볼 수 있게 할까 아니면 이렇게 걍 예상 총 금액만 보여줄까
-                            text = "예상 비용 : 54,000원",
-                            textAlign = TextAlign.Center,
-                            color = Color.Black,
-                            fontFamily = spoqasans,
-                            fontWeight = FontWeight.Normal
-                        )
-                    }
-                    Spacer(modifier = Modifier.padding(4.dp))
-                }
-            }
             //검색창
 
 //            Column(modifier=Modifier) {
@@ -386,49 +311,83 @@ fun MapScreen(
 //                        )
 //                    )
 //                }
-                val searchPlaceList:ArrayList<Int> = ArrayList()
-                if(searchKeyword.isNotBlank()){
-                    searchPlaceList.clear()
-                    for(i in 0 until placeList.size){
-                        if(placeList[i].placeName.contains(searchKeyword)){
-                            searchPlaceList.add(i)
-                        }
-                    }
-                }
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(190.dp)
+            Surface(
+                color = Color.White,
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    items(searchPlaceList) { item ->
-                        Column(modifier = Modifier
-                            .height(50.dp)
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp, vertical = 8.dp)
                             .fillMaxWidth()
-                            .background(Color.White)) {
-                            Row(modifier = Modifier) {
-                                val url = placeList[item].imageResource
-                                GlideImage(
-                                    model = url, contentDescription = "", modifier = Modifier
-                                        .height(40.dp)
-                                        .width(40.dp), contentScale = ContentScale.Crop
-
-                                )
-                                {
-                                    it
-                                        .thumbnail(
-                                            requestManager
-                                                .asDrawable()
-                                                .load(url)
-                                                // .signature(signature)
-                                                .override(64)
-                                        )
-                                    // .signature(signature)
-                                }
-                                Text(text = placeList[item].placeName)
-                            }
+                    ) {
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .clickable { /*TODO*/ }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ArrowBack,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(20.dp),
+                                tint = Color.Black
+                            )
+                        }
+                        Text(
+                            text = "다음 데이트",
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                            fontFamily = spoqasans,
+                            fontWeight = FontWeight.Medium,
+                            fontSize = 20.sp
+                        )
+                        Box(
+                            contentAlignment = Alignment.Center,
+                            modifier = Modifier
+                                .size(28.dp)
+                                .clip(CircleShape)
+                                .clickable { onSearchButtonClicked() }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(20.dp),
+                                tint = Color.Black
+                            )
                         }
                     }
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier
+                    ) {
+                        Text(
+                            text = "3월 23일 목",
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                            fontFamily = spoqasans,
+                            fontWeight = FontWeight.Normal
+                        )
+                        Text( //버튼으로 만들어서 누르면 상세 정보 볼 수 있게 할까 아니면 이렇게 걍 예상 총 금액만 보여줄까
+                            text = "예상 비용 : 54,000원",
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                            fontFamily = spoqasans,
+                            fontWeight = FontWeight.Normal
+                        )
+                    }
+                    Spacer(modifier = Modifier.padding(4.dp))
                 }
+            }
+
             }
             Column {
                 //ShowLocationPermission()

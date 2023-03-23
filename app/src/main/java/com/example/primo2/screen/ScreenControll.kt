@@ -65,7 +65,8 @@ enum class PrimoScreen() {
     ManageAccount,
     RegisterPartner,
     RegisterPartnerID,
-    SelectDateDate
+    SelectDateDate,
+    Search,
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -150,7 +151,10 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                     navController,
                     requestManager,
                     datePlanName,
-                    leaderUID
+                    leaderUID,
+                    onSearchButtonClicked = {
+                        navController.navigate(PrimoScreen.Search.name)
+                    }
                 )
             }
 
@@ -290,6 +294,11 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             }
 
 
+            //검색
+            composable(route = PrimoScreen.Search.name) {
+                Search(requestManager)
+            }
+
 
 
 
@@ -348,6 +357,9 @@ fun checkBottomVisible (navController:NavController): Boolean{
             "DatePlans" ->{
                 bottomBarState = true
             }
+            "Search" ->{
+                bottomBarState = false
+            }
 
         }
     }
@@ -403,7 +415,9 @@ fun checkTopVisible (navController:NavController): Boolean{
             "DatePlans" ->{
                 TopBarState = true
             }
-
+            "Search" ->{
+                TopBarState = false
+            }
         }
     }
     return TopBarState

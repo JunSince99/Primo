@@ -8,6 +8,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.example.primo2.screen.PrimoApp
 import com.example.primo2.screen.PrimoScreen
+import com.example.primo2.screen.Search
 import com.google.firebase.auth.FirebaseAuth
 
 
@@ -18,7 +19,6 @@ class MainActivity : AppCompatActivity() {
         mGlideRequestManager = Glide.with(this);
         setContent {
             //val intent = Intent(this, UploadPostActivity::class.java)
-            //startActivity(intent)
             PrimoApp(this, mGlideRequestManager, modifier = Modifier)
             //MapScreen()
         }
