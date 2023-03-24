@@ -1,5 +1,5 @@
 package com.example.primo2.screen
-
+/*
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.R
@@ -272,3 +272,5 @@ fun reviewform(name : String, score : Int, text: String) {
         )
     }
 }
+
+ */

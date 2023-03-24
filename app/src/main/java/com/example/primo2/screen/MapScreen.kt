@@ -1,5 +1,6 @@
 package com.example.primo2.screen
 
+import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Space
 import android.widget.Toast
@@ -16,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
@@ -24,12 +26,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.consumeAllChanges
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
@@ -80,6 +85,7 @@ fun informationPlace(modifier: Modifier = Modifier)
 {
     Text(text = "즐겨찾기 페이지", style = MaterialTheme.typography.h4)
 }
+@SuppressLint("CoroutineCreationDuringComposition")
 @OptIn(ExperimentalNaverMapApi::class, ExperimentalPermissionsApi::class,
     ExperimentalMaterialApi::class, ExperimentalGlideComposeApi::class
 )
@@ -153,13 +159,12 @@ fun MapScreen(
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
         sheetContent = {
-            BottomSheetContent(bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,datePlanName,leaderUID,courseList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it}, cameraPositionState)
+            BottomSheetContent(scaffoldState,bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,datePlanName,leaderUID,courseList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it}, cameraPositionState)
         },
         sheetPeekHeight = bottomNaviSize,
     )
     {
         modifier.padding(it)
-        var searchKeyword by remember { mutableStateOf("") }
 
         Box(
             Modifier
@@ -266,51 +271,6 @@ fun MapScreen(
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
             }
-            //검색창
-
-//            Column(modifier=Modifier) {
-//                Box(modifier = Modifier) {
-//                    TextField(
-//                        value = searchKeyword,
-//                        onValueChange = { text ->
-//                            searchKeyword = text
-//                        },
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(50.dp),
-//                        textStyle = TextStyle.Default.copy(fontSize = 10.sp,),
-//                        label = { Text("검색") },
-//                        singleLine = true,
-//                        colors = TextFieldDefaults.textFieldColors(
-//                            backgroundColor = Color.White,
-//                            cursorColor = Color.Black,
-//                            focusedIndicatorColor = Color.Black,
-//                            focusedLabelColor = Color.Black
-//                        )
-//                    )
-//                }
-//            }
-//            Column(modifier = Modifier.padding(10.dp)) {
-//                Box(modifier = Modifier) {
-//                    TextField(
-//                        value = searchKeyword,
-//                        onValueChange = { text ->
-//                            searchKeyword = text
-//                        },
-//                        modifier = Modifier
-//                            .fillMaxWidth()
-//                            .height(50.dp),
-//                        textStyle = TextStyle.Default.copy(fontSize = 10.sp,),
-//                        label = { Text("검색") },
-//                        singleLine = true,
-//                        colors = TextFieldDefaults.textFieldColors(
-//                            backgroundColor = Color.White,
-//                            cursorColor = Color.Black,
-//                            focusedIndicatorColor = Color.Black,
-//                            focusedLabelColor = Color.Black
-//                        )
-//                    )
-//                }
             Surface(
                 color = Color.White,
                 modifier = Modifier
@@ -459,9 +419,12 @@ fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateLis
     }
 }
 
-@OptIn(ExperimentalGlideComposeApi::class, ExperimentalNaverMapApi::class)
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalNaverMapApi::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 fun BottomSheetContent(
+    scaffoldState: BottomSheetScaffoldState,
     ID:String,
     title: String, paint:String, info:String,
     requestManager: RequestManager,
@@ -483,25 +446,170 @@ fun BottomSheetContent(
     Column {
         if(showMapInfo) {
             onBottomNaviSizeChange(65.dp)
-            BottomSheetBeforeSlide(ID,title,courseList, onShowMapInfo,leaderUID,datePlanName)
-            GlideImage(
-                model = paint, contentDescription = "", modifier = Modifier
-                    .height(300.dp)
-                    .fillMaxWidth(), contentScale = ContentScale.Crop
-            )
-            {
-                it
-                    .thumbnail(
-                        requestManager
-                            .asDrawable()
-                            .load(paint)
-                            // .signature(signature)
-                            .override(64)
+
+            scaffoldState.bottomSheetState.apply {
+                if (progress.to.name != "Expanded"  && isCollapsed) {
+                    BottomSheetBeforeSlide(
+                        ID,
+                        title,
+                        courseList,
+                        onShowMapInfo,
+                        leaderUID,
+                        datePlanName
                     )
-                // .signature(signature)
+                }
+                Surface(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    color = Color.White
+                ) {
+
+                    Column(
+                        modifier = Modifier
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp, horizontal = 16.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clip(CircleShape)
+                                    .clickable { /*TODO*/ }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.ArrowBack,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(25.dp),
+                                    tint = Color.Black
+                                )
+                            }
+
+                            Box(
+                                contentAlignment = Alignment.Center,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .clip(CircleShape)
+                                    .clickable { /*TODO*/ }
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = null,
+                                    modifier = Modifier
+                                        .size(25.dp),
+                                    tint = Color.Black
+                                )
+                            }
+                        }
+                        GlideImage(
+                            model = paint,
+                            contentDescription = "",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .padding(vertical = 16.dp, horizontal = 16.dp)
+                                .aspectRatio(16f / 10f)
+                                .clip(shape = RoundedCornerShape(10))
+                                .fillMaxWidth()
+                        )
+                        {
+                            it
+                                .thumbnail(
+                                    requestManager
+                                        .asDrawable()
+                                        .load(paint)
+                                        // .signature(signature)
+                                        .override(128)
+                                )
+                            // .signature(signature)
+                        }
+
+                        Spacer(modifier = Modifier.padding(4.dp))
+                        Text(
+                            text = "센트럴 파크",
+                            color = Color.Black,
+                            fontSize = 25.sp,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(modifier = Modifier.padding(2.dp))
+                        Row {
+                            placetag("걷기 좋은")
+                            placetag("공원")
+                            placetag("전통")
+                        }
+                        Spacer(modifier = Modifier.padding(8.dp))
+                        Row{
+                            buttonwithicon(ic = Icons.Outlined.FavoriteBorder, description = "저장하기")
+                            Spacer(modifier = Modifier.padding(12.dp))
+                            buttonwithicon(ic = painterResource(id = R.drawable.ic_outline_comment_24), description = "리뷰보기")
+                            Spacer(modifier = Modifier.padding(12.dp))
+                            buttonwithicon(ic = painterResource(id = R.drawable.ic_outline_calendar_month_24), description = "일정추가")
+                        }
+                        Divider(
+                            modifier = Modifier
+                                .padding(vertical = 16.dp)
+                                .fillMaxWidth(),
+                            color = moreLightGray,
+                            thickness = 2.dp
+                        )
+
+                        Surface( //지도
+                            shape = RoundedCornerShape(10.dp),
+                            color = Color.Black,
+                            modifier = Modifier
+                                .aspectRatio(16f / 10f)
+                                .padding(horizontal = 32.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "지 도",
+                                fontSize = 100.sp,
+                                color = Color.White,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 32.dp, vertical = 8.dp)
+                        ) {
+                            information(title = "주소", text = "인천 연수구 컨벤시아대로 160")
+                            information("이용 가능 시간", "연중 무휴")
+                        }
+                        Divider(
+                            modifier = Modifier
+                                .padding(vertical = 8.dp)
+                                .fillMaxWidth(),
+                            color = moreLightGray,
+                            thickness = 2.dp
+                        )
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "리뷰",
+                                color = Color.Black,
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                            reviewform(name = "정석준", score = 4, text = "산책하기 정말 좋은 공원이에요")
+                            reviewform(name = "삼삼삼", score = 4, text = "삼삼삼삼삼삼삼삼삼")
+                        }
+                    }
+                }
             }
+
+
             Spacer(modifier = Modifier.height(15.dp))
-            Text(text = info, fontFamily = FontFamily.Cursive)
+            //Text(text = info, fontFamily = FontFamily.Cursive)
         }
         else{
             onBottomNaviSizeChange(400.dp)
@@ -699,6 +807,112 @@ fun placetag(tagname : String){
     Spacer(modifier = Modifier.padding(4.dp))
 }
 
+@Composable
+fun buttonwithicon(ic : ImageVector, description : String){
+    Column(
+        modifier = Modifier
+            .clickable { }
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            imageVector = ic,
+            contentDescription = null,
+            modifier = Modifier
+                .size(30.dp),
+            tint = Color.Black
+        )
+        Spacer(modifier = Modifier.padding(vertical = 1.dp))
+        Text(
+            text = description,
+            color = Color.DarkGray,
+            fontSize = 14.sp
+        )
+    }
+}
+
+@Composable
+fun buttonwithicon(ic : Painter, description: String){
+    Column(
+        modifier = Modifier
+            .clickable { }
+            .padding(horizontal = 8.dp, vertical = 4.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Icon(
+            painter = ic,
+            contentDescription = null,
+            modifier = Modifier
+                .size(30.dp),
+            tint = Color.Black
+        )
+        Spacer(modifier = Modifier.padding(vertical = 1.dp))
+        Text(
+            text = description,
+            color = Color.DarkGray,
+            fontSize = 14.sp
+        )
+    }
+}
+
+@Composable
+fun information(title: String, text : String) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = title,
+            color = Color.Black,
+            fontSize = 15.sp,
+            fontWeight = FontWeight.Bold,
+        )
+        Spacer(modifier = Modifier.padding(4.dp))
+        Text(
+            text = text,
+            color = Color.Gray,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Normal,
+        )
+    }
+}
+
+@Composable
+fun reviewform(name : String, score : Int, text: String) {
+    Column(
+        modifier = Modifier.padding(vertical = 8.dp)
+    ) {
+        Row {
+            Image(
+                painter = painterResource(id = R.drawable.dog),
+                contentDescription = "sample image",
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(43.dp)
+                    .clip(shape = CircleShape)
+            )
+            Spacer(modifier = Modifier.padding(4.dp))
+            Column {
+                Text(
+                    text = name
+                )
+                Row{
+                    Text(
+                        text = "리뷰 10개 "
+                    )
+                    Text(
+                        text = "별점평균 5.0 | "
+                    )
+                    Text(
+                        text = "2023.03.01"
+                    )
+                }
+            }
+        }
+        Text(
+            text = text
+        )
+    }
+}
 
 fun fitnessCalc(userOrientation: HashMap<String, Any>,num :Int) : Double{
     var fitness:Double = 0.0
@@ -750,53 +964,7 @@ fun reorderBest(courseList: SnapshotStateList<String>)
         courseList.add(i+1,courseList.removeAt(bestIndex))
     }
 }
-/*
-@Preview(showBackground = true)
-@Composable
-fun BottomSheetListItemPreview() {
-    BottomSheetBeforeSlide(ID = "CentrolPark",title = "센트럴 파크")
-}
- */
 
-/*
-@Preview(showBackground = true)
-@Composable
-fun BottomSheetContentPreview(requestManager:RequestManager) {
-    BottomSheetContent("센트럴파크","https://firebasestorage.googleapis.com/v0/b/primo-92b68.appspot.com/o/places%2F%EC%86%94%EC%B0%AC%EA%B3%B5%EC%9B%90.jpg?alt=media&token=cb9ace94-0d86-4cf1-8065-b6781b8ea30d","센트럴 파크에서 재밌게 노는법!",requestManager)
-}
-
- */
-
-
-
-/*
-@OptIn(ExperimentalPermissionsApi::class)
-@Composable
-fun ShowLocationPermission(){
-
-    val cameraPermissionState = rememberMultiplePermissionsState(
-        listOf( android.Manifest.permission.ACCESS_COARSE_LOCATION,android.Manifest.permission.ACCESS_FINE_LOCATION)
-    )
-
-    if (cameraPermissionState.allPermissionsGranted) {
-        Text("위치정보 권한이 부여됨")
-    } else {
-        val textToShow = if (cameraPermissionState.shouldShowRationale) {
-            // 사용자가 권한 요청을 거부했지만 근거를 제시할 수 있는 경우, 앱에 이 권한이 필요한 이유를 친절하게 설명합니다.
-            "현재 위치를 사용하기 위해선 위치정보를 허용해주세요."
-        } else {
-            // 사용자가 이 기능을 처음 사용하거나, 사용자에게 이 권한을 다시 묻고 싶지 않은 경우 권한이 필요하다고 설명합니다.
-            "현재 위치를 불러오려면 위치정보가 필요합니다." +
-                    "권한을 부여해주세요."
-        }
-        Text(textToShow)
-        Button(onClick = { cameraPermissionState.launchMultiplePermissionRequest() }) {
-            Text("권한 요청")
-        }
-    }
-}
-
-*/
 
 
 
