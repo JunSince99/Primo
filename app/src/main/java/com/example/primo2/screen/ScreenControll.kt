@@ -67,6 +67,7 @@ enum class PrimoScreen() {
     RegisterPartnerID,
     SelectDateDate,
     Search,
+    Test
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -118,6 +119,10 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 )
             }
 
+            //테스트
+            composable(route = PrimoScreen.Test.name) {
+                TestDeep()
+            }
 
             //계정 관리 화면
             composable(route = PrimoScreen.ManageAccount.name) {

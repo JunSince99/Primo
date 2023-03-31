@@ -8,6 +8,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -82,10 +83,10 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     )
                 },
                 actions = {
-                          IconButton(onClick = { /*TODO*/ }) {
+                          IconButton(onClick = { navController.navigate(PrimoScreen.Test.name)}) {
                               Icon(
                                   imageVector = Icons.Filled.Add,
-                                  contentDescription = "데이트 추가"
+                                  contentDescription = "데이트 추가",
                               )
                           }
                 },

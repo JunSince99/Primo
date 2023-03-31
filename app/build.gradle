@@ -7,7 +7,9 @@ plugins {
 android {
     namespace 'com.example.primo2'
     compileSdk 33
-
+    aaptOptions{
+        noCompress "tflite"
+    }
     defaultConfig {
         applicationId "com.example.primo2"
         minSdk 26
@@ -111,4 +113,9 @@ dependencies {
     implementation("androidx.compose.material3:material3-window-size-class:1.0.1")
 
     implementation 'com.kizitonwose.calendar:compose:2.1.1'
+
+    implementation 'com.google.firebase:firebase-ml-modeldownloader-ktx'
+
+    // Also add the dependency for the TensorFlow Lite library and specify its version
+    implementation 'org.tensorflow:tensorflow-lite:2.11.0'
 }
