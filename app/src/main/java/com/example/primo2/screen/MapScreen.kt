@@ -70,6 +70,7 @@ import com.naver.maps.map.compose.LocationTrackingMode
 import com.naver.maps.map.overlay.Overlay
 import com.naver.maps.map.overlay.OverlayImage
 import com.naver.maps.map.overlay.PolylineOverlay
+import com.naver.maps.map.util.MarkerIcons
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.*
@@ -157,11 +158,16 @@ fun MapScreen(
     database!!.child(datePlanName!!).child("course").addValueEventListener(courseListener)
 
     BottomSheetScaffold(
+        topBar = {
+              maptopbar()
+        },
         scaffoldState = scaffoldState,
         sheetContent = {
             BottomSheetContent(scaffoldState,bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,datePlanName,leaderUID,courseList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it}, cameraPositionState)
         },
         sheetPeekHeight = bottomNaviSize,
+        drawerElevation = 0.dp,
+        sheetElevation = 0.dp,
     )
     {
         modifier.padding(it)
@@ -190,19 +196,19 @@ fun MapScreen(
                 for(i in 0 until courseList.size){
                     courseCoordiList.add(LatLng(placeListHashMap[courseList[i]]!!.latitude,placeListHashMap[courseList[i]]!!.longitude))
                 }
-                if(courseCoordiList.size > 1) {
-                    PolylineOverlay(courseCoordiList.toList()
-                        ,pattern = arrayOf(10.dp,5.dp)
-                        ,width = 2.dp
-                        ,joinType = LineJoin.Round
-                        ,color = Color.Gray)
-                }
+//                if(courseCoordiList.size > 1) {
+//                    PolylineOverlay(courseCoordiList.toList()
+//                        ,pattern = arrayOf(10.dp,5.dp)
+//                        ,width = 2.dp
+//                        ,joinType = LineJoin.Round
+//                        ,color = Color.Gray)
+//                }
 
                 for (i in 0 until placeList.size) {
                     val courseIndex = courseList.indexOf(placeList[i].placeID)
                     if (courseIndex != -1) {
                         Marker(
-                            icon = OverlayImage.fromResource(R.drawable.circle),
+                            icon = MarkerIcons.BLACK/*OverlayImage.fromResource(R.drawable.circle)*/,
                             width = 20.dp,
                             height = 20.dp,
                             state = MarkerState(
@@ -232,6 +238,7 @@ fun MapScreen(
                             },
                             tag = i,
                         )
+
                     } else {
                         var fitness: Double = fitnessCalc(userOrientation, i)
                         Marker(
@@ -270,81 +277,21 @@ fun MapScreen(
                     }
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
-            }
-            Surface(
-                color = Color.White,
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .fillMaxWidth()
-                    ) {
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .clickable { /*TODO*/ }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.ArrowBack,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(20.dp),
-                                tint = Color.Black
-                            )
-                        }
-                        Text(
-                            text = "다음 데이트",
-                            textAlign = TextAlign.Center,
-                            color = Color.Black,
-                            fontFamily = spoqasans,
-                            fontWeight = FontWeight.Medium,
-                            fontSize = 20.sp
+                for(i in 0 until courseList.size) {
+                    val latlist = listOf(
+                        LatLng(
+                            placeList[i].latitude,
+                            placeList[i].longitude
                         )
-                        Box(
-                            contentAlignment = Alignment.Center,
-                            modifier = Modifier
-                                .size(28.dp)
-                                .clip(CircleShape)
-                                .clickable { onSearchButtonClicked() }
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Search,
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .size(20.dp),
-                                tint = Color.Black
-                            )
-                        }
-                    }
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier
-                    ) {
-                        Text(
-                            text = "3월 23일 목",
-                            textAlign = TextAlign.Center,
-                            color = Color.Black,
-                            fontFamily = spoqasans,
-                            fontWeight = FontWeight.Normal
-                        )
-                        Text( //버튼으로 만들어서 누르면 상세 정보 볼 수 있게 할까 아니면 이렇게 걍 예상 총 금액만 보여줄까
-                            text = "예상 비용 : 54,000원",
-                            textAlign = TextAlign.Center,
-                            color = Color.Black,
-                            fontFamily = spoqasans,
-                            fontWeight = FontWeight.Normal
+                    )
+                    if (latlist.size >= 2) {
+                        PathOverlay(
+                            coords = latlist,
+                            width = 3.dp,
+                            color = Color.White,
+                            outlineColor = Color.Black
                         )
                     }
-                    Spacer(modifier = Modifier.padding(4.dp))
                 }
             }
 
@@ -443,6 +390,9 @@ fun BottomSheetContent(
         isVisible = false
         database.child(datePlanName!!).child("course").setValue(courseList)
     })
+    val configuration = LocalConfiguration.current
+    val screenHeight = configuration.screenHeightDp.dp
+
     Column {
         if(showMapInfo) {
             onBottomNaviSizeChange(65.dp)
@@ -612,176 +562,265 @@ fun BottomSheetContent(
             //Text(text = info, fontFamily = FontFamily.Cursive)
         }
         else{
-            onBottomNaviSizeChange(400.dp)
+            Column {
+                onBottomNaviSizeChange(400.dp)
 
-            Spacer(modifier = Modifier.padding(4.dp))
+                Spacer(modifier = Modifier.padding(4.dp))
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
                 Box(
                     modifier = Modifier
-                        .size(width = 30.dp, height = 2.dp)
-                        .align(Alignment.Center)
-                        .background(color = Color.LightGray)
-                )
-            }
-
-            Spacer(modifier = Modifier.padding(4.dp))
-            Box(
-                modifier = Modifier
-                    .padding(vertical = 0.dp, horizontal = 16.dp)
-                    .align(Alignment.Start)
-                    //.border(1.dp,Color.LightGray, RoundedCornerShape(20))
-                    .background(
-                        color = moreLightGray,
-                        shape = RoundedCornerShape(20),
+                        .fillMaxWidth()
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(width = 30.dp, height = 2.dp)
+                            .align(Alignment.Center)
+                            .background(color = Color.LightGray)
                     )
-                    .clip(RoundedCornerShape(20))
-                    .clickable { reorderBest(courseList) }
-            ) {
-                Text(text = "거리순 정렬",color= Color.Black, modifier = Modifier.padding(8.dp))
-            }
-            LazyColumn(
-                state = state.listState,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(600.dp)
-                    .reorderable(state)
-            ) {
-                items(courseList, { it }) { item ->
-                    ReorderableItem(state, key = item) { isDragging ->
-                        val placeName: String = placeListHashMap[item]?.placeName.toString()
-                        val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
-                        Surface(
-                            modifier = Modifier
-                                .padding(horizontal = 16.dp, vertical = 8.dp)
-                                .shadow(
-                                    elevation = 1.dp,
-                                    shape = RoundedCornerShape(20)
-                                )
-                                .aspectRatio(20f / 4.5f)
-                        ) {
-                            Row(
-                                verticalAlignment = Alignment.CenterVertically,
+                }
+
+                Spacer(modifier = Modifier.padding(4.dp))
+                Box(
+                    modifier = Modifier
+                        .padding(vertical = 0.dp, horizontal = 16.dp)
+                        .align(Alignment.Start)
+                        //.border(1.dp,Color.LightGray, RoundedCornerShape(20))
+                        .background(
+                            color = moreLightGray,
+                            shape = RoundedCornerShape(20),
+                        )
+                        .clip(RoundedCornerShape(20))
+                        .clickable { reorderBest(courseList) }
+                ) {
+                    Text(text = "거리순 정렬", color = Color.Black, modifier = Modifier.padding(8.dp))
+                }
+                LazyColumn(
+                    state = state.listState,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(screenHeight-143.dp)
+                        .reorderable(state)
+                ) {
+                    items(courseList, { it }) { item ->
+                        ReorderableItem(state, key = item) { isDragging ->
+                            val placeName: String = placeListHashMap[item]?.placeName.toString()
+                            val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                            Surface(
                                 modifier = Modifier
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .padding(16.dp)
-                                        .size(40.dp)
-                                        .aspectRatio(1f)
-                                        .background(
-                                            color = colorset[courseList.indexOf(item)],
-                                            shape = CircleShape,
-                                        )
-                                ) {
-                                    Text(
-                                        text = (courseList.indexOf(item)+1).toString(),
-                                        color = Color.White,
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.ExtraBold,
-                                        modifier = Modifier
-                                            .align(Alignment.Center)
+                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                    .shadow(
+                                        elevation = 1.dp,
+                                        shape = RoundedCornerShape(20)
                                     )
-                                }
-                                Divider(
-                                    color = moreLightGray,
-                                    modifier = Modifier
-                                        .width(1.dp)
-                                        .height(60.dp),
-                                )
+                                    .aspectRatio(20f / 4.5f)
+                            ) {
                                 Row(
-                                    horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
                                     modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(horizontal = 16.dp)
                                 ) {
-                                    Column(
-                                        verticalArrangement = Arrangement.Center,
+                                    Box(
                                         modifier = Modifier
+                                            .padding(16.dp)
+                                            .size(40.dp)
+                                            .aspectRatio(1f)
+                                            .background(
+                                                color = colorset[courseList.indexOf(item)],
+                                                shape = CircleShape,
+                                            )
                                     ) {
                                         Text(
-                                            text = placeName,
-                                            color = Color.Black,
-                                            fontSize = 20.sp,
-                                            textAlign = TextAlign.Center,
-                                            fontWeight = FontWeight.Medium,
-                                            modifier = Modifier.clickable{
-                                                cameraPositionState.move(CameraUpdate.scrollTo(
-                                                    LatLng(placeListHashMap[item]!!.latitude,
-                                                        placeListHashMap[item]!!.longitude)
-                                                ))
-                                            }
+                                            text = (courseList.indexOf(item) + 1).toString(),
+                                            color = Color.White,
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            modifier = Modifier
+                                                .align(Alignment.Center)
                                         )
-                                        Spacer(modifier = Modifier.padding(4.dp))
-                                        Row {
-                                            placetag("걷기 좋은")
-                                            placetag("공원")
-                                            placetag("전통")
-                                        }
                                     }
-                                    Icon(
-                                        imageVector = Icons.Default.Menu,
-                                        contentDescription = null,
-                                        modifier = Modifier.detectReorder(state)
+                                    Divider(
+                                        color = moreLightGray,
+                                        modifier = Modifier
+                                            .width(1.dp)
+                                            .height(60.dp),
                                     )
+                                    Row(
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .padding(horizontal = 16.dp)
+                                    ) {
+                                        Column(
+                                            verticalArrangement = Arrangement.Center,
+                                            modifier = Modifier
+                                        ) {
+                                            Text(
+                                                text = placeName,
+                                                color = Color.Black,
+                                                fontSize = 20.sp,
+                                                textAlign = TextAlign.Center,
+                                                fontWeight = FontWeight.Medium,
+                                                modifier = Modifier.clickable {
+                                                    cameraPositionState.move(
+                                                        CameraUpdate.scrollTo(
+                                                            LatLng(
+                                                                placeListHashMap[item]!!.latitude,
+                                                                placeListHashMap[item]!!.longitude
+                                                            )
+                                                        )
+                                                    )
+                                                }
+                                            )
+                                            Spacer(modifier = Modifier.padding(4.dp))
+                                            Row {
+                                                placetag("걷기 좋은")
+                                                placetag("공원")
+                                                placetag("전통")
+                                            }
+                                        }
+                                        Icon(
+                                            imageVector = Icons.Default.Menu,
+                                            contentDescription = null,
+                                            modifier = Modifier.detectReorder(state)
+                                        )
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    if(courseList.indexOf(item) != courseList.size - 1 )
-                    {
-                        var distance = getDistance(placeListHashMap[item]!!.latitude,
-                            placeListHashMap[item]!!.longitude,
-                        placeListHashMap[courseList[courseList.indexOf(item)+1]]!!.latitude,
-                            placeListHashMap[courseList[courseList.indexOf(item)+1]]!!.longitude).toString()
-                        var distanceUnit = "m"
-                        if(distance.toDouble() >= 1000)
-                        {
-                            distance = (round(distance.toDouble() / 100) /10).toString()
-                            distanceUnit = "km"
-                        }
-                        LaunchedEffect(isVisible)
-                        {
-                            delay(700L)
-                            isVisible = true
-                        }
-                        Surface (modifier = Modifier.height(20.dp)){
-                            AnimatedVisibility(
-                                visible = isVisible,
-                                enter = fadeIn(),
-                                exit = fadeOut()
-                            ) {
-                                Row(
-                                    horizontalArrangement = Arrangement.Center,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
+                        if (courseList.indexOf(item) != courseList.size - 1) {
+                            var distance = getDistance(
+                                placeListHashMap[item]!!.latitude,
+                                placeListHashMap[item]!!.longitude,
+                                placeListHashMap[courseList[courseList.indexOf(item) + 1]]!!.latitude,
+                                placeListHashMap[courseList[courseList.indexOf(item) + 1]]!!.longitude
+                            ).toString()
+                            var distanceUnit = "m"
+                            if (distance.toDouble() >= 1000) {
+                                distance = (round(distance.toDouble() / 100) / 10).toString()
+                                distanceUnit = "km"
+                            }
+                            LaunchedEffect(isVisible)
+                            {
+                                delay(700L)
+                                isVisible = true
+                            }
+                            Surface(modifier = Modifier.height(20.dp)) {
+                                AnimatedVisibility(
+                                    visible = isVisible,
+                                    enter = fadeIn(),
+                                    exit = fadeOut()
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Outlined.MoreVert,
-                                        contentDescription = null,
+                                    Row(
+                                        horizontalArrangement = Arrangement.Center,
+                                        verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier
-                                            .size(16.dp),
-                                        tint = Color.Black
-                                    )
-                                    Text(
-                                        text = "$distance$distanceUnit",
-                                        color = Color.Black,
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.Normal,
-                                        modifier = Modifier
-                                    )
+                                            .fillMaxWidth()
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Outlined.MoreVert,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .size(16.dp),
+                                            tint = Color.Black
+                                        )
+                                        Text(
+                                            text = "$distance$distanceUnit",
+                                            color = Color.Black,
+                                            fontSize = 16.sp,
+                                            fontWeight = FontWeight.Normal,
+                                            modifier = Modifier
+                                        )
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun maptopbar() {
+
+    Surface(
+        color = Color.White,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(90.dp)
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth()
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .clickable { /*TODO*/ }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.ArrowBack,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp),
+                        tint = Color.Black
+                    )
+                }
+                Text(
+                    text = "다음 데이트",
+                    textAlign = TextAlign.Center,
+                    color = Color.Black,
+                    fontFamily = spoqasans,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 20.sp
+                )
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .clickable { /*onSearchButtonClicked()*/ }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Search,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp),
+                        tint = Color.Black
+                    )
+                }
+            }
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+            ) {
+                Text(
+                    text = "3월 23일 목",
+                    textAlign = TextAlign.Center,
+                    color = Color.Black,
+                    fontFamily = spoqasans,
+                    fontWeight = FontWeight.Normal
+                )
+                Text( //버튼으로 만들어서 누르면 상세 정보 볼 수 있게 할까 아니면 이렇게 걍 예상 총 금액만 보여줄까
+                    text = "예상 비용 : 54,000원",
+                    textAlign = TextAlign.Center,
+                    color = Color.Black,
+                    fontFamily = spoqasans,
+                    fontWeight = FontWeight.Normal
+                )
+            }
+            Spacer(modifier = Modifier.padding(4.dp))
         }
     }
 }
