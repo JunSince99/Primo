@@ -96,11 +96,13 @@ fun LoginScreen(
             )
         )
         if (isErrorInID) {
+
             Text(
                 text = "잘못된 유형의 이메일 주소입니다.",
                 color = MaterialTheme.colors.error,
                 modifier = Modifier.padding(start = 16.dp)
             )
+
         }
         var password by remember { mutableStateOf("") }
 
@@ -148,7 +150,6 @@ fun LoginScreen(
                                             Toast.LENGTH_SHORT).show()
                                     }
                             } else {
-                                // If sign in fails, display a message to the user.
                                 Toast.makeText(activity, "아이디 혹은 비밀번호를 확인하세요.",
                                     Toast.LENGTH_SHORT).show()
                             }
@@ -158,7 +159,6 @@ fun LoginScreen(
                     Toast.makeText(activity, "아이디 혹은 비밀번호를 입력하세요.",
                         Toast.LENGTH_SHORT).show()
                 }
-
             },
             colors = ButtonDefaults.buttonColors(backgroundColor = Color.Black, contentColor = Color.White),
             enabled = !isErrorInID && password.isNotEmpty()
@@ -167,6 +167,7 @@ fun LoginScreen(
                 "로그인",
                 fontSize = 16.sp
             )
+            
         }
         Row( //회원가입 버튼
             modifier = Modifier

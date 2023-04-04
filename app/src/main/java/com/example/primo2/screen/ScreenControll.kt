@@ -67,7 +67,8 @@ enum class PrimoScreen() {
     RegisterPartnerID,
     SelectDateDate,
     Search,
-    Test
+    Test,
+    PlaceBattle,
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -305,6 +306,12 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             }
 
 
+            // 장소 취향 월드컵
+            composable(route = PrimoScreen.PlaceBattle.name) {
+                PlaceBattle(requestManager)
+            }
+
+
 
 
         }
@@ -365,7 +372,9 @@ fun checkBottomVisible (navController:NavController): Boolean{
             "Search" ->{
                 bottomBarState = false
             }
-
+            "PlaceBattle" ->{
+                bottomBarState = false
+            }
         }
     }
     return bottomBarState
@@ -421,6 +430,9 @@ fun checkTopVisible (navController:NavController): Boolean{
                 TopBarState = true
             }
             "Search" ->{
+                TopBarState = false
+            }
+            "PlaceBattle" ->{
                 TopBarState = false
             }
         }

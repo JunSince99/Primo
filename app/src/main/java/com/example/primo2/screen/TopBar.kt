@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -83,12 +84,19 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     )
                 },
                 actions = {
-                          IconButton(onClick = { navController.navigate(PrimoScreen.Test.name)}) {
+                          IconButton(onClick = { navController.navigate(PrimoScreen.Test.name) }) {
                               Icon(
                                   imageVector = Icons.Filled.Add,
                                   contentDescription = "데이트 추가",
                               )
                           }
+                    IconButton(onClick = { navController.navigate(PrimoScreen.PlaceBattle.name) }) {
+                        Icon(
+                            imageVector = Icons.Filled.AddCircle,
+                            contentDescription = "이상형 월드컵 테스트",
+
+                        )
+                    }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.White,

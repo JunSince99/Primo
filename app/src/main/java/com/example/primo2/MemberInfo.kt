@@ -10,6 +10,7 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.update
 var myName:String = ""
+var rankTaste:MutableList<String> = mutableListOf()
 var userOrientation:HashMap<String,Any> = HashMap()
 var partnerOrientation:HashMap<String,Any> = HashMap()
 var leaderUID:String = ""
@@ -106,6 +107,7 @@ fun getUserOrientation()
             .get()
             .addOnSuccessListener { document ->
                 if(document.exists()) {
+                    rankTaste = document.get("rankTaste") as MutableList<String>
                     userOrientation = document.get("taste") as HashMap<String, Any>
                     userOrientation = userOrientation.toList()
                         .sortedByDescending { it.second.toString().toDouble() }
