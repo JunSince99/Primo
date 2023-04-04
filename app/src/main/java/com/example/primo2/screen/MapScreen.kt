@@ -159,7 +159,7 @@ fun MapScreen(
 
     BottomSheetScaffold(
         topBar = {
-              maptopbar()
+              maptopbar(onSearchButtonClicked)
         },
         scaffoldState = scaffoldState,
         sheetContent = {
@@ -743,7 +743,7 @@ fun BottomSheetContent(
 }
 
 @Composable
-fun maptopbar() {
+fun maptopbar(onSearchButtonClicked: () -> Unit = {}) {
 
     Surface(
         color = Color.White,
@@ -790,7 +790,7 @@ fun maptopbar() {
                     modifier = Modifier
                         .size(28.dp)
                         .clip(CircleShape)
-                        .clickable { /*onSearchButtonClicked()*/ }
+                        .clickable { onSearchButtonClicked() }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
