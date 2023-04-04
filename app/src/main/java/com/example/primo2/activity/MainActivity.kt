@@ -1,9 +1,13 @@
 package com.example.primo2.activity
 
+import android.app.Activity
+import android.os.Build
 import android.os.Bundle
+import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.ui.Modifier
+import androidx.core.view.WindowCompat
 import com.bumptech.glide.Glide
 import com.bumptech.glide.RequestManager
 import com.example.primo2.screen.PrimoApp
@@ -19,14 +23,26 @@ class MainActivity : AppCompatActivity() {
         mGlideRequestManager = Glide.with(this);
         setContent {
             //val intent = Intent(this, UploadPostActivity::class.java)
+            this.setStatusBarTransparent()
             PrimoApp(this, mGlideRequestManager, modifier = Modifier)
+
             //MapScreen()
         }
 
     }
 
 }
-
+fun Activity.setStatusBarTransparent() {
+    window.apply {
+        setFlags(
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+            WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
+        )
+    }
+    if(Build.VERSION.SDK_INT >= 30) {	// API 30 에 적용
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+    }
+}
 
 //@Preview
 //@Composable
