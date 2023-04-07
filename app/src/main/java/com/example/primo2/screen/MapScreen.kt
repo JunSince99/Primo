@@ -598,7 +598,7 @@ fun BottomSheetContent(
                     state = state.listState,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(screenHeight-143.dp)
+                        .height(screenHeight-157.dp)
                         .reorderable(state)
                 ) {
                     items(courseList, { it }) { item ->
@@ -743,13 +743,13 @@ fun BottomSheetContent(
 }
 
 @Composable
-fun maptopbar() {
+fun maptopbar(onSearchButtonClicked: () -> Unit = {}) {
 
     Surface(
         color = Color.White,
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp)
+            .height(105.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -759,13 +759,13 @@ fun maptopbar() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
                     .fillMaxWidth()
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(28.dp)
+                        .size(45.dp)
                         .clip(CircleShape)
                         .clickable { /*TODO*/ }
                 ) {
@@ -773,7 +773,7 @@ fun maptopbar() {
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
                         modifier = Modifier
-                            .size(20.dp),
+                            .size(25.dp),
                         tint = Color.Black
                     )
                 }
@@ -788,15 +788,15 @@ fun maptopbar() {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(28.dp)
+                        .size(45.dp)
                         .clip(CircleShape)
-                        .clickable { /*onSearchButtonClicked()*/ }
+                        .clickable { onSearchButtonClicked() }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
                         modifier = Modifier
-                            .size(20.dp),
+                            .size(25.dp),
                         tint = Color.Black
                     )
                 }

@@ -88,7 +88,7 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     )
                 },
                 actions = {
-                          IconButton(onClick = { navController.navigate(PrimoScreen.Test.name) }) {
+                          IconButton(onClick = { navController.navigate(PrimoScreen.SelectWritingCourse.name) }) {
                               Icon(
                                   imageVector = Icons.Filled.Add,
                                   contentDescription = "데이트 추가",
@@ -98,7 +98,6 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                         Icon(
                             imageVector = Icons.Filled.AddCircle,
                             contentDescription = "이상형 월드컵 테스트",
-
                         )
                     }
                 },
