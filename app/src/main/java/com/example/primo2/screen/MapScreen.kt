@@ -105,8 +105,8 @@ fun MapScreen(
 
     val courseList = remember { mutableStateListOf<String>() }
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
+    courseList.clear()
     database.child(datePlanName!!).child("course").get().addOnSuccessListener {
-        courseList.clear()
         for(i in 0 until it.childrenCount)
         {
             courseList.add(it.child(i.toString()).value.toString())
@@ -159,7 +159,7 @@ fun MapScreen(
 
     BottomSheetScaffold(
         topBar = {
-              maptopbar(onSearchButtonClicked)
+              maptopbar()
         },
         scaffoldState = scaffoldState,
         sheetContent = {
@@ -240,40 +240,40 @@ fun MapScreen(
                         )
 
                     } else {
-                        var fitness: Double = fitnessCalc(userOrientation, i)
-                        Marker(
-                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
-                            width = 40.dp,
-                            height = 40.dp,
-                            state = MarkerState(
-                                position = LatLng(
-                                    placeList[i].latitude,
-                                    placeList[i].longitude
-                                )
-                            ),
-                            captionText = placeList[i].placeName + "\n" + "적합도 : " + fitness.roundToInt() + "%",
-                            captionMinZoom = 12.2,
-                            minZoom = 12.2,
-                            onClick = { overlay ->
-                                bottomNaviInfo = placeList[i].information
-                                bottomNaviID = placeList[i].placeID
-                                bottomNaviTitle = placeList[i].placeName
-                                bottomNaviPaint = placeList[i].imageResource
-                                showMapInfo = true
-
-                                scope.launch {
-                                    scaffoldState.bottomSheetState.apply {
-                                        if (!isCollapsed) {
-                                            collapse()
-                                        }
-                                    }
-                                }
-
-                                true
-                            },
-                            tag = i,
-                            zIndex = fitness.roundToInt() // 겹칠때 적합도 높은게 위로 가게
-                        )
+//                        var fitness: Double = fitnessCalc(userOrientation, i)
+//                        Marker(
+//                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
+//                            width = 40.dp,
+//                            height = 40.dp,
+//                            state = MarkerState(
+//                                position = LatLng(
+//                                    placeList[i].latitude,
+//                                    placeList[i].longitude
+//                                )
+//                            ),
+//                            captionText = placeList[i].placeName + "\n" + "적합도 : " + fitness.roundToInt() + "%",
+//                            captionMinZoom = 12.2,
+//                            minZoom = 12.2,
+//                            onClick = { overlay ->
+//                                bottomNaviInfo = placeList[i].information
+//                                bottomNaviID = placeList[i].placeID
+//                                bottomNaviTitle = placeList[i].placeName
+//                                bottomNaviPaint = placeList[i].imageResource
+//                                showMapInfo = true
+//
+//                                scope.launch {
+//                                    scaffoldState.bottomSheetState.apply {
+//                                        if (!isCollapsed) {
+//                                            collapse()
+//                                        }
+//                                    }
+//                                }
+//
+//                                true
+//                            },
+//                            tag = i,
+//                            zIndex = fitness.roundToInt() // 겹칠때 적합도 높은게 위로 가게
+//                        )
                     }
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
@@ -743,7 +743,7 @@ fun BottomSheetContent(
 }
 
 @Composable
-fun maptopbar(onSearchButtonClicked: () -> Unit = {}) {
+fun maptopbar() {
 
     Surface(
         color = Color.White,
@@ -790,7 +790,7 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {}) {
                     modifier = Modifier
                         .size(28.dp)
                         .clip(CircleShape)
-                        .clickable { onSearchButtonClicked() }
+                        .clickable { /*onSearchButtonClicked()*/ }
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,

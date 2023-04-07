@@ -1,6 +1,7 @@
 package com.example.primo2.screen
 
 import android.util.Log
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
@@ -14,6 +15,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextAlign
@@ -21,6 +23,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.primo2.ui.theme.LightPink
+import com.example.primo2.ui.theme.LightRed
 import com.example.primo2.ui.theme.Typography
 import java.time.YearMonth
 
@@ -106,6 +110,7 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     actionIconContentColor = topAppBarElementColor,
                 ),
                 scrollBehavior = scrollBehavior,
+                modifier = Modifier,
             )
         }
     }
