@@ -2,12 +2,14 @@ package com.example.primo2.screen
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.Icon
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.Button
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -25,8 +27,33 @@ fun WritingScreen(navController:NavController) {
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
-        Column {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            //탑바
             Writingtopbar(navController)
+            Spacer(modifier = Modifier.padding(16.dp))
+            //이미지 추가 버튼
+            Button(
+                onClick = { /*TODO*/ },
+                shape = RoundedCornerShape(20.dp),
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.LightGray,
+                    contentColor = Color.Black
+                ),
+                modifier = Modifier.size(width = 100.dp, height = 100.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = null,
+                    modifier = Modifier
+                        .size(40.dp),
+                )
+            }
+            //제목
+
+                //장소
+                //내용
         }
     }
 }
