@@ -70,7 +70,8 @@ enum class PrimoScreen() {
     Test,
     PlaceBattle,
     SelectWritingCourse,
-    WritingScreen
+    WritingScreen,
+    Post
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -320,6 +321,10 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             composable(route = PrimoScreen.WritingScreen.name) {
                 WritingScreen(navController)
             }
+
+            composable(route = PrimoScreen.Post.name) {
+                Post()
+            }
         }
     }
 }
@@ -383,6 +388,9 @@ fun checkBottomVisible (navController:NavController): Boolean{
                 bottomBarState = false
             }
             "WritingScreen" ->{
+                bottomBarState = false
+            }
+            "Post" ->{
                 bottomBarState = false
             }
         }
@@ -449,6 +457,9 @@ fun checkTopVisible (navController:NavController): Boolean{
                 TopBarState = false
             }
             "WritingScreen" ->{
+                TopBarState = false
+            }
+            "Post" ->{
                 TopBarState = false
             }
         }

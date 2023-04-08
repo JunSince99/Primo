@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -21,6 +22,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -32,6 +36,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.R
 import com.example.primo2.ui.theme.moreLightGray
 import com.example.primo2.ui.theme.spoqasans
@@ -46,63 +51,10 @@ fun WritingScreen(navController:NavController) {
         ) {
             //탑바
             Writingtopbar(navController)
-            Spacer(modifier = Modifier.padding(16.dp))
             //이미지 추가 버튼
-            Button(
-                onClick = { /*TODO*/ },
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.LightGray,
-                    contentColor = Color.Black
-                ),
-                modifier = Modifier.size(width = 100.dp, height = 100.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(40.dp),
-                )
-            }
             //제목
-            var titlename by remember { mutableStateOf("") }
-
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                value = titlename,
-                onValueChange = { text ->
-                    titlename = text
-                },
-                placeholder = {
-                    Text(
-                        modifier = Modifier
-                            .alpha(ContentAlpha.medium),
-                        text = "제목을 입력해주세요.",
-                        color = Color.Gray,
-                        fontSize = 25.sp,
-                        fontFamily = spoqasans,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                textStyle = TextStyle(
-                    fontSize = 25.sp,
-                    fontFamily = spoqasans,
-                    fontWeight = FontWeight.Bold
-                ),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next,
-                ),
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.White,
-                    cursorColor = Color.Black,
-                    focusedIndicatorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White
-                )
-            )
-            placearticle()
+            Titletextfield()
+            Writingpost()
         }
     }
 }
@@ -152,7 +104,7 @@ fun Writingtopbar(navController: NavController) {
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(45.dp)
-                        .clickable {  }
+                        .clickable { }
                 ) {
                     Text(
                         text = "완료",
@@ -168,7 +120,48 @@ fun Writingtopbar(navController: NavController) {
 }
 
 @Composable
-fun placearticle() {
+fun Titletextfield() {
+    var titlename by remember { mutableStateOf("") }
+
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        value = titlename,
+        onValueChange = { text ->
+            titlename = text
+        },
+        placeholder = {
+            Text(
+                modifier = Modifier
+                    .alpha(ContentAlpha.medium),
+                text = "제목을 입력해주세요.",
+                color = Color.Gray,
+                fontSize = 25.sp,
+                fontFamily = spoqasans,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        textStyle = TextStyle(
+            fontSize = 25.sp,
+            fontFamily = spoqasans,
+            fontWeight = FontWeight.Bold
+        ),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Next,
+        ),
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = Color.White,
+            cursorColor = Color.Black,
+            focusedIndicatorColor = Color.White,
+            unfocusedIndicatorColor = Color.White
+        )
+    )
+}
+
+@Composable
+fun Writingpost() {
     Surface(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -176,48 +169,137 @@ fun placearticle() {
                 elevation = 1.dp,
                 shape = RoundedCornerShape(10)
             )
-            .aspectRatio(16f / 16f)
     ) {
         Column {
             Spacer(modifier = Modifier.size(16.dp))
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 //장소
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.dog),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(60.dp)
+                    )
+                    Spacer(modifier = Modifier.padding(6.dp))
+                    Column(
+                        modifier = Modifier,
+                    ) {
+                        Text(
+                            text = "센트럴 파크",
+                            color = Color.Black,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.padding(2.dp))
+                        Text(
+                            text = "인천광역시 송도동",
+                            color = Color.DarkGray,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier
+                        )
+                    }
+                }
+                Button(
+                    onClick = { /*TODO*/ },
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.White,
+                        contentColor = Color.Black
+                    ),
+                    modifier = Modifier
+                        .size(width = 50.dp, height = 50.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_image_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(20.dp),
+                    )
+                }
+            }
+            Spacer(modifier = Modifier.size(8.dp))
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(10.dp))
+            ) {
+                val contrast = 1f // 0f..10f (1 should be default)
+                val brightness = -50f // -255f..255f (0 should be default)
+                val colorMatrix = floatArrayOf(
+                    contrast, 0f, 0f, 0f, brightness,
+                    0f, contrast, 0f, 0f, brightness,
+                    0f, 0f, contrast, 0f, brightness,
+                    0f, 0f, 0f, 1f, 0f
+                )
                 Image(
-                    painter = painterResource(id = R.drawable.dog),
+                    painter = painterResource(id = R.drawable.place_centralpark),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .clip(CircleShape)
-                        .size(60.dp)
+                        .size(65.dp)
+                        .clip(RectangleShape)
                 )
-                Spacer(modifier = Modifier.padding(6.dp))
-                Column(
-                    modifier = Modifier,
+                Image(
+                    painter = painterResource(id = R.drawable.main_img_background),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(65.dp)
+                        .clip(RectangleShape)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.place_solchanpark),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(65.dp)
+                        .clip(RectangleShape)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.place_centralpark),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(65.dp)
+                        .clip(RectangleShape)
+                )
+                Box(
+                    modifier = Modifier
                 ) {
-                    Text(
-                        text = "센트럴 파크",
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                    Image(
+                        painter = painterResource(id = R.drawable.place_solchanpark),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        colorFilter = ColorFilter.colorMatrix(ColorMatrix(colorMatrix)),
                         modifier = Modifier
+                            .size(65.dp)
+                            .clip(RectangleShape)
                     )
-                    Spacer(modifier = Modifier.padding(2.dp))
-                    Text(
-                        text = "인천광역시 송도동",
-                        color = Color.DarkGray,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Normal,
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_more_horiz_24),
+                        contentDescription = null,
                         modifier = Modifier
+                            .size(30.dp)
+                            .align(Alignment.Center),
+                        tint = Color.White
                     )
                 }
             }
             //내용
             var article by remember { mutableStateOf("") }
-
             TextField(
                 modifier = Modifier
                     .fillMaxWidth(),

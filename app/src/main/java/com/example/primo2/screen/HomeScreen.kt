@@ -76,7 +76,7 @@ fun HomeScreen(
     requestManager: RequestManager,
     modifier: Modifier = Modifier,
     viewModel: PostViewModel = viewModel(),
-    listState: LazyListState = LazyListState()
+    listState: LazyListState = LazyListState(),
 ){
 
     val user = Firebase.auth.currentUser
@@ -101,7 +101,7 @@ fun HomeScreen(
             color = MaterialTheme.colors.onBackground // app.build.gradle에서 색 지정 가능
         ) {
             Scaffold() { padding ->
-                Posts(requestManager, Modifier.padding(padding), viewModel,listState)
+                Posts(requestManager, Modifier.padding(padding), viewModel,listState, navController)
             }
         }
     }
@@ -113,7 +113,8 @@ fun HomeScreen(
 fun Posts(requestManager: RequestManager,
           modifier: Modifier = Modifier,
           viewModel: PostViewModel = viewModel(),
-          listState: LazyListState = LazyListState()
+          listState: LazyListState = LazyListState(),
+          navController: NavController
 )
 {
     val uiState by viewModel.postState.collectAsState()
@@ -133,7 +134,7 @@ fun Posts(requestManager: RequestManager,
     LazyColumn(modifier = modifier, state = listState) {
 
         items(uiState.size){
-            Post(uiState[it],requestManager,it)
+            Post(uiState[it],requestManager,it, navController)
         }
     }
     val coroutineScope = rememberCoroutineScope()
@@ -143,11 +144,11 @@ fun Posts(requestManager: RequestManager,
 }
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class)
 @Composable
-fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
+fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int,navController: NavController) {
     Surface(
         color = Color.White,
         modifier = Modifier
-            .clickable { /*TODO*/ }
+            .clickable { navController.navigate(PrimoScreen.Post.name) }
     ) {
         Column(
             modifier = Modifier
