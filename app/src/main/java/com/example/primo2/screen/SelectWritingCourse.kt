@@ -6,24 +6,31 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.example.primo2.R
+import com.example.primo2.ui.theme.moreLightGray
 import com.example.primo2.ui.theme.spoqasans
 
 @Composable
@@ -33,6 +40,8 @@ fun SelectCourse(navController:NavController) {
     ) {
         Column {
             Defaulttopbar(navController)
+            SearchBar()
+            Spacer(modifier = Modifier.size(8.dp))
             Course()
         }
     }
@@ -95,6 +104,60 @@ fun Defaulttopbar(navController: NavController) {
             }
         }
     }
+}
+
+@Composable
+fun SearchBar() {
+    var searchKeyword by remember { mutableStateOf("") }
+
+    TextField(
+        modifier = Modifier
+            .padding(horizontal = 24.dp)
+            .fillMaxWidth(),
+        value = searchKeyword,
+        onValueChange = { text ->
+            searchKeyword = text
+        },
+        placeholder = {
+            Text(
+                modifier = Modifier
+                    .alpha(ContentAlpha.medium),
+                text = "검색",
+                color = Color.Gray
+            )
+        },
+        textStyle = TextStyle(
+            fontSize = 16.sp
+        ),
+        singleLine = true,
+        trailingIcon = {
+            IconButton(
+                modifier = Modifier
+                    .alpha(ContentAlpha.medium),
+                onClick = {
+                    if (searchKeyword.isNotEmpty()) {
+                        searchKeyword = ""
+                    }
+                }
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Search,
+                    contentDescription = "Search Icon",
+                    tint = Color.Black
+                )
+            }
+        },
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Search,
+        ),
+        shape = RoundedCornerShape(20.dp),
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = moreLightGray,
+            cursorColor = Color.Black,
+            focusedIndicatorColor = moreLightGray,
+            unfocusedIndicatorColor = moreLightGray
+        )
+    )
 }
 
 @OptIn(ExperimentalGlideComposeApi::class)

@@ -279,8 +279,10 @@ fun MapScreen(
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
 
                 var latlist : List<LatLng> = listOf(
-                        LatLng(placeList[0].latitude,
-                        placeList[0].longitude)
+                    LatLng(
+                        placeList[0].latitude,
+                        placeList[0].longitude
+                    )
                 )
                 repeat(times = placeList.size) {
                     latlist = listOf(
