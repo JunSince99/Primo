@@ -118,4 +118,6 @@ dependencies {
 
     // Also add the dependency for the TensorFlow Lite library and specify its version
     implementation 'org.tensorflow:tensorflow-lite:2.11.0'
+
+    implementation("androidx.core:core-splashscreen:1.0.0-beta01")
 }

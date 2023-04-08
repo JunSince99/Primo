@@ -12,21 +12,20 @@
     <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
-
         android:allowBackup="true"
+        android:fullBackupOnly="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
-        android:icon="@mipmap/main_img"
+        android:icon="@mipmap/main_img2"
         android:label="@string/app_name"
-        android:roundIcon="@mipmap/main_img"
+        android:roundIcon="@mipmap/main_img2"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Primo2"
+        android:theme="@style/Theme.AppSplash"
         tools:targetApi="31">
         <meta-data
             android:name="com.naver.maps.map.CLIENT_ID"
             android:value="9sb3q2xo2s" />
         <activity
-            android:theme="@style/Theme.Primo2"
             android:name=".activity.MainActivity"
             android:exported="true">
             <intent-filter>
