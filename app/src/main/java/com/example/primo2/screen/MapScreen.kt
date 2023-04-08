@@ -105,8 +105,8 @@ fun MapScreen(
 
     val courseList = remember { mutableStateListOf<String>() }
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
+    courseList.clear()
     database.child(datePlanName!!).child("course").get().addOnSuccessListener {
-        courseList.clear()
         for(i in 0 until it.childrenCount)
         {
             courseList.add(it.child(i.toString()).value.toString())
@@ -159,7 +159,7 @@ fun MapScreen(
 
     BottomSheetScaffold(
         topBar = {
-              maptopbar(onSearchButtonClicked)
+              maptopbar()
         },
         scaffoldState = scaffoldState,
         sheetContent = {
@@ -240,40 +240,40 @@ fun MapScreen(
                         )
 
                     } else {
-                        var fitness: Double = fitnessCalc(userOrientation, i)
-                        Marker(
-                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
-                            width = 40.dp,
-                            height = 40.dp,
-                            state = MarkerState(
-                                position = LatLng(
-                                    placeList[i].latitude,
-                                    placeList[i].longitude
-                                )
-                            ),
-                            captionText = placeList[i].placeName + "\n" + "적합도 : " + fitness.roundToInt() + "%",
-                            captionMinZoom = 12.2,
-                            minZoom = 12.2,
-                            onClick = { overlay ->
-                                bottomNaviInfo = placeList[i].information
-                                bottomNaviID = placeList[i].placeID
-                                bottomNaviTitle = placeList[i].placeName
-                                bottomNaviPaint = placeList[i].imageResource
-                                showMapInfo = true
-
-                                scope.launch {
-                                    scaffoldState.bottomSheetState.apply {
-                                        if (!isCollapsed) {
-                                            collapse()
-                                        }
-                                    }
-                                }
-
-                                true
-                            },
-                            tag = i,
-                            zIndex = fitness.roundToInt() // 겹칠때 적합도 높은게 위로 가게
-                        )
+//                        var fitness: Double = fitnessCalc(userOrientation, i)
+//                        Marker(
+//                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
+//                            width = 40.dp,
+//                            height = 40.dp,
+//                            state = MarkerState(
+//                                position = LatLng(
+//                                    placeList[i].latitude,
+//                                    placeList[i].longitude
+//                                )
+//                            ),
+//                            captionText = placeList[i].placeName + "\n" + "적합도 : " + fitness.roundToInt() + "%",
+//                            captionMinZoom = 12.2,
+//                            minZoom = 12.2,
+//                            onClick = { overlay ->
+//                                bottomNaviInfo = placeList[i].information
+//                                bottomNaviID = placeList[i].placeID
+//                                bottomNaviTitle = placeList[i].placeName
+//                                bottomNaviPaint = placeList[i].imageResource
+//                                showMapInfo = true
+//
+//                                scope.launch {
+//                                    scaffoldState.bottomSheetState.apply {
+//                                        if (!isCollapsed) {
+//                                            collapse()
+//                                        }
+//                                    }
+//                                }
+//
+//                                true
+//                            },
+//                            tag = i,
+//                            zIndex = fitness.roundToInt() // 겹칠때 적합도 높은게 위로 가게
+//                        )
                     }
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
@@ -598,7 +598,7 @@ fun BottomSheetContent(
                     state = state.listState,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(screenHeight-143.dp)
+                        .height(screenHeight-157.dp)
                         .reorderable(state)
                 ) {
                     items(courseList, { it }) { item ->
@@ -749,7 +749,7 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {}) {
         color = Color.White,
         modifier = Modifier
             .fillMaxWidth()
-            .height(90.dp)
+            .height(105.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -759,13 +759,13 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {}) {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 8.dp, vertical = 8.dp)
                     .fillMaxWidth()
             ) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(28.dp)
+                        .size(45.dp)
                         .clip(CircleShape)
                         .clickable { /*TODO*/ }
                 ) {
@@ -773,7 +773,7 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {}) {
                         imageVector = Icons.Default.ArrowBack,
                         contentDescription = null,
                         modifier = Modifier
-                            .size(20.dp),
+                            .size(25.dp),
                         tint = Color.Black
                     )
                 }
@@ -788,7 +788,7 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {}) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .size(28.dp)
+                        .size(45.dp)
                         .clip(CircleShape)
                         .clickable { onSearchButtonClicked() }
                 ) {
@@ -796,7 +796,7 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {}) {
                         imageVector = Icons.Default.Search,
                         contentDescription = null,
                         modifier = Modifier
-                            .size(20.dp),
+                            .size(25.dp),
                         tint = Color.Black
                     )
                 }

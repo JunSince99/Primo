@@ -69,6 +69,8 @@ enum class PrimoScreen() {
     Search,
     Test,
     PlaceBattle,
+    SelectWritingCourse,
+    WritingScreen
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -311,15 +313,17 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 PlaceBattle(requestManager)
             }
 
+            composable(route = PrimoScreen.SelectWritingCourse.name) {
+                SelectCourse(navController)
+            }
 
-
-
+            composable(route = PrimoScreen.WritingScreen.name) {
+                WritingScreen(navController)
+            }
         }
-
     }
-
-
 }
+
 @Composable
 fun checkBottomVisible (navController:NavController): Boolean{
     val user = Firebase.auth.currentUser
@@ -373,6 +377,12 @@ fun checkBottomVisible (navController:NavController): Boolean{
                 bottomBarState = false
             }
             "PlaceBattle" ->{
+                bottomBarState = false
+            }
+            "SelectWritingCourse" ->{
+                bottomBarState = false
+            }
+            "WritingScreen" ->{
                 bottomBarState = false
             }
         }
@@ -435,44 +445,15 @@ fun checkTopVisible (navController:NavController): Boolean{
             "PlaceBattle" ->{
                 TopBarState = false
             }
+            "SelectWritingCourse" ->{
+                TopBarState = false
+            }
+            "WritingScreen" ->{
+                TopBarState = false
+            }
         }
     }
     return TopBarState
-}
-@Preview
-@Composable
-fun LoginPreview(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier
-            .padding(16.dp)
-            .fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ){
-        Text(text = "로그인 화면", style = MaterialTheme.typography.h4)
-
-        var email by remember { mutableStateOf("") }
-
-        OutlinedTextField(
-            value = email,
-            onValueChange = { email = it },
-            label = { Text("이메일") }
-        )
-
-        var password by remember { mutableStateOf("") }
-
-        OutlinedTextField(
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("패스워드") }
-        )
-
-        Button(
-            modifier = Modifier.fillMaxWidth(),
-            onClick = {}
-        ) {
-            Text("로그인")
-        }
-    }
 }
 
 fun InitailLoading(){
@@ -480,4 +461,3 @@ fun InitailLoading(){
     getPartnerInfo() // 연인 정보
     getUserOrientation() // 유저 정보
 }
-

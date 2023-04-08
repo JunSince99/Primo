@@ -19,8 +19,7 @@ private val DarkColorPalette = darkColors(
 private val LightColorPalette = lightColors(
     primary = Color.Black, // 내용물
     primaryVariant = Color.Black,
-    secondary = Color.White,
-    onPrimary = Color.White,
+    secondary = Color.Black,
     error = DarkRed,
     onBackground = Color.White // 배경
 
