@@ -277,21 +277,26 @@ fun MapScreen(
                     }
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
-                for(i in 0 until courseList.size) {
-                    val latlist = listOf(
+
+                var latlist : List<LatLng> = listOf(
+                        LatLng(placeList[0].latitude,
+                        placeList[0].longitude)
+                )
+                repeat(times = placeList.size) {
+                    latlist = listOf(
                         LatLng(
-                            placeList[i].latitude,
-                            placeList[i].longitude
+                            placeList[it].latitude,
+                            placeList[it].longitude
                         )
                     )
-                    if (latlist.size >= 2) {
-                        PathOverlay(
-                            coords = latlist,
-                            width = 3.dp,
-                            color = Color.White,
-                            outlineColor = Color.Black
-                        )
-                    }
+                }
+                if (latlist.size >= 2) {
+                    PathOverlay(
+                        coords = latlist,
+                        width = 3.dp,
+                        color = Color.White,
+                        outlineColor = Color.Black
+                    )
                 }
             }
 
