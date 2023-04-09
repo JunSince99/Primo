@@ -63,7 +63,7 @@ fun Postdetail() {
                 )
             }
         },
-        elevation = 0.dp
+        elevation = 1.dp
     )
 }
 
