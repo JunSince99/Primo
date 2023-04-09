@@ -1,8 +1,8 @@
 package com.example.primo2.screen
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -29,33 +30,50 @@ import com.example.primo2.R
 import com.example.primo2.ui.theme.spoqasans
 
 @Composable
-fun Post() {
+fun Postdetail() {
+
     Surface(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier.fillMaxSize(),
     ) {
+
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .verticalScroll(rememberScrollState())
         ) {
-            //탑바
-            Posttopbar()
-            //이미지 추가 버튼
-            //제목
+
             Posttitle()
             Spacer(modifier = Modifier.size(8.dp))
             Postarticle()
+            Spacer(modifier = Modifier.size(8.dp))
+            Postarticle()
+            Spacer(modifier = Modifier.size(8.dp))
         }
     }
+    TopAppBar(
+        title = { Text("") },
+        backgroundColor = Color.Transparent,
+        navigationIcon = {
+            IconButton(onClick = {})
+            {
+                Icon(
+                    Icons.Default.ArrowBack,
+                    "Open/Close menu",
+                    tint = Color.White
+                )
+            }
+        },
+        elevation = 0.dp
+    )
 }
 
 @Composable
 fun Posttopbar() {
     Surface(
-        color = Color.White,
         modifier = Modifier
             .fillMaxWidth()
     ) {
         Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
         ) {
             Row(
@@ -87,15 +105,50 @@ fun Posttopbar() {
 
 @Composable
 fun Posttitle() {
-    Text(
-        text = "전통과 함께하는 전주 한옥마을",
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        fontSize = 25.sp,
-        fontFamily = spoqasans,
-        fontWeight = FontWeight.Bold
-    )
+    Box {
+        Image(
+            painter = painterResource(id = R.drawable.place_centralpark),
+            contentDescription = "",
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .aspectRatio(16f / 10f)
+                .fillMaxWidth()
+        )
+        Column {
+            Spacer(modifier = Modifier.size(140.dp))
+            Text(
+                text = "송도",
+                fontSize = 17.5.sp,
+                color = Color.White,
+                fontFamily = spoqasans,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+            )
+            Spacer(modifier = Modifier.padding(1.dp))
+            Text(
+                text = "전통과 함께하는 전주 한옥마을",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                fontSize = 25.sp,
+                fontFamily = spoqasans,
+                fontWeight = FontWeight.Bold,
+                color = Color.White
+            )
+            Text(
+                text = "걷기 좋은 공원",
+                fontSize = 17.5.sp,
+                color = Color.White,
+                fontFamily = spoqasans,
+                fontWeight = FontWeight.Normal,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+            )
+        }
+    }
 }
 
 @Composable

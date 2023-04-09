@@ -323,7 +323,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             }
 
             composable(route = PrimoScreen.Post.name) {
-                Post()
+                Postdetail()
             }
         }
     }
@@ -390,7 +390,7 @@ fun checkBottomVisible (navController:NavController): Boolean{
             "WritingScreen" ->{
                 bottomBarState = false
             }
-            "Post" ->{
+            "Postdetail" ->{
                 bottomBarState = false
             }
         }
@@ -459,7 +459,7 @@ fun checkTopVisible (navController:NavController): Boolean{
             "WritingScreen" ->{
                 TopBarState = false
             }
-            "Post" ->{
+            "Postdetail" ->{
                 TopBarState = false
             }
         }
