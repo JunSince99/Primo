@@ -53,11 +53,14 @@ fun SearchScreen(
 fun Search(requestManager: RequestManager) {
     var searchKeyword by remember { mutableStateOf("") }
     val searchPlaceList:ArrayList<Int> = ArrayList()
-    if(searchKeyword.isNotBlank()){
-        searchPlaceList.clear()
-        for(i in 0 until placeList.size){
-            if(placeList[i].placeName.contains(searchKeyword)){
-                searchPlaceList.add(i)
+    LaunchedEffect(searchKeyword)
+    {
+        if (searchKeyword.isNotBlank()) {
+            searchPlaceList.clear()
+            for (i in 0 until placeList.size) {
+                if (placeList[i].placeName.contains(searchKeyword)) {
+                    searchPlaceList.add(i)
+                }
             }
         }
     }

@@ -37,7 +37,8 @@ import com.example.primo2.ui.theme.moreLightGray
 import com.example.primo2.ui.theme.spoqasans
 
 @Composable
-fun WritingScreen(navController:NavController) {
+fun WritingScreen(navController: NavController,postPlaceList:ArrayList<Int>) {
+    var sequence by remember { mutableStateOf(0) }
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -45,7 +46,7 @@ fun WritingScreen(navController:NavController) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             //탑바
-            Writingtopbar(navController)
+            Writingtopbar(sequence,postPlaceList,navController, onSequenceChange = {sequence = it})
             Spacer(modifier = Modifier.padding(16.dp))
             //이미지 추가 버튼
             Button(
@@ -108,7 +109,7 @@ fun WritingScreen(navController:NavController) {
 }
 
 @Composable
-fun Writingtopbar(navController: NavController) {
+fun Writingtopbar(sequence: Int, postPlaceList:MutableList<Int>,navController: NavController,onSequenceChange:(Int) -> Unit) {
     Surface(
         color = Color.White,
         modifier = Modifier
@@ -152,15 +153,30 @@ fun Writingtopbar(navController: NavController) {
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(45.dp)
-                        .clickable {  }
+                        .clickable {
+                            if(postPlaceList.size == sequence){
+                                //글 저장
+                                navController.navigate(PrimoScreen.Home.name)
+                            }
+                            else{
+                                onSequenceChange(sequence+1)
+                                //다음 페이지로
+                            }
+                        }
                 ) {
-                    Text(
-                        text = "완료",
-                        textAlign = TextAlign.Center,
-                        color = Color.Black,
-                        fontFamily = spoqasans,
-                        fontWeight = FontWeight.Normal
-                    )
+                    var nextorend:String = ""
+                    nextorend = if(postPlaceList.size == sequence) {
+                        "완료"
+                    } else{
+                        "다음"
+                    }
+                        Text(
+                            text = nextorend,
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                            fontFamily = spoqasans,
+                            fontWeight = FontWeight.Normal
+                        )
                 }
             }
         }

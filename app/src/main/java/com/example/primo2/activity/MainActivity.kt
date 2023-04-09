@@ -25,7 +25,7 @@ class MainActivity : AppCompatActivity() {
         mGlideRequestManager = Glide.with(this);
         setContent {
             //val intent = Intent(this, UploadPostActivity::class.java)
-            this.setStatusBarTransparent()
+            //this.setStatusBarTransparent()
             PrimoApp(this, mGlideRequestManager, modifier = Modifier)
 
             //MapScreen()
@@ -34,6 +34,7 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
+/*
 fun Activity.setStatusBarTransparent() {
     window.apply {
         setFlags(
@@ -41,11 +42,11 @@ fun Activity.setStatusBarTransparent() {
             WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS
         )
     }
-    if(Build.VERSION.SDK_INT >= 30) {	// API 30 에 적용
+    if(Build.VERSION.SDK_INT >= 30) {	// API 30 에 적용\
         WindowCompat.setDecorFitsSystemWindows(window, false)
     }
 }
-
+*/
 //@Preview
 //@Composable
 //fun DefaultPreview() {

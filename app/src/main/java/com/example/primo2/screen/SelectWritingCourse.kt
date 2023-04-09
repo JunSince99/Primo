@@ -4,11 +4,14 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
@@ -28,27 +31,43 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.R
+import com.example.primo2.placeList
 import com.example.primo2.ui.theme.moreLightGray
 import com.example.primo2.ui.theme.spoqasans
 
 @Composable
-fun SelectCourse(navController:NavController) {
+fun SelectCourse(navController:NavController, requestManager: RequestManager) {
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
+        var searchKeyword by remember { mutableStateOf("") }
+        val searchPlaceList = remember { mutableStateListOf<Int>() }
+        val postPlaceList = remember { mutableStateListOf<Int>() }
+        LaunchedEffect(searchKeyword) {
+            if (searchKeyword.isNotBlank()) {
+                searchPlaceList.clear()
+                for (i in 0 until placeList.size) {
+                    if (placeList[i].placeName.contains(searchKeyword)) {
+                        searchPlaceList.add(i)
+                    }
+                }
+            }
+        }
         Column {
-            Defaulttopbar(navController)
-            SearchBar()
+            Defaulttopbar(navController,postPlaceList)
+            SearchBar(searchKeyword, onSearchKeywordChange = {searchKeyword = it})
             Spacer(modifier = Modifier.size(8.dp))
-            Course()
+            Course(searchKeyword,searchPlaceList,postPlaceList,requestManager, onSearchKeywordChange = {searchKeyword = it})
         }
     }
 }
 
 @Composable
-fun Defaulttopbar(navController: NavController) {
+fun Defaulttopbar(navController: NavController,postPlaceList: MutableList<Int>) {
     Surface(
         color = Color.White,
         modifier = Modifier
@@ -91,32 +110,33 @@ fun Defaulttopbar(navController: NavController) {
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
-                        .clickable { navController.navigate(PrimoScreen.WritingScreen.name) }
-                ) {
-                    Text(
-                        text = "건너뛰기",
-                        textAlign = TextAlign.Center,
-                        color = Color.Black,
-                        fontFamily = spoqasans,
-                        fontWeight = FontWeight.Normal
-                    )
-                }
+                        .clickable {
+                            navController.navigate("${PrimoScreen.WritingScreen.name}/$postPlaceList")
+                        }
+                            ) {
+                            Text(
+                                text = "건너뛰기",
+                                textAlign = TextAlign.Center,
+                                color = Color.Black,
+                                fontFamily = spoqasans,
+                                fontWeight = FontWeight.Normal
+                            )
+                        }
+
             }
         }
     }
 }
 
 @Composable
-fun SearchBar() {
-    var searchKeyword by remember { mutableStateOf("") }
-
+fun SearchBar(searchKeyword:String,onSearchKeywordChange:(String) -> Unit) {
     TextField(
         modifier = Modifier
             .padding(horizontal = 24.dp)
             .fillMaxWidth(),
         value = searchKeyword,
         onValueChange = { text ->
-            searchKeyword = text
+            onSearchKeywordChange(text)
         },
         placeholder = {
             Text(
@@ -136,7 +156,7 @@ fun SearchBar() {
                     .alpha(ContentAlpha.medium),
                 onClick = {
                     if (searchKeyword.isNotEmpty()) {
-                        searchKeyword = ""
+                        onSearchKeywordChange("")
                     }
                 }
             ) {
@@ -162,7 +182,36 @@ fun SearchBar() {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun Course() {
+fun Course(searchKeyword: String,searchPlaceList: MutableList<Int>,postPlaceList: MutableList<Int>,requestManager:RequestManager, onSearchKeywordChange:(String) -> Unit) {
+    if(searchKeyword.isNotBlank()) {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(190.dp)
+        ) {
+            items(searchPlaceList) { item ->
+                SearchPlace(item,requestManager,postPlaceList,onSearchKeywordChange)
+            }
+        }
+    }
+    else {
+
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight()
+        ) {
+            items(postPlaceList) { item ->
+                PostPlace(item,requestManager)
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun PostPlace(item:Int, requestManager: RequestManager)
+{
     Surface(
         modifier = Modifier
             .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -179,20 +228,32 @@ fun Course() {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier = Modifier.padding(6.dp))
-            Image(
-                painter = painterResource(id = R.drawable.place_centralpark),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
+            val url = placeList[item].imageResource
+            GlideImage(
+                model = url,
+                contentDescription = "",
                 modifier = Modifier
                     .clip(CircleShape)
-                    .size(60.dp)
+                    .size(60.dp),
+                contentScale = ContentScale.Crop
+
             )
+            {
+                it
+                    .thumbnail(
+                        requestManager
+                            .asDrawable()
+                            .load(url)
+                            // .signature(signature)
+                            .override(64)
+                    )
+            }
             Spacer(modifier = Modifier.padding(6.dp))
             Column(
                 modifier = Modifier,
             ) {
                 Text(
-                    text = "센트럴 파크",
+                    text = placeList[item].placeName,
                     color = Color.Black,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
@@ -210,3 +271,70 @@ fun Course() {
         }
     }
 }
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun SearchPlace(item:Int,requestManager: RequestManager,postPlaceList: MutableList<Int>,onSearchKeywordChange:(String) -> Unit){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { }
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+
+        val url = placeList[item].imageResource
+        GlideImage(
+            model = url,
+            contentDescription = "",
+            modifier = Modifier
+                .clip(CircleShape)
+                .size(50.dp),
+            contentScale = ContentScale.Crop
+
+        )
+        {
+            it
+                .thumbnail(
+                    requestManager
+                        .asDrawable()
+                        .load(url)
+                        // .signature(signature)
+                        .override(64)
+                )
+        }
+        Spacer(modifier = Modifier.padding(6.dp))
+        Column(
+            verticalArrangement = Arrangement.Center,
+            modifier = Modifier
+        ) {
+            Text(
+                text = placeList[item].placeName,
+                color = Color.Black,
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
+                modifier = Modifier
+            )
+            Spacer(modifier = Modifier.padding(2.dp))
+            Row {
+                placetag("걷기 좋은", 10.sp)
+                placetag("공원", 10.sp)
+                placetag("전통", 10.sp)
+            }
+        }
+        Row(modifier = Modifier
+            .fillMaxSize()
+            .clickable {
+                postPlaceList.add(item)
+                onSearchKeywordChange("")
+                       }
+        , horizontalArrangement = Arrangement.End){
+            androidx.compose.material3.Icon(
+                imageVector = Icons.Filled.AddCircle,
+                contentDescription = "포스트 장소 추가 버튼",
+            )
+        }
+    }
+}
+
+
