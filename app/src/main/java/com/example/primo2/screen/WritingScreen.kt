@@ -1,5 +1,6 @@
 package com.example.primo2.screen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,13 +33,28 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.example.primo2.PostInfo
 import com.example.primo2.R
+import com.example.primo2.placeList
+import com.example.primo2.postPlaceList
 import com.example.primo2.ui.theme.moreLightGray
 import com.example.primo2.ui.theme.spoqasans
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 @Composable
-fun WritingScreen(navController: NavController,postPlaceList:ArrayList<Int>) {
+fun WritingScreen(navController: NavController,requestManager: RequestManager) {
     var sequence by remember { mutableStateOf(0) }
+    var article by remember { mutableStateOf("") }
+    var titlename by remember { mutableStateOf("") }
+    val titleList = arrayListOf<String>()
+    val articleList = arrayListOf<String>()
+
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -46,7 +62,7 @@ fun WritingScreen(navController: NavController,postPlaceList:ArrayList<Int>) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             //탑바
-            Writingtopbar(sequence,postPlaceList,navController, onSequenceChange = {sequence = it})
+            Writingtopbar(sequence,postPlaceList,navController, onSequenceChange = {sequence = it}, article, titlename)
             Spacer(modifier = Modifier.padding(16.dp))
             //이미지 추가 버튼
             Button(
@@ -66,7 +82,6 @@ fun WritingScreen(navController: NavController,postPlaceList:ArrayList<Int>) {
                 )
             }
             //제목
-            var titlename by remember { mutableStateOf("") }
 
             TextField(
                 modifier = Modifier
@@ -103,13 +118,13 @@ fun WritingScreen(navController: NavController,postPlaceList:ArrayList<Int>) {
                     unfocusedIndicatorColor = Color.White
                 )
             )
-            placearticle()
+            placearticle(sequence,requestManager,article,onArticleChange = {article = it})
         }
     }
 }
 
 @Composable
-fun Writingtopbar(sequence: Int, postPlaceList:MutableList<Int>,navController: NavController,onSequenceChange:(Int) -> Unit) {
+fun Writingtopbar(sequence: Int, postPlaceList:MutableList<Int>,navController: NavController,onSequenceChange:(Int) -> Unit,article: String,titlename:String,articleList:ArrayList<String>,titleList:ArrayList<String>) {
     Surface(
         color = Color.White,
         modifier = Modifier
@@ -154,22 +169,42 @@ fun Writingtopbar(sequence: Int, postPlaceList:MutableList<Int>,navController: N
                     modifier = Modifier
                         .size(45.dp)
                         .clickable {
-                            if(postPlaceList.size == sequence){
-                                //글 저장
+                            if (postPlaceList.size - 1 == sequence || postPlaceList.size == 0) {
+                                val firebaseFirestore = Firebase.firestore
+                                val documentReference = firebaseFirestore
+                                    .collection("posts")
+                                    .document()
+
+                                val postInfo =
+                                    PostInfo(
+                                        documentReference.id,
+                                        title,
+                                        contentsList,
+                                        formatList,
+                                        comments,
+                                        user!!.uid,
+                                        LocalDate
+                                            .now()
+                                            .format(
+                                                DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                                            )
+                                    )
+
                                 navController.navigate(PrimoScreen.Home.name)
-                            }
-                            else{
-                                onSequenceChange(sequence+1)
+                            } else {
+                                titleList.add(titlename)
+                                articleList.add(article)
+                                onSequenceChange(sequence + 1)
                                 //다음 페이지로
                             }
                         }
                 ) {
-                    var nextorend:String = ""
-                    nextorend = if(postPlaceList.size == sequence) {
+                    val nextorend = if(postPlaceList.size - 1 == sequence || postPlaceList.size == 0) {
                         "완료"
                     } else{
                         "다음"
                     }
+                    Log.e("",""+postPlaceList.size+" " + sequence)
                         Text(
                             text = nextorend,
                             textAlign = TextAlign.Center,
@@ -183,8 +218,9 @@ fun Writingtopbar(sequence: Int, postPlaceList:MutableList<Int>,navController: N
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun placearticle() {
+fun placearticle(sequence: Int,requestManager:RequestManager,article:String,onArticleChange:(String) -> Unit) {
     Surface(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -202,20 +238,37 @@ fun placearticle() {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 //장소
-                Image(
-                    painter = painterResource(id = R.drawable.dog),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
+                val url = placeList[sequence].imageResource
+                GlideImage(
+                    model = url,
+                    contentDescription = "",
                     modifier = Modifier
                         .clip(CircleShape)
-                        .size(60.dp)
+                        .size(60.dp),
+                    contentScale = ContentScale.Crop
+
                 )
+                {
+                    it
+                        .thumbnail(
+                            requestManager
+                                .asDrawable()
+                                .load(url)
+                                // .signature(signature)
+                                .override(64)
+                        )
+                }
                 Spacer(modifier = Modifier.padding(6.dp))
                 Column(
                     modifier = Modifier,
                 ) {
+                    var placeName = ""
+                    if(postPlaceList.size != 0)
+                    {
+                        placeName = placeList[postPlaceList[sequence]].placeName
+                    }
                     Text(
-                        text = "센트럴 파크",
+                        text = placeName,
                         color = Color.Black,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -232,14 +285,13 @@ fun placearticle() {
                 }
             }
             //내용
-            var article by remember { mutableStateOf("") }
 
             TextField(
                 modifier = Modifier
                     .fillMaxWidth(),
                 value = article,
                 onValueChange = { text ->
-                    article = text
+                    onArticleChange(text)
                 },
                 placeholder = {
                     Text(

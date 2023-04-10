@@ -1,5 +1,6 @@
 package com.example.primo2.screen
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -36,6 +37,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.R
 import com.example.primo2.placeList
+import com.example.primo2.postPlaceList
 import com.example.primo2.ui.theme.moreLightGray
 import com.example.primo2.ui.theme.spoqasans
 
@@ -44,6 +46,10 @@ fun SelectCourse(navController:NavController, requestManager: RequestManager) {
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
+        LaunchedEffect(true){
+            postPlaceList.clear()
+            Log.e("클리어","클리어")
+        }
         var searchKeyword by remember { mutableStateOf("") }
         val searchPlaceList = remember { mutableStateListOf<Int>() }
         val postPlaceList = remember { mutableStateListOf<Int>() }
@@ -58,16 +64,16 @@ fun SelectCourse(navController:NavController, requestManager: RequestManager) {
             }
         }
         Column {
-            Defaulttopbar(navController,postPlaceList)
+            Defaulttopbar(navController)
             SearchBar(searchKeyword, onSearchKeywordChange = {searchKeyword = it})
             Spacer(modifier = Modifier.size(8.dp))
-            Course(searchKeyword,searchPlaceList,postPlaceList,requestManager, onSearchKeywordChange = {searchKeyword = it})
+            Course(searchKeyword,searchPlaceList,requestManager, onSearchKeywordChange = {searchKeyword = it})
         }
     }
 }
 
 @Composable
-fun Defaulttopbar(navController: NavController,postPlaceList: MutableList<Int>) {
+fun Defaulttopbar(navController: NavController) {
     Surface(
         color = Color.White,
         modifier = Modifier
@@ -111,7 +117,7 @@ fun Defaulttopbar(navController: NavController,postPlaceList: MutableList<Int>) 
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .clickable {
-                            navController.navigate("${PrimoScreen.WritingScreen.name}/$postPlaceList")
+                            navController.navigate(PrimoScreen.WritingScreen.name)
                         }
                             ) {
                             Text(
@@ -182,7 +188,7 @@ fun SearchBar(searchKeyword:String,onSearchKeywordChange:(String) -> Unit) {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun Course(searchKeyword: String,searchPlaceList: MutableList<Int>,postPlaceList: MutableList<Int>,requestManager:RequestManager, onSearchKeywordChange:(String) -> Unit) {
+fun Course(searchKeyword: String,searchPlaceList: MutableList<Int>,requestManager:RequestManager, onSearchKeywordChange:(String) -> Unit) {
     if(searchKeyword.isNotBlank()) {
         LazyColumn(
             modifier = Modifier

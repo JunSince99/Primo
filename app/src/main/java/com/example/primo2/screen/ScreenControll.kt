@@ -318,18 +318,10 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             }
 
 
-            val writingName = PrimoScreen.WritingScreen.name
-            composable(route = "$writingName/{postPlaceList}",
-                arguments = listOf(
-                    navArgument("postPlaceList"){
-                        type = NavType.IntArrayType
-                    }
-                )
-            ) { entry->
-                val postPlaceList = entry.arguments?.getIntegerArrayList("postPlaceList")
+            composable(route = PrimoScreen.WritingScreen.name) {
                 WritingScreen(
                     navController,
-                    postPlaceList!!
+                    requestManager
                 )
             }
         }
