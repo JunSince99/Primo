@@ -233,7 +233,7 @@ fun PostPlace(item:Int, requestManager: RequestManager)
             verticalAlignment = Alignment.CenterVertically
         ) {
             Spacer(modifier = Modifier.padding(6.dp))
-            val url = placeList[item].imageResource
+            val url = placeList[postPlaceList[item]].imageResource
             GlideImage(
                 model = url,
                 contentDescription = "",
@@ -258,7 +258,7 @@ fun PostPlace(item:Int, requestManager: RequestManager)
                 modifier = Modifier,
             ) {
                 Text(
-                    text = placeList[item].placeName,
+                    text = placeList[postPlaceList[item]].placeName,
                     color = Color.Black,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,

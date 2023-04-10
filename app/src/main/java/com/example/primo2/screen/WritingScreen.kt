@@ -244,7 +244,7 @@ fun PostPlaceWrite(item:Int, requestManager: RequestManager,articleList: Mutable
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 //장소
-                val url = placeList[item].imageResource
+                val url = placeList[postPlaceList[item]].imageResource
                 GlideImage(
                     model = url,
                     contentDescription = "",
