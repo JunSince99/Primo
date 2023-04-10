@@ -67,7 +67,7 @@ import kotlin.math.roundToInt
 
 
 @Composable
-fun Day(day: CalendarDay) { //일
+fun Day(day: CalendarDay, ) { //일
     Box(
         modifier = Modifier
             .aspectRatio(1f)
@@ -236,7 +236,9 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
             .fillMaxWidth()
             .height(calendarheight),
         state = state,
-        dayContent = { Day(it) },
+        dayContent = {
+                Day(it)
+                     },
         monthHeader = {
             DaysOfWeekTitle(daysOfWeek = daysOfWeek) // Use the title as month header
         },

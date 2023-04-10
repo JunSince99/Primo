@@ -35,8 +35,6 @@ class PostViewModel : ViewModel() {
                             pDocument.id,
                             pDocument.getString("title"),
                             pDocument.data["contents"] as ArrayList<String?>,
-                            pDocument.data["format"] as ArrayList<String?>,
-                            pDocument.get("comments").toString(),
                             pDocument.getString("writer"),
                             pDocument.getString("writerID"),
                             pDocument.getString("postDate"),

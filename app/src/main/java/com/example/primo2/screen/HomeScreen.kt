@@ -176,46 +176,28 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                             count = postInfo.Contents.size
                         ) { page ->
                             val uri = postInfo.Contents[page]
-                            val format = postInfo.Format[page]
-                            if (format.equals("video")) { // 동영상
-                                val mContext = LocalContext.current
-                                val mediaItem = MediaItem.Builder().setUri(Uri.parse(uri)).build()
-                                val mExoPlayer = remember(mContext) {
-                                    ExoPlayer.Builder(mContext).build().apply {
-                                        this.setMediaItem(mediaItem)
-                                        playWhenReady = true
-                                        prepare()
-                                    }
-                                }
-                                AndroidView(factory = { context ->
-                                    StyledPlayerView(context).apply {
-                                        player = mExoPlayer
-                                        resizeMode = AspectRatioFrameLayout.RESIZE_MODE_FIXED_HEIGHT
-                                    }
-                                })
-                            } else {  // 이미지
-                                GlideImage(
-                                    model = uri,
-                                    contentDescription = null,
-                                    colorFilter = ColorFilter.colorMatrix(ColorMatrix(colorMatrix)),
-                                    contentScale = ContentScale.Crop,
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .clip(RectangleShape)
-                                        .aspectRatio(16f / 10f)
-                                    //.align(Alignment.CenterHorizontally)
-                                )
-                                {
-                                    it
-                                        .thumbnail(
-                                            requestManager
-                                                .asDrawable()
-                                                .load(uri)
-                                                // .signature(signature)
-                                                .override(64)
-                                        )
-                                    // .signature(signature)
-                                }
+                              // 이미지
+                            GlideImage(
+                                model = uri,
+                                contentDescription = null,
+                                colorFilter = ColorFilter.colorMatrix(ColorMatrix(colorMatrix)),
+                                contentScale = ContentScale.Crop,
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RectangleShape)
+                                    .aspectRatio(16f / 10f)
+                                //.align(Alignment.CenterHorizontally)
+                            )
+                            {
+                                it
+                                    .thumbnail(
+                                        requestManager
+                                            .asDrawable()
+                                            .load(uri)
+                                            // .signature(signature)
+                                            .override(64)
+                                    )
+                                // .signature(signature)
                             }
                         }
                     }

@@ -7,7 +7,7 @@ import kotlin.collections.HashMap
 val postPlaceList:ArrayList<Int> = arrayListOf()
 data class PostInfo(
     val postID: String? = null,
-    val title: ArrayList<String>? = null,
+    val title: String? = null,
     val Contents: ArrayList<String?> = arrayListOf(),
     val Writer: String? = null,
     val WriterID: String? = null,

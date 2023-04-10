@@ -1,3 +1,4 @@
+/*
 package com.example.primo2.activity
 
 import android.content.Intent
@@ -196,3 +197,4 @@ class UploadPostActivity: AppCompatActivity() {
         }
     }
 }
+*/

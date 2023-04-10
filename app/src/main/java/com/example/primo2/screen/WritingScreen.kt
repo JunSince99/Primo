@@ -5,6 +5,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -42,6 +44,7 @@ import com.example.primo2.placeList
 import com.example.primo2.postPlaceList
 import com.example.primo2.ui.theme.moreLightGray
 import com.example.primo2.ui.theme.spoqasans
+import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.time.LocalDate
@@ -49,12 +52,13 @@ import java.time.format.DateTimeFormatter
 
 @Composable
 fun WritingScreen(navController: NavController,requestManager: RequestManager) {
-    var sequence by remember { mutableStateOf(0) }
-    var article by remember { mutableStateOf("") }
+    val articleList = remember { mutableStateListOf<String>() }
     var titlename by remember { mutableStateOf("") }
-    val titleList = arrayListOf<String>()
-    val articleList = arrayListOf<String>()
-
+    articleList.clear()
+    for(i in 0 until  postPlaceList.size)
+    {
+        articleList.add("")
+    }
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -62,7 +66,7 @@ fun WritingScreen(navController: NavController,requestManager: RequestManager) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             //탑바
-            Writingtopbar(sequence,postPlaceList,navController, onSequenceChange = {sequence = it}, article, titlename)
+            Writingtopbar(navController, articleList, titlename)
             Spacer(modifier = Modifier.padding(16.dp))
             //이미지 추가 버튼
             Button(
@@ -87,7 +91,7 @@ fun WritingScreen(navController: NavController,requestManager: RequestManager) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
-                value = titlename,
+                value = "임시",
                 onValueChange = { text ->
                     titlename = text
                 },
@@ -118,13 +122,14 @@ fun WritingScreen(navController: NavController,requestManager: RequestManager) {
                     unfocusedIndicatorColor = Color.White
                 )
             )
-            placearticle(sequence,requestManager,article,onArticleChange = {article = it})
+            placearticle(requestManager,articleList,onArticleChange = {sequence, article ->
+            articleList[sequence] = article})
         }
     }
 }
 
 @Composable
-fun Writingtopbar(sequence: Int, postPlaceList:MutableList<Int>,navController: NavController,onSequenceChange:(Int) -> Unit,article: String,titlename:String,articleList:ArrayList<String>,titleList:ArrayList<String>) {
+fun Writingtopbar(navController: NavController,articleList:MutableList<String>,titlename:String) {
     Surface(
         color = Color.White,
         modifier = Modifier
@@ -169,45 +174,29 @@ fun Writingtopbar(sequence: Int, postPlaceList:MutableList<Int>,navController: N
                     modifier = Modifier
                         .size(45.dp)
                         .clickable {
-                            if (postPlaceList.size - 1 == sequence || postPlaceList.size == 0) {
-                                val firebaseFirestore = Firebase.firestore
-                                val documentReference = firebaseFirestore
-                                    .collection("posts")
-                                    .document()
+                            val firebaseFirestore = Firebase.firestore
+                            val documentReference = firebaseFirestore
+                                .collection("posts")
+                                .document()
+                            val user = Firebase.auth.currentUser
+                            val postInfo =
+                                PostInfo(
+                                    documentReference.id,
+                                    titlename,
+                                    ArrayList(articleList),
+                                    user!!.uid,
+                                    LocalDate
+                                        .now()
+                                        .format(
+                                            DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                                        )
+                                )
 
-                                val postInfo =
-
-                                    PostInfo(
-                                        documentReference.id,
-                                        title,
-                                        contentsList,
-                                        formatList,
-                                        comments,
-                                        user!!.uid,
-                                        LocalDate
-                                            .now()
-                                            .format(
-                                                DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                                            )
-                                    )
-
-                                navController.navigate(PrimoScreen.Home.name)
-                            } else {
-                                titleList.add(titlename)
-                                articleList.add(article)
-                                onSequenceChange(sequence + 1)
-                                //다음 페이지로
-                            }
+                            navController.navigate(PrimoScreen.Home.name)
                         }
                 ) {
-                    val nextorend = if(postPlaceList.size - 1 == sequence || postPlaceList.size == 0) {
-                        "완료"
-                    } else{
-                        "다음"
-                    }
-                    Log.e("",""+postPlaceList.size+" " + sequence)
                         Text(
-                            text = nextorend,
+                            text = "완료",
                             textAlign = TextAlign.Center,
                             color = Color.Black,
                             fontFamily = spoqasans,
@@ -221,7 +210,23 @@ fun Writingtopbar(sequence: Int, postPlaceList:MutableList<Int>,navController: N
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun placearticle(sequence: Int,requestManager:RequestManager,article:String,onArticleChange:(String) -> Unit) {
+fun placearticle(requestManager:RequestManager, articleList: MutableList<String>, onArticleChange:(Int, String) -> Unit) {
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxHeight()
+    ) {
+        items(postPlaceList.size) { item ->
+            PostPlaceWrite(item,requestManager,articleList, onArticleChange)
+        }
+    }
+
+}
+
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun PostPlaceWrite(item:Int, requestManager: RequestManager,articleList: MutableList<String>, onArticleChange:(Int, String) -> Unit)
+{
     Surface(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -239,7 +244,7 @@ fun placearticle(sequence: Int,requestManager:RequestManager,article:String,onAr
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 //장소
-                val url = placeList[sequence].imageResource
+                val url = placeList[item].imageResource
                 GlideImage(
                     model = url,
                     contentDescription = "",
@@ -264,9 +269,8 @@ fun placearticle(sequence: Int,requestManager:RequestManager,article:String,onAr
                     modifier = Modifier,
                 ) {
                     var placeName = ""
-                    if(postPlaceList.size != 0)
-                    {
-                        placeName = placeList[postPlaceList[sequence]].placeName
+                    if (postPlaceList.size != 0) {
+                        placeName = placeList[postPlaceList[item]].placeName
                     }
                     Text(
                         text = placeName,
@@ -290,9 +294,9 @@ fun placearticle(sequence: Int,requestManager:RequestManager,article:String,onAr
             TextField(
                 modifier = Modifier
                     .fillMaxWidth(),
-                value = article,
+                value = articleList[item],
                 onValueChange = { text ->
-                    onArticleChange(text)
+                    onArticleChange(item, text)
                 },
                 placeholder = {
                     Text(

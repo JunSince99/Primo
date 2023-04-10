@@ -52,7 +52,6 @@ fun SelectCourse(navController:NavController, requestManager: RequestManager) {
         }
         var searchKeyword by remember { mutableStateOf("") }
         val searchPlaceList = remember { mutableStateListOf<Int>() }
-        val postPlaceList = remember { mutableStateListOf<Int>() }
         LaunchedEffect(searchKeyword) {
             if (searchKeyword.isNotBlank()) {
                 searchPlaceList.clear()
@@ -207,7 +206,7 @@ fun Course(searchKeyword: String,searchPlaceList: MutableList<Int>,requestManage
                 .fillMaxWidth()
                 .fillMaxHeight()
         ) {
-            items(postPlaceList) { item ->
+            items(postPlaceList.size) { item ->
                 PostPlace(item,requestManager)
             }
         }
