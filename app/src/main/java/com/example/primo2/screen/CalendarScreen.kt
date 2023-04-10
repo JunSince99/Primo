@@ -57,6 +57,7 @@ import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.kizitonwose.calendar.compose.ContentHeightMode
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
@@ -79,15 +80,29 @@ fun Day(day: CalendarDay, ) { //일
             ),
         contentAlignment = Alignment.Center
     ) {
-        Text(
-            text = day.date.dayOfMonth.toString(),
-            color = if (day.position != DayPosition.MonthDate) {Color.White}
-                    else if ( day.date.dayOfWeek == DayOfWeek.SUNDAY) {Color.Red}
-                    else if ( day.date.dayOfWeek == DayOfWeek.SATURDAY) {Color.Red}
-                    else Color.Black,
-            fontFamily = spoqasans,
-            fontWeight = FontWeight.Medium
-        )
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            Text(
+                text = day.date.dayOfMonth.toString(),
+                color = if (day.position != DayPosition.MonthDate) {
+                    Color.Gray
+                } else if (day.date.dayOfWeek == DayOfWeek.SUNDAY) {
+                    Color.Red
+                } else if (day.date.dayOfWeek == DayOfWeek.SATURDAY) {
+                    Color.Red
+                } else Color.Black,
+                fontFamily = spoqasans,
+                fontWeight = FontWeight.Medium
+            )
+            Spacer(modifier = Modifier.size(4.dp))
+            Box(
+                modifier = Modifier
+                    .size(4.dp)
+                    .background(Color.Black, CircleShape)
+            )
+        }
 
     }
 }
@@ -227,14 +242,13 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
         endMonth = endMonth,
         firstVisibleMonth = currentMonth,
         firstDayOfWeek = firstDayOfWeek,
-        outDateStyle = OutDateStyle.EndOfRow
+        outDateStyle = OutDateStyle.EndOfGrid
     )
     var calendarheight = 360.dp
 
     HorizontalCalendar(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(calendarheight),
+            .fillMaxWidth(),
         state = state,
         dayContent = {
                 Day(it)
