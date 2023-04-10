@@ -176,6 +176,7 @@ fun Writingtopbar(sequence: Int, postPlaceList:MutableList<Int>,navController: N
                                     .document()
 
                                 val postInfo =
+
                                     PostInfo(
                                         documentReference.id,
                                         title,
