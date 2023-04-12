@@ -24,6 +24,9 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ColorMatrix
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -67,61 +70,9 @@ fun WritingScreen(navController: NavController,requestManager: RequestManager) {
         ) {
             //탑바
             Writingtopbar(navController, articleList, titlename)
-            Spacer(modifier = Modifier.padding(16.dp))
-            //이미지 추가 버튼
-            Button(
-                onClick = { /*TODO*/ },
-                shape = RoundedCornerShape(20.dp),
-                colors = ButtonDefaults.buttonColors(
-                    backgroundColor = Color.LightGray,
-                    contentColor = Color.Black
-                ),
-                modifier = Modifier.size(width = 100.dp, height = 100.dp)
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(40.dp),
-                )
-            }
             //제목
-
-            TextField(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                value = "임시",
-                onValueChange = { text ->
-                    titlename = text
-                },
-                placeholder = {
-                    Text(
-                        modifier = Modifier
-                            .alpha(ContentAlpha.medium),
-                        text = "제목을 입력해주세요.",
-                        color = Color.Gray,
-                        fontSize = 25.sp,
-                        fontFamily = spoqasans,
-                        fontWeight = FontWeight.Bold
-                    )
-                },
-                textStyle = TextStyle(
-                    fontSize = 25.sp,
-                    fontFamily = spoqasans,
-                    fontWeight = FontWeight.Bold
-                ),
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    imeAction = ImeAction.Next,
-                ),
-                colors = TextFieldDefaults.textFieldColors(
-                    backgroundColor = Color.White,
-                    cursorColor = Color.Black,
-                    focusedIndicatorColor = Color.White,
-                    unfocusedIndicatorColor = Color.White
-                )
-            )
+            Titletextfield()
+            //내용
             placearticle(requestManager,articleList,onArticleChange = {sequence, article ->
             articleList[sequence] = article})
         }
@@ -223,6 +174,47 @@ fun placearticle(requestManager:RequestManager, articleList: MutableList<String>
 
 }
 
+@Composable
+fun Titletextfield() {
+    var titlename by remember { mutableStateOf("") }
+
+    TextField(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        value = titlename,
+        onValueChange = { text ->
+            titlename = text
+        },
+        placeholder = {
+            Text(
+                modifier = Modifier
+                    .alpha(ContentAlpha.medium),
+                text = "제목을 입력해주세요.",
+                color = Color.Gray,
+                fontSize = 25.sp,
+                fontFamily = spoqasans,
+                fontWeight = FontWeight.Bold
+            )
+        },
+        textStyle = TextStyle(
+            fontSize = 25.sp,
+            fontFamily = spoqasans,
+            fontWeight = FontWeight.Bold
+        ),
+        singleLine = true,
+        keyboardOptions = KeyboardOptions(
+            imeAction = ImeAction.Next,
+        ),
+        colors = TextFieldDefaults.textFieldColors(
+            backgroundColor = Color.White,
+            cursorColor = Color.Black,
+            focusedIndicatorColor = Color.White,
+            unfocusedIndicatorColor = Color.White
+        )
+    )
+}
+
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun PostPlaceWrite(item:Int, requestManager: RequestManager,articleList: MutableList<String>, onArticleChange:(Int, String) -> Unit)
@@ -234,63 +226,152 @@ fun PostPlaceWrite(item:Int, requestManager: RequestManager,articleList: Mutable
                 elevation = 1.dp,
                 shape = RoundedCornerShape(10)
             )
-            .aspectRatio(16f / 16f)
     ) {
         Column {
             Spacer(modifier = Modifier.size(16.dp))
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically
+                    .padding(horizontal = 16.dp)
+                    .fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 //장소
-                val url = placeList[postPlaceList[item]].imageResource
-                GlideImage(
-                    model = url,
-                    contentDescription = "",
-                    modifier = Modifier
-                        .clip(CircleShape)
-                        .size(60.dp),
-                    contentScale = ContentScale.Crop
+                Row(
+                    verticalAlignment = Alignment.CenterVertically
+                ){
+                    val url = placeList[postPlaceList[item]].imageResource
+                    GlideImage(
+                        model = url,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(60.dp),
+                        contentScale = ContentScale.Crop
 
-                )
-                {
-                    it
-                        .thumbnail(
-                            requestManager
-                                .asDrawable()
-                                .load(url)
-                                // .signature(signature)
-                                .override(64)
-                        )
-                }
-                Spacer(modifier = Modifier.padding(6.dp))
-                Column(
-                    modifier = Modifier,
-                ) {
-                    var placeName = ""
-                    if (postPlaceList.size != 0) {
-                        placeName = placeList[postPlaceList[item]].placeName
-                    }
-                    Text(
-                        text = placeName,
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
                     )
-                    Spacer(modifier = Modifier.padding(2.dp))
-                    Text(
-                        text = "인천광역시 송도동",
-                        color = Color.DarkGray,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Normal,
+                    {
+                        it
+                            .thumbnail(
+                                requestManager
+                                    .asDrawable()
+                                    .load(url)
+                                    // .signature(signature)
+                                    .override(64)
+                            )
+                    }
+                    Spacer(modifier = Modifier.padding(6.dp))
+                    Column(
+                        modifier = Modifier,
+                    ) {
+                        var placeName = ""
+                        if (postPlaceList.size != 0) {
+                            placeName = placeList[postPlaceList[item]].placeName
+                        }
+                        Text(
+                            text = placeName,
+                            color = Color.Black,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.padding(2.dp))
+                        Text(
+                            text = "인천광역시 송도동",
+                            color = Color.DarkGray,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier
+                        )
+                    }
+                }
+                Button(
+                    onClick = { /*TODO*/ },
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.White,
+                        contentColor = Color.Black
+                    ),
+                    modifier = Modifier
+                        .size(width = 50.dp, height = 50.dp)
+                ) {
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_image_24),
+                        contentDescription = null,
                         modifier = Modifier
+                            .size(20.dp),
                     )
                 }
             }
             //내용
-
+            Spacer(modifier = Modifier.size(8.dp))
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+                    .clip(RoundedCornerShape(10.dp))
+            ) {
+                val contrast = 1f // 0f..10f (1 should be default)
+                val brightness = -50f // -255f..255f (0 should be default)
+                val colorMatrix = floatArrayOf(
+                    contrast, 0f, 0f, 0f, brightness,
+                    0f, contrast, 0f, 0f, brightness,
+                    0f, 0f, contrast, 0f, brightness,
+                    0f, 0f, 0f, 1f, 0f
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.place_centralpark),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(65.dp)
+                        .clip(RectangleShape)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.main_img_background),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(65.dp)
+                        .clip(RectangleShape)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.place_solchanpark),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(65.dp)
+                        .clip(RectangleShape)
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.place_centralpark),
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .size(65.dp)
+                        .clip(RectangleShape)
+                )
+                Box(
+                    modifier = Modifier
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.place_solchanpark),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        colorFilter = ColorFilter.colorMatrix(ColorMatrix(colorMatrix)),
+                        modifier = Modifier
+                            .size(65.dp)
+                            .clip(RectangleShape)
+                    )
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_baseline_more_horiz_24),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(30.dp)
+                            .align(Alignment.Center),
+                        tint = Color.White
+                    )
+                }
+            }
             TextField(
                 modifier = Modifier
                     .fillMaxWidth(),
