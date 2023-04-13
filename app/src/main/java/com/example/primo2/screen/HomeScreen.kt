@@ -173,9 +173,9 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int) {
                         )
                         HorizontalPager(
                             modifier = Modifier.fillMaxSize(),
-                            count = postInfo.Contents.size
+                            count = postInfo.ImageResources.size
                         ) { page ->
-                            val uri = postInfo.Contents[page]
+                            val uri = postInfo.ImageResources[page]
                               // 이미지
                             GlideImage(
                                 model = uri,

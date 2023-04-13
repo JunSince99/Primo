@@ -1,4 +1,5 @@
 import android.app.Activity
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
@@ -35,6 +36,11 @@ class PostViewModel : ViewModel() {
                             pDocument.id,
                             pDocument.getString("title"),
                             pDocument.data["contents"] as ArrayList<String?>,
+                            pDocument.data["splitNumber"] as ArrayList<Int>,
+                            pDocument.data["imageResources"] as MutableList<String>,
+                            pDocument.data["spam"] as ArrayList<Float>,
+                            pDocument.data["background"] as ArrayList<Float>,
+                            pDocument.data["person"] as ArrayList<Float>,
                             pDocument.getString("writer"),
                             pDocument.getString("writerID"),
                             pDocument.getString("postDate"),

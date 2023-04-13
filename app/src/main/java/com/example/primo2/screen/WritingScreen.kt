@@ -1,22 +1,23 @@
 package com.example.primo2.screen
 
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
+import android.provider.MediaStore
 import android.util.Log
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Button
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,12 +29,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -45,21 +45,53 @@ import com.example.primo2.PostInfo
 import com.example.primo2.R
 import com.example.primo2.placeList
 import com.example.primo2.postPlaceList
-import com.example.primo2.ui.theme.moreLightGray
 import com.example.primo2.ui.theme.spoqasans
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.firestore.DocumentReference
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
+import com.google.firebase.ml.modeldownloader.CustomModel
+import com.google.firebase.ml.modeldownloader.CustomModelDownloadConditions
+import com.google.firebase.ml.modeldownloader.DownloadType
+import com.google.firebase.ml.modeldownloader.FirebaseModelDownloader
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import com.google.firebase.storage.ktx.storageMetadata
+import org.tensorflow.lite.Interpreter
+import java.io.FileInputStream
+import java.lang.Byte
+import java.lang.Float
+import java.net.URL
+import java.nio.ByteBuffer
+import java.nio.ByteOrder
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
+import kotlin.Array
+import kotlin.Int
+import kotlin.OptIn
+import kotlin.String
+import kotlin.Suppress
+import kotlin.Unit
+import kotlin.arrayOf
+import kotlin.floatArrayOf
+import kotlin.math.min
+
 
 @Composable
 fun WritingScreen(navController: NavController,requestManager: RequestManager) {
+    val isSpam = ArrayList<ArrayList<kotlin.Float>>()
+    val isBackground  = ArrayList<ArrayList<kotlin.Float>>()
+    val isPerson = ArrayList<ArrayList<kotlin.Float>>()
+    val postImageResource = remember { mutableStateListOf<MutableList<Uri>>() }
     val articleList = remember { mutableStateListOf<String>() }
     var titlename by remember { mutableStateOf("") }
     articleList.clear()
     for(i in 0 until  postPlaceList.size)
     {
+        postImageResource.add(arrayListOf())
+        isSpam.add(arrayListOf())
+        isPerson.add(arrayListOf())
+        isBackground.add(arrayListOf())
         articleList.add("")
     }
     Surface(
@@ -69,18 +101,20 @@ fun WritingScreen(navController: NavController,requestManager: RequestManager) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             //탑바
-            Writingtopbar(navController, articleList, titlename)
+            Writingtopbar(navController, articleList, titlename,postImageResource,isSpam,isBackground,isPerson)
             //제목
-            Titletextfield()
+            Titletextfield(titlename,onTitleChange = { titlename = it})
             //내용
             placearticle(requestManager,articleList,onArticleChange = {sequence, article ->
-            articleList[sequence] = article})
+            articleList[sequence] = article},postImageResource, onImageChange = { sequence,urlList ->
+                postImageResource[sequence] = urlList
+            },isSpam,isBackground,isPerson)
         }
     }
 }
 
 @Composable
-fun Writingtopbar(navController: NavController,articleList:MutableList<String>,titlename:String) {
+fun Writingtopbar(navController: NavController, articleList:MutableList<String>, titlename:String, postImageResource: MutableList<MutableList<Uri>>, isSpam: ArrayList<ArrayList<kotlin.Float>>, isBackground: ArrayList<ArrayList<kotlin.Float>>, isPerson: ArrayList<ArrayList<kotlin.Float>>) {
     Surface(
         color = Color.White,
         modifier = Modifier
@@ -125,25 +159,96 @@ fun Writingtopbar(navController: NavController,articleList:MutableList<String>,t
                     modifier = Modifier
                         .size(45.dp)
                         .clickable {
-                            val firebaseFirestore = Firebase.firestore
-                            val documentReference = firebaseFirestore
-                                .collection("posts")
-                                .document()
-                            val user = Firebase.auth.currentUser
-                            val postInfo =
-                                PostInfo(
-                                    documentReference.id,
-                                    titlename,
-                                    ArrayList(articleList),
-                                    user!!.uid,
-                                    LocalDate
-                                        .now()
-                                        .format(
-                                            DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                                        )
-                                )
+                            if (titlename.isNotBlank()) {
+                                val firebaseFirestore = Firebase.firestore
+                                val documentReference = firebaseFirestore
+                                    .collection("posts")
+                                    .document()
+                                val user = Firebase.auth.currentUser
+                                val imageResource: ArrayList<Uri> = arrayListOf()
+                                val splitNumber: ArrayList<Int> = arrayListOf()
+                                val spam: ArrayList<kotlin.Float> = arrayListOf()
+                                val background: ArrayList<kotlin.Float> = arrayListOf()
+                                val person: ArrayList<kotlin.Float> = arrayListOf()
+                                val storage = FirebaseStorage.getInstance()
+                                val storageRef = storage.reference
+                                var success = 0
+                                for (i in 0 until postPlaceList.size){
+                                    success += postImageResource[i].size
+                                    for (j in 0 until postImageResource[i].size){
+                                        imageResource.add(Uri.EMPTY)
+                                    }
+                                }
+                                for (i in 0 until postPlaceList.size) {
+                                    for (j in 0 until postImageResource[i].size) {
+                                        val pathArray: Array<String> =
+                                            postImageResource[i][j]
+                                                .toString()
+                                                .split("/", ".")
+                                                .toTypedArray()
+                                        val mountainImagesRef: StorageReference =
+                                            storageRef.child("posts/" + documentReference.id + "/" + (i*postImageResource[i].size + j) + "." + pathArray[pathArray.size - 1])
+                                        val file = postImageResource[i][j]
 
-                            navController.navigate(PrimoScreen.Home.name)
+                                        val metadata = storageMetadata {
+                                            setCustomMetadata(
+                                                "index",
+                                                "" + (i*postImageResource[i].size+j)
+                                            )
+                                        }
+
+                                        val uploadTask =
+                                            mountainImagesRef.putFile(file, metadata)
+                                        uploadTask
+                                            .addOnFailureListener {
+                                            }
+                                            .addOnSuccessListener { taskSnapshot ->
+                                                val index: Int = taskSnapshot.metadata
+                                                    ?.getCustomMetadata("index")!!
+                                                    .toInt()
+                                                mountainImagesRef.downloadUrl.addOnSuccessListener { ImageUri ->
+                                                    imageResource.removeAt(index)
+                                                    imageResource.add(index, ImageUri)
+                                                    success --
+                                                    if(success == 0) {
+                                                        val postInfo =
+                                                            PostInfo(
+                                                                documentReference.id,
+                                                                titlename,
+                                                                ArrayList(articleList),
+                                                                splitNumber,
+                                                                imageResource,
+                                                                spam,
+                                                                background,
+                                                                person,
+                                                                user!!.uid,
+                                                                LocalDate
+                                                                    .now()
+                                                                    .format(
+                                                                        DateTimeFormatter.ofPattern(
+                                                                            "yyyy-MM-dd"
+                                                                        )
+                                                                    )
+                                                            )
+                                                        uploader(
+                                                            documentReference,
+                                                            postInfo,
+                                                            navController
+                                                        )
+                                                    }
+                                                }
+                                            }
+
+                                        postImageResource[0].addAll(postImageResource[i])
+
+                                        spam.addAll(isSpam[i])
+                                        background.addAll(isBackground[i])
+                                        person.addAll(isPerson[i])
+                                        splitNumber.add(postImageResource[i].size)
+                                    }
+
+                                }
+                            }
                         }
                 ) {
                         Text(
@@ -161,22 +266,28 @@ fun Writingtopbar(navController: NavController,articleList:MutableList<String>,t
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun placearticle(requestManager:RequestManager, articleList: MutableList<String>, onArticleChange:(Int, String) -> Unit) {
+fun placearticle(requestManager:RequestManager,
+                 articleList: MutableList<String>,
+                 onArticleChange:(Int, String) -> Unit,
+                 postImageResource:MutableList<MutableList<Uri>>,
+                 onImageChange:(Int,MutableList<Uri>) -> Unit,isSpam: ArrayList<ArrayList<kotlin.Float>>,
+                 isBackground: ArrayList<ArrayList<kotlin.Float>>,
+                 isPerson: ArrayList<ArrayList<kotlin.Float>>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
             .fillMaxHeight()
     ) {
         items(postPlaceList.size) { item ->
-            PostPlaceWrite(item,requestManager,articleList, onArticleChange)
+            PostPlaceWrite(item,requestManager,articleList, onArticleChange,postImageResource,onImageChange,isSpam,isBackground,isPerson)
+            Spacer(modifier = Modifier.padding(vertical = 10.dp))
         }
     }
 
 }
 
 @Composable
-fun Titletextfield() {
-    var titlename by remember { mutableStateOf("") }
+fun Titletextfield(titlename: String, onTitleChange:(String) -> Unit) {
 
     TextField(
         modifier = Modifier
@@ -184,7 +295,7 @@ fun Titletextfield() {
             .padding(horizontal = 16.dp),
         value = titlename,
         onValueChange = { text ->
-            titlename = text
+            onTitleChange(text)
         },
         placeholder = {
             Text(
@@ -217,8 +328,74 @@ fun Titletextfield() {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun PostPlaceWrite(item:Int, requestManager: RequestManager,articleList: MutableList<String>, onArticleChange:(Int, String) -> Unit)
+fun PostPlaceWrite(item:Int,
+                   requestManager: RequestManager,
+                   articleList: MutableList<String>,
+                   onArticleChange:(Int, String) -> Unit,
+                   postImageResource:MutableList<MutableList<Uri>>,
+                   onImageChange:(Int,MutableList<Uri>) -> Unit,
+                   isSpam:ArrayList<ArrayList<kotlin.Float>>,
+                   isBackground: ArrayList<ArrayList<kotlin.Float>>,
+                   isPerson: ArrayList<ArrayList<kotlin.Float>>)
 {
+    val areaImageList = remember { mutableStateListOf<Uri>() }
+    val conditions = CustomModelDownloadConditions.Builder()
+        .requireWifi()
+        .build()
+
+    val context = LocalContext.current
+    val galleryLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.GetMultipleContents()) { uriList ->
+            for(i in 0 until uriList.size){
+                areaImageList.add(uriList[i])
+                val bitmap = MediaStore.Images.Media.getBitmap(context.contentResolver,uriList[i])
+                val bitmap2 = Bitmap.createScaledBitmap(bitmap, 150, 150, true)
+                val input = ByteBuffer.allocateDirect(150*150*3*4).order(ByteOrder.nativeOrder())
+                for (y in 0 until 150) {
+                    for (x in 0 until 150) {
+                        val px = bitmap2.getPixel(x, y)
+
+                        // Get channel values from the pixel value.
+                        val r = android.graphics.Color.red(px)
+                        val g = android.graphics.Color.green(px)
+                        val b = android.graphics.Color.blue(px)
+
+                        // Normalize channel values to [-1.0, 1.0]. This requirement depends on the model.
+                        // For example, some models might require values to be normalized to the range
+                        // [0.0, 1.0] instead.
+                        val rf = (r - 127) / 255f
+                        val gf = (g - 127) / 255f
+                        val bf = (b - 127) / 255f
+
+                        input.putFloat(rf)
+                        input.putFloat(gf)
+                        input.putFloat(bf)
+                    }
+                }
+                FirebaseModelDownloader.getInstance()
+                    .getModel("primodeep", DownloadType.LOCAL_MODEL_UPDATE_IN_BACKGROUND,
+                        conditions)
+                    .addOnSuccessListener { model: CustomModel? ->
+                        val modelFile = model?.file
+                        var interpreter: Interpreter? = null
+                        if (modelFile != null) {
+                            interpreter = Interpreter(modelFile)
+                        }
+                        val bufferSize = 1000 * Float.SIZE / Byte.SIZE
+                        val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
+                        interpreter?.run(input,modelOutput)
+                        modelOutput.rewind()
+                        isSpam[item].add(modelOutput.float)
+                        isBackground[item].add(modelOutput.float)
+                        isPerson[item].add(modelOutput.float)
+                    }
+                    .addOnFailureListener{
+                        Log.e("실패",""+it)
+                    }
+            }
+            onImageChange(item,areaImageList)
+        }
+
     Surface(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -286,7 +463,9 @@ fun PostPlaceWrite(item:Int, requestManager: RequestManager,articleList: Mutable
                     }
                 }
                 Button(
-                    onClick = { /*TODO*/ },
+                    onClick = {
+                        galleryLauncher.launch("image/*")
+                    },
                     shape = RoundedCornerShape(20.dp),
                     colors = ButtonDefaults.buttonColors(
                         backgroundColor = Color.White,
@@ -318,60 +497,66 @@ fun PostPlaceWrite(item:Int, requestManager: RequestManager,articleList: Mutable
                     0f, 0f, contrast, 0f, brightness,
                     0f, 0f, 0f, 1f, 0f
                 )
-                Image(
-                    painter = painterResource(id = R.drawable.place_centralpark),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(65.dp)
-                        .clip(RectangleShape)
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.main_img_background),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(65.dp)
-                        .clip(RectangleShape)
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.place_solchanpark),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(65.dp)
-                        .clip(RectangleShape)
-                )
-                Image(
-                    painter = painterResource(id = R.drawable.place_centralpark),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                        .size(65.dp)
-                        .clip(RectangleShape)
-                )
-                Box(
-                    modifier = Modifier
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.place_solchanpark),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        colorFilter = ColorFilter.colorMatrix(ColorMatrix(colorMatrix)),
-                        modifier = Modifier
-                            .size(65.dp)
-                            .clip(RectangleShape)
-                    )
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_baseline_more_horiz_24),
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .align(Alignment.Center),
-                        tint = Color.White
-                    )
+                val loopValue = min(areaImageList.size,5)
+                for(i in 0 until loopValue) {
+                    if (i == 4) {
+                        Box(
+                            modifier = Modifier
+                        ) {
+                            GlideImage(
+                                model = areaImageList[i],
+                                contentDescription = "",
+                                modifier = Modifier
+                                    .clip(RectangleShape)
+                                    .size(65.dp),
+                                colorFilter = ColorFilter.colorMatrix(ColorMatrix(colorMatrix)),
+                                contentScale = ContentScale.Crop
+
+                            )
+                            {
+                                it
+                                    .thumbnail(
+                                        requestManager
+                                            .asDrawable()
+                                            .load(areaImageList[i])
+                                            // .signature(signature)
+                                            .override(64)
+                                    )
+                            }
+                            Icon(
+                                painter = painterResource(id = R.drawable.ic_baseline_more_horiz_24),
+                                contentDescription = null,
+                                modifier = Modifier
+                                    .size(30.dp)
+                                    .align(Alignment.Center),
+                                tint = Color.White
+                            )
+                        }
+                    } else {
+                        GlideImage(
+                            model = areaImageList[i],
+                            contentDescription = "",
+                            modifier = Modifier
+                                .clip(RectangleShape)
+                                .size(65.dp),
+                            contentScale = ContentScale.Crop
+
+                        )
+                        {
+                            it
+                                .thumbnail(
+                                    requestManager
+                                        .asDrawable()
+                                        .load(areaImageList[i])
+                                        // .signature(signature)
+                                        .override(64)
+                                )
+                        }
+
+                    }
                 }
             }
+
             TextField(
                 modifier = Modifier
                     .fillMaxWidth(),
@@ -409,3 +594,25 @@ fun PostPlaceWrite(item:Int, requestManager: RequestManager,articleList: Mutable
         }
     }
 }
+
+@Suppress("DEPRECATION", "NewApi")
+private fun Uri.parseBitmap(context: Context): Bitmap {
+    return when (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) { // 28
+        true -> {
+            val source = ImageDecoder.createSource(context.contentResolver, this)
+            ImageDecoder.decodeBitmap(source)
+        }
+        else -> {
+            MediaStore.Images.Media.getBitmap(context.contentResolver, this)
+        }
+    }
+}
+
+private fun uploader(documentReference: DocumentReference, postInfo: PostInfo,navController: NavController){
+    documentReference.set(postInfo)
+        .addOnSuccessListener {
+            navController.navigate(PrimoScreen.Home.name)
+           Log.e("","포스트 업로드 성공")
+        }
+    }
+
