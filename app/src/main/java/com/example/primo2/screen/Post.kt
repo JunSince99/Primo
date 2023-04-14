@@ -1,5 +1,7 @@
 package com.example.primo2.screen
 
+import PostViewModel
+import android.util.Log
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,8 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.*
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
@@ -26,28 +27,41 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.bumptech.glide.RequestManager
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.example.primo2.PostInfo
 import com.example.primo2.R
+import com.example.primo2.placeListHashMap
+import com.example.primo2.postPlaceList
 import com.example.primo2.ui.theme.spoqasans
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
 
 @Composable
-fun Postdetail() {
-
+fun Postdetail(navController: NavController, item: Int,requestManager: RequestManager,viewModel: PostViewModel) {
     Surface(
         modifier = Modifier.fillMaxSize(),
     ) {
-
+        val postList = viewModel.postList2
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .verticalScroll(rememberScrollState())
-        ) {
-
-            Posttitle()
+        )
+        {
             Spacer(modifier = Modifier.size(8.dp))
-            Postarticle()
-            Spacer(modifier = Modifier.size(8.dp))
-            Postarticle()
-            Spacer(modifier = Modifier.size(8.dp))
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight()
+            ) {
+                items(postList[item].Contents.size) { num ->
+                    if(num == 0){
+                        Posttitle(item, requestManager, postList)
+                    }
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Postarticle(item, num, postList, requestManager)
+                }
+            }
         }
     }
     TopAppBar(
@@ -103,17 +117,33 @@ fun Posttopbar() {
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun Posttitle() {
+fun Posttitle(item: Int, requestManager:RequestManager,postList:ArrayList<PostInfo>) {
     Box {
-        Image(
-            painter = painterResource(id = R.drawable.place_centralpark),
-            contentDescription = "",
+        val uri = postList[item].ImageResources[0]
+        // 이미지
+        GlideImage(
+            model = uri,
+            contentDescription = null,
             contentScale = ContentScale.Crop,
             modifier = Modifier
-                .aspectRatio(16f / 10f)
                 .fillMaxWidth()
+                .aspectRatio(16f / 10f)
+            //.align(Alignment.CenterHorizontally)
         )
+        {
+            it
+                .thumbnail(
+                    requestManager
+                        .asDrawable()
+                        .load(uri)
+                        // .signature(signature)
+                        .override(64)
+                )
+            // .signature(signature)
+        }
+
         Column {
             Spacer(modifier = Modifier.size(140.dp))
             Text(
@@ -128,7 +158,7 @@ fun Posttitle() {
             )
             Spacer(modifier = Modifier.padding(1.dp))
             Text(
-                text = "전통과 함께하는 전주 한옥마을",
+                text = postList[item].title!!,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp),
@@ -151,8 +181,9 @@ fun Posttitle() {
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class)
 @Composable
-fun Postarticle() {
+fun Postarticle(item: Int, num: Int, postList: ArrayList<PostInfo>,requestManager: RequestManager) {
     Surface(
         modifier = Modifier
             .padding(horizontal = 16.dp)
@@ -182,8 +213,9 @@ fun Postarticle() {
                 Column(
                     modifier = Modifier,
                 ) {
+                    val placeName = placeListHashMap[postList[item].placeName[num]]!!.placeName
                     Text(
-                        text = "센트럴 파크",
+                        text = placeName,
                         color = Color.Black,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
@@ -200,19 +232,51 @@ fun Postarticle() {
                 }
             }
             Spacer(modifier = Modifier.size(16.dp))
-            Image(
-                painter = painterResource(id = R.drawable.place_centralpark),
-                contentDescription = "",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .aspectRatio(16f / 10f)
-                    .clip(shape = RoundedCornerShape(10))
-                    .fillMaxWidth()
-            )
+            var start = 0
+            var count = 0
+            if(num == 0){
+                count = postList[item].SplitNumber[num]
+            } else{
+                start = postList[item].SplitNumber[num - 1]
+                count = postList[item].SplitNumber[num] - postList[item].SplitNumber[num - 1]
+            }
+            if(count > 0){
+                HorizontalPager(
+                    modifier = Modifier.fillMaxSize(),
+                    count = count
+                ) { page ->
+                    val uri = postList[item].ImageResources[start + page]
+                    GlideImage(
+                        model = uri,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .aspectRatio(16f / 10f)
+                            .clip(shape = RoundedCornerShape(10))
+                            .fillMaxWidth()
+                        //.align(Alignment.CenterHorizontally)
+                    )
+                    {
+                        it
+                            .thumbnail(
+                                requestManager
+                                    .asDrawable()
+                                    .load(uri)
+                                    // .signature(signature)
+                                    .override(64)
+                            )
+                        // .signature(signature)
+                    }
+                }
+            }
+
+
+
+
             //내용
             Text(
-                text = "안녕하세요 오늘은 한옥마을에 가는 법에 대해서\n알아볼게요. 한옥마을은 정말 아름답기로 유명한데요\n지금까지 한옥마을 가는 법에 대해서 알아봤어요!",
+                text = postList[item].Contents[num]!!,
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
