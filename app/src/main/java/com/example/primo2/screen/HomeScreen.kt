@@ -131,7 +131,6 @@ fun Posts(requestManager: RequestManager,
     }
 
     LazyColumn(modifier = modifier, state = listState) {
-
         items(uiState.size){
             Post(uiState[it],requestManager,it)
         }

@@ -41,10 +41,8 @@ import androidx.navigation.NavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.primo2.PostInfo
+import com.example.primo2.*
 import com.example.primo2.R
-import com.example.primo2.placeList
-import com.example.primo2.postPlaceList
 import com.example.primo2.ui.theme.spoqasans
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.DocumentReference
@@ -65,6 +63,7 @@ import java.net.URL
 import java.nio.ByteBuffer
 import java.nio.ByteOrder
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import kotlin.Array
 import kotlin.Int
@@ -79,12 +78,13 @@ import kotlin.math.min
 
 @Composable
 fun WritingScreen(navController: NavController,requestManager: RequestManager) {
-    val isSpam = ArrayList<ArrayList<kotlin.Float>>()
-    val isBackground  = ArrayList<ArrayList<kotlin.Float>>()
-    val isPerson = ArrayList<ArrayList<kotlin.Float>>()
+    val isSpam = ArrayList<ArrayList<Double>>()
+    val isBackground  = ArrayList<ArrayList<Double>>()
+    val isPerson = ArrayList<ArrayList<Double>>()
     val postImageResource = remember { mutableStateListOf<MutableList<Uri>>() }
     val articleList = remember { mutableStateListOf<String>() }
     var titlename by remember { mutableStateOf("") }
+    var uploading  by remember { mutableStateOf(false) }
     articleList.clear()
     for(i in 0 until  postPlaceList.size)
     {
@@ -100,8 +100,11 @@ fun WritingScreen(navController: NavController,requestManager: RequestManager) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (uploading){
+                CircularProgressIndicator()
+            }
             //탑바
-            Writingtopbar(navController, articleList, titlename,postImageResource,isSpam,isBackground,isPerson)
+            Writingtopbar(navController, articleList, titlename,postImageResource,isSpam,isBackground,isPerson,uploading, onUploadChange = {uploading  = it})
             //제목
             Titletextfield(titlename,onTitleChange = { titlename = it})
             //내용
@@ -114,7 +117,16 @@ fun WritingScreen(navController: NavController,requestManager: RequestManager) {
 }
 
 @Composable
-fun Writingtopbar(navController: NavController, articleList:MutableList<String>, titlename:String, postImageResource: MutableList<MutableList<Uri>>, isSpam: ArrayList<ArrayList<kotlin.Float>>, isBackground: ArrayList<ArrayList<kotlin.Float>>, isPerson: ArrayList<ArrayList<kotlin.Float>>) {
+fun Writingtopbar(navController: NavController,
+                  articleList:MutableList<String>,
+                  titlename:String,
+                  postImageResource: MutableList<MutableList<Uri>>,
+                  isSpam: ArrayList<ArrayList<Double>>,
+                  isBackground: ArrayList<ArrayList<Double>>,
+                  isPerson: ArrayList<ArrayList<Double>>,
+                  uploading:Boolean,
+                  onUploadChange:(Boolean) -> Unit
+) {
     Surface(
         color = Color.White,
         modifier = Modifier
@@ -154,99 +166,114 @@ fun Writingtopbar(navController: NavController, articleList:MutableList<String>,
                     fontWeight = FontWeight.Medium,
                     fontSize = 20.sp
                 )
+
+
                 Box(
                     contentAlignment = Alignment.Center,
                     modifier = Modifier
                         .size(45.dp)
                         .clickable {
-                            if (titlename.isNotBlank()) {
-                                val firebaseFirestore = Firebase.firestore
-                                val documentReference = firebaseFirestore
-                                    .collection("posts")
-                                    .document()
-                                val user = Firebase.auth.currentUser
-                                val imageResource: ArrayList<Uri> = arrayListOf()
-                                val splitNumber: ArrayList<Int> = arrayListOf()
-                                val spam: ArrayList<kotlin.Float> = arrayListOf()
-                                val background: ArrayList<kotlin.Float> = arrayListOf()
-                                val person: ArrayList<kotlin.Float> = arrayListOf()
-                                val storage = FirebaseStorage.getInstance()
-                                val storageRef = storage.reference
-                                var success = 0
-                                for (i in 0 until postPlaceList.size){
-                                    success += postImageResource[i].size
-                                    for (j in 0 until postImageResource[i].size){
-                                        imageResource.add(Uri.EMPTY)
-                                    }
-                                }
-                                for (i in 0 until postPlaceList.size) {
-                                    for (j in 0 until postImageResource[i].size) {
-                                        val pathArray: Array<String> =
-                                            postImageResource[i][j]
-                                                .toString()
-                                                .split("/", ".")
-                                                .toTypedArray()
-                                        val mountainImagesRef: StorageReference =
-                                            storageRef.child("posts/" + documentReference.id + "/" + (i*postImageResource[i].size + j) + "." + pathArray[pathArray.size - 1])
-                                        val file = postImageResource[i][j]
+                            if(!uploading) {
 
-                                        val metadata = storageMetadata {
-                                            setCustomMetadata(
-                                                "index",
-                                                "" + (i*postImageResource[i].size+j)
-                                            )
+                                onUploadChange(true)
+                                if (titlename.isNotBlank()) {
+                                    val firebaseFirestore = Firebase.firestore
+                                    val documentReference = firebaseFirestore
+                                        .collection("posts")
+                                        .document()
+                                    val user = Firebase.auth.currentUser
+                                    val imageResource: ArrayList<String> = arrayListOf()
+                                    val splitNumber: ArrayList<Int> = arrayListOf()
+                                    val spam: ArrayList<Double> = arrayListOf()
+                                    val background: ArrayList<Double> = arrayListOf()
+                                    val person: ArrayList<Double> = arrayListOf()
+                                    val storage = FirebaseStorage.getInstance()
+                                    val storageRef = storage.reference
+                                    var success = 0
+                                    for (i in 0 until postPlaceList.size) {
+                                        success += postImageResource[i].size
+                                        for (j in 0 until postImageResource[i].size) {
+                                            imageResource.add("")
                                         }
-
-                                        val uploadTask =
-                                            mountainImagesRef.putFile(file, metadata)
-                                        uploadTask
-                                            .addOnFailureListener {
-                                            }
-                                            .addOnSuccessListener { taskSnapshot ->
-                                                val index: Int = taskSnapshot.metadata
-                                                    ?.getCustomMetadata("index")!!
-                                                    .toInt()
-                                                mountainImagesRef.downloadUrl.addOnSuccessListener { ImageUri ->
-                                                    imageResource.removeAt(index)
-                                                    imageResource.add(index, ImageUri)
-                                                    success --
-                                                    if(success == 0) {
-                                                        val postInfo =
-                                                            PostInfo(
-                                                                documentReference.id,
-                                                                titlename,
-                                                                ArrayList(articleList),
-                                                                splitNumber,
-                                                                imageResource,
-                                                                spam,
-                                                                background,
-                                                                person,
-                                                                user!!.uid,
-                                                                LocalDate
-                                                                    .now()
-                                                                    .format(
-                                                                        DateTimeFormatter.ofPattern(
-                                                                            "yyyy-MM-dd"
-                                                                        )
-                                                                    )
-                                                            )
-                                                        uploader(
-                                                            documentReference,
-                                                            postInfo,
-                                                            navController
-                                                        )
-                                                    }
-                                                }
-                                            }
-
-                                        postImageResource[0].addAll(postImageResource[i])
-
+                                    }
+                                    var indexNum = 0
+                                    val placeName:ArrayList<String> = arrayListOf()
+                                    for (i in 0 until postPlaceList.size) {
+                                        placeName.add(postPlaceList[i])
                                         spam.addAll(isSpam[i])
                                         background.addAll(isBackground[i])
                                         person.addAll(isPerson[i])
-                                        splitNumber.add(postImageResource[i].size)
-                                    }
+                                        if(i == 0) {
+                                            splitNumber.add(postImageResource[i].size)
+                                        }
+                                        else{
+                                            splitNumber.add(postImageResource[i].size + splitNumber[i-1])
+                                        }
+                                        for (j in 0 until postImageResource[i].size) {
 
+
+                                            val pathArray: Array<String> =
+                                                postImageResource[i][j]
+                                                    .toString()
+                                                    .split("/", ".")
+                                                    .toTypedArray()
+                                            val mountainImagesRef: StorageReference =
+                                                storageRef.child("posts/" + documentReference.id + "/" + (i * postImageResource[i].size + j) + "." + pathArray[pathArray.size - 1])
+                                            val file = postImageResource[i][j]
+                                            val metadata = storageMetadata {
+                                                setCustomMetadata(
+                                                    "index",
+                                                    "" + indexNum
+                                                )
+                                            }
+
+                                            val uploadTask =
+                                                mountainImagesRef.putFile(file, metadata)
+                                            uploadTask
+                                                .addOnFailureListener {
+                                                }
+                                                .addOnSuccessListener { taskSnapshot ->
+                                                    val index: Int = taskSnapshot.metadata
+                                                        ?.getCustomMetadata("index")!!
+                                                        .toInt()
+                                                    mountainImagesRef.downloadUrl.addOnSuccessListener { ImageUri ->
+                                                        imageResource.removeAt(index)
+                                                        imageResource.add(
+                                                            index,
+                                                            ImageUri.toString()
+                                                        )
+                                                        success--
+                                                        if (success == 0) {
+                                                            val postInfo =
+                                                                PostInfo(
+                                                                    documentReference.id,
+                                                                    titlename,
+                                                                    ArrayList(articleList),
+                                                                    splitNumber,
+                                                                    imageResource,
+                                                                    spam,
+                                                                    background,
+                                                                    person,
+                                                                    placeName,
+                                                                    myName,
+                                                                    user!!.uid,
+                                                                    LocalDate.now().format(
+                                                                        DateTimeFormatter.ofPattern("yyyy-MM-dd "))+ LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm:ss")
+                                                                    ),
+                                                                    score = 0
+                                                                )
+                                                            uploader(
+                                                                documentReference,
+                                                                postInfo,
+                                                                navController
+                                                            )
+                                                        }
+                                                    }
+                                                }
+
+                                            indexNum++
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -270,9 +297,9 @@ fun placearticle(requestManager:RequestManager,
                  articleList: MutableList<String>,
                  onArticleChange:(Int, String) -> Unit,
                  postImageResource:MutableList<MutableList<Uri>>,
-                 onImageChange:(Int,MutableList<Uri>) -> Unit,isSpam: ArrayList<ArrayList<kotlin.Float>>,
-                 isBackground: ArrayList<ArrayList<kotlin.Float>>,
-                 isPerson: ArrayList<ArrayList<kotlin.Float>>) {
+                 onImageChange:(Int,MutableList<Uri>) -> Unit,isSpam: ArrayList<ArrayList<Double>>,
+                 isBackground: ArrayList<ArrayList<Double>>,
+                 isPerson: ArrayList<ArrayList<Double>>) {
     LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
@@ -334,9 +361,9 @@ fun PostPlaceWrite(item:Int,
                    onArticleChange:(Int, String) -> Unit,
                    postImageResource:MutableList<MutableList<Uri>>,
                    onImageChange:(Int,MutableList<Uri>) -> Unit,
-                   isSpam:ArrayList<ArrayList<kotlin.Float>>,
-                   isBackground: ArrayList<ArrayList<kotlin.Float>>,
-                   isPerson: ArrayList<ArrayList<kotlin.Float>>)
+                   isSpam:ArrayList<ArrayList<Double>>,
+                   isBackground: ArrayList<ArrayList<Double>>,
+                   isPerson: ArrayList<ArrayList<Double>>)
 {
     val areaImageList = remember { mutableStateListOf<Uri>() }
     val conditions = CustomModelDownloadConditions.Builder()
@@ -385,9 +412,9 @@ fun PostPlaceWrite(item:Int,
                         val modelOutput = ByteBuffer.allocateDirect(bufferSize).order(ByteOrder.nativeOrder())
                         interpreter?.run(input,modelOutput)
                         modelOutput.rewind()
-                        isSpam[item].add(modelOutput.float)
-                        isBackground[item].add(modelOutput.float)
-                        isPerson[item].add(modelOutput.float)
+                        isSpam[item].add(modelOutput.float.toDouble())
+                        isBackground[item].add(modelOutput.float.toDouble())
+                        isPerson[item].add(modelOutput.float.toDouble())
                     }
                     .addOnFailureListener{
                         Log.e("실패",""+it)
@@ -417,7 +444,7 @@ fun PostPlaceWrite(item:Int,
                 Row(
                     verticalAlignment = Alignment.CenterVertically
                 ){
-                    val url = placeList[postPlaceList[item]].imageResource
+                    val url = placeListHashMap[postPlaceList[item]]?.imageResource
                     GlideImage(
                         model = url,
                         contentDescription = "",
@@ -443,7 +470,7 @@ fun PostPlaceWrite(item:Int,
                     ) {
                         var placeName = ""
                         if (postPlaceList.size != 0) {
-                            placeName = placeList[postPlaceList[item]].placeName
+                            placeName = placeListHashMap[postPlaceList[item]]!!.placeName
                         }
                         Text(
                             text = placeName,

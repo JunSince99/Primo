@@ -17,6 +17,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -35,14 +36,13 @@ import androidx.navigation.NavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
+import com.example.primo2.*
 import com.example.primo2.R
-import com.example.primo2.placeList
-import com.example.primo2.postPlaceList
 import com.example.primo2.ui.theme.moreLightGray
 import com.example.primo2.ui.theme.spoqasans
 
 @Composable
-fun SelectCourse(navController:NavController, requestManager: RequestManager) {
+fun SelectCourse(navController:NavController, requestManager: RequestManager,datePlanList: SnapshotStateList<DatePlanInfo>) {
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -50,23 +50,11 @@ fun SelectCourse(navController:NavController, requestManager: RequestManager) {
             postPlaceList.clear()
             Log.e("클리어","클리어")
         }
-        var searchKeyword by remember { mutableStateOf("") }
-        val searchPlaceList = remember { mutableStateListOf<Int>() }
-        LaunchedEffect(searchKeyword) {
-            if (searchKeyword.isNotBlank()) {
-                searchPlaceList.clear()
-                for (i in 0 until placeList.size) {
-                    if (placeList[i].placeName.contains(searchKeyword)) {
-                        searchPlaceList.add(i)
-                    }
-                }
-            }
-        }
+
         Column {
             Defaulttopbar(navController)
-            SearchBar(searchKeyword, onSearchKeywordChange = {searchKeyword = it})
             Spacer(modifier = Modifier.size(8.dp))
-            Course(searchKeyword,searchPlaceList,requestManager, onSearchKeywordChange = {searchKeyword = it})
+            Course(datePlanList,requestManager,navController)
         }
     }
 }
@@ -133,213 +121,89 @@ fun Defaulttopbar(navController: NavController) {
     }
 }
 
-@Composable
-fun SearchBar(searchKeyword:String,onSearchKeywordChange:(String) -> Unit) {
-    TextField(
-        modifier = Modifier
-            .padding(horizontal = 24.dp)
-            .fillMaxWidth(),
-        value = searchKeyword,
-        onValueChange = { text ->
-            onSearchKeywordChange(text)
-        },
-        placeholder = {
-            Text(
-                modifier = Modifier
-                    .alpha(ContentAlpha.medium),
-                text = "검색",
-                color = Color.Gray
-            )
-        },
-        textStyle = TextStyle(
-            fontSize = 16.sp
-        ),
-        singleLine = true,
-        trailingIcon = {
-            IconButton(
-                modifier = Modifier
-                    .alpha(ContentAlpha.medium),
-                onClick = {
-                    if (searchKeyword.isNotEmpty()) {
-                        onSearchKeywordChange("")
-                    }
-                }
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Search,
-                    contentDescription = "Search Icon",
-                    tint = Color.Black
-                )
-            }
-        },
-        keyboardOptions = KeyboardOptions(
-            imeAction = ImeAction.Search,
-        ),
-        shape = RoundedCornerShape(20.dp),
-        colors = TextFieldDefaults.textFieldColors(
-            backgroundColor = moreLightGray,
-            cursorColor = Color.Black,
-            focusedIndicatorColor = moreLightGray,
-            unfocusedIndicatorColor = moreLightGray
-        )
-    )
-}
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun Course(searchKeyword: String,searchPlaceList: MutableList<Int>,requestManager:RequestManager, onSearchKeywordChange:(String) -> Unit) {
-    if(searchKeyword.isNotBlank()) {
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(190.dp)
-        ) {
-            items(searchPlaceList) { item ->
-                SearchPlace(item,requestManager,postPlaceList,onSearchKeywordChange)
-            }
-        }
-    }
-    else {
-
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-        ) {
-            items(postPlaceList.size) { item ->
-                PostPlace(item,requestManager)
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalGlideComposeApi::class)
-@Composable
-fun PostPlace(item:Int, requestManager: RequestManager)
-{
-    Surface(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .shadow(
-                elevation = 1.dp,
-                shape = RoundedCornerShape(20)
-            )
-            .aspectRatio(16f / 4f)
-            .clickable {}
-    ) {
-        Row(
-            modifier = Modifier
-                .background(Color.White),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Spacer(modifier = Modifier.padding(6.dp))
-            val url = placeList[postPlaceList[item]].imageResource
-            GlideImage(
-                model = url,
-                contentDescription = "",
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .size(60.dp),
-                contentScale = ContentScale.Crop
-
-            )
-            {
-                it
-                    .thumbnail(
-                        requestManager
-                            .asDrawable()
-                            .load(url)
-                            // .signature(signature)
-                            .override(64)
-                    )
-            }
-            Spacer(modifier = Modifier.padding(6.dp))
-            Column(
-                modifier = Modifier,
-            ) {
-                Text(
-                    text = placeList[postPlaceList[item]].placeName,
-                    color = Color.Black,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    modifier = Modifier
-                )
-                Spacer(modifier = Modifier.padding(2.dp))
-                Text(
-                    text = "인천광역시 송도동",
-                    color = Color.DarkGray,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Normal,
-                    modifier = Modifier
-                )
-            }
-        }
-    }
-}
-@OptIn(ExperimentalGlideComposeApi::class)
-@Composable
-fun SearchPlace(item:Int,requestManager: RequestManager,postPlaceList: MutableList<Int>,onSearchKeywordChange:(String) -> Unit){
-    Row(
+fun Course(datePlanList: SnapshotStateList<DatePlanInfo>,requestManager:RequestManager,navController: NavController) {
+    LazyColumn(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
+            .fillMaxHeight()
     ) {
-
-        val url = placeList[item].imageResource
-        GlideImage(
-            model = url,
-            contentDescription = "",
-            modifier = Modifier
-                .clip(CircleShape)
-                .size(50.dp),
-            contentScale = ContentScale.Crop
-
-        )
-        {
-            it
-                .thumbnail(
-                    requestManager
-                        .asDrawable()
-                        .load(url)
-                        // .signature(signature)
-                        .override(64)
-                )
-        }
-        Spacer(modifier = Modifier.padding(6.dp))
-        Column(
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
-        ) {
-            Text(
-                text = placeList[item].placeName,
-                color = Color.Black,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier
-            )
-            Spacer(modifier = Modifier.padding(2.dp))
-            Row {
-                placetag("걷기 좋은", 10.sp)
-                placetag("공원", 10.sp)
-                placetag("전통", 10.sp)
-            }
-        }
-        Row(modifier = Modifier
-            .fillMaxSize()
-            .clickable {
-                postPlaceList.add(item)
-                onSearchKeywordChange("")
-                       }
-        , horizontalArrangement = Arrangement.End){
-            androidx.compose.material3.Icon(
-                imageVector = Icons.Filled.AddCircle,
-                contentDescription = "포스트 장소 추가 버튼",
-            )
+        items(datePlanList.size) { item ->
+            PostPlace(item,datePlanList,requestManager, navController)
         }
     }
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
+@Composable
+fun PostPlace(item:Int, datePlanList: SnapshotStateList<DatePlanInfo>, requestManager: RequestManager,navController: NavController)
+{
+    if(datePlanList[item].course.isNotEmpty()) {
+        Surface(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .shadow(
+                    elevation = 1.dp,
+                    shape = RoundedCornerShape(20)
+                )
+                .aspectRatio(16f / 4f)
+                .clickable {
+                    postPlaceList.clear()
+                    postPlaceList.addAll(datePlanList[item].course)
+                    Log.e("",""+ datePlanList[item].course)
+                    Log.e("",""+ postPlaceList)
+                    navController.navigate(PrimoScreen.WritingScreen.name)
+                }
+        ) {
+            Row(
+                modifier = Modifier
+                    .background(Color.White),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Spacer(modifier = Modifier.padding(6.dp))
+                val url = placeListHashMap[datePlanList[item].course[0]]?.imageResource
+                GlideImage(
+                    model = url,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .clip(CircleShape)
+                        .size(60.dp),
+                    contentScale = ContentScale.Crop
 
+                )
+                {
+                    it
+                        .thumbnail(
+                            requestManager
+                                .asDrawable()
+                                .load(url)
+                                // .signature(signature)
+                                .override(64)
+                        )
+                }
+                Spacer(modifier = Modifier.padding(6.dp))
+                Column(
+                    modifier = Modifier,
+                ) {
+                    Text(
+                        text = datePlanList[item].dateTitle,
+                        color = Color.Black,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier
+                    )
+                    Spacer(modifier = Modifier.padding(2.dp))
+                    Text(
+                        text = "인천광역시 송도동",
+                        color = Color.DarkGray,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Normal,
+                        modifier = Modifier
+                    )
+                }
+            }
+        }
+    }
+}

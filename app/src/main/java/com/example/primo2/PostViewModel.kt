@@ -38,23 +38,36 @@ class PostViewModel : ViewModel() {
                             pDocument.data["contents"] as ArrayList<String?>,
                             pDocument.data["splitNumber"] as ArrayList<Int>,
                             pDocument.data["imageResources"] as MutableList<String>,
-                            pDocument.data["spam"] as ArrayList<Float>,
-                            pDocument.data["background"] as ArrayList<Float>,
-                            pDocument.data["person"] as ArrayList<Float>,
+                            pDocument.data["spam"] as ArrayList<Double>,
+                            pDocument.data["background"] as ArrayList<Double>,
+                            pDocument.data["person"] as ArrayList<Double>,
+                            pDocument.data["placeName"] as ArrayList<String>,
                             pDocument.getString("writer"),
                             pDocument.getString("writerID"),
                             pDocument.getString("postDate"),
-                            pDocument.data["like"] as HashMap<String, Boolean>,
+                            pDocument.data["like"] as HashMap<String, Boolean>
                         )
                     )
                 }
                 _postState.update { currentState ->
+
+                    for(post in postList2){
+                        post.score = 0
+                        for(i in post.isSpam){
+                            if(i >= 0.9)
+                            {
+                                post.score -= 100
+                            }
+                        }
+                    }
+                    postList2.sortByDescending { it.score }
                     isUpdate = false
                     postList2
                 }
             }
             .addOnFailureListener { exception ->
             }
+
         }
 
 }

@@ -23,6 +23,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
@@ -44,7 +45,11 @@ import com.example.primo2.activity.MainActivity
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior.ScrollState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.DatabaseReference
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
@@ -75,8 +80,8 @@ enum class PrimoScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifier = Modifier,viewModel: PostViewModel = viewModel()) {
-    InitailLoading()
     val datePlanList = remember { mutableStateListOf<DatePlanInfo>() }
+    InitailLoading(datePlanList)
     val homeListState:LazyListState = rememberLazyListState() // 홈 화면 스크롤 상태 저장
     val datePlanListState:LazyListState = rememberLazyListState() // 데이트 플랜 스크롤 상태 저장
     val auth: FirebaseAuth = Firebase.auth
@@ -314,7 +319,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             }
 
             composable(route = PrimoScreen.SelectWritingCourse.name) {
-                SelectCourse(navController,requestManager)
+                SelectCourse(navController,requestManager,datePlanList)
             }
 
 
@@ -460,8 +465,57 @@ fun checkTopVisible (navController:NavController): Boolean{
     return TopBarState
 }
 
-fun InitailLoading(){
+@Composable
+fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
     getPlaceInfo() // 장소 정보
     getPartnerInfo() // 연인 정보
     getUserOrientation() // 유저 정보
+
+
+    val user = Firebase.auth.currentUser
+    val db = Firebase.firestore
+    var leaderUID = ""
+    LaunchedEffect(true) {
+        db.collection("users").document(user!!.uid)
+            .get()
+            .addOnSuccessListener { document ->
+                leaderUID = document.getString("leaderUID") as String
+                val database = Firebase.database.reference.child("DatePlan").child(leaderUID)
+                val postListener = object : ValueEventListener {
+                    override fun onDataChange(dataSnapshot: DataSnapshot) {
+                        datePlanList.clear()
+                        for (datePlanSnapshot in dataSnapshot.children) {
+                            val title = datePlanSnapshot.child("dateTitle").value.toString()
+                            val startDate = datePlanSnapshot.child("startDate").value.toString()
+                            val endDate = datePlanSnapshot.child("endDate").value.toString()
+                            val course: MutableList<String> = mutableListOf()
+                            val courseCount = datePlanSnapshot.child("course").childrenCount
+                            for (i in 0 until courseCount) {
+                                course.add(
+                                    datePlanSnapshot.child("course")
+                                        .child(i.toString()).value.toString()
+                                )
+                            }
+                            datePlanList.add(
+                                DatePlanInfo(
+                                    title,
+                                    startDate,
+                                    endDate,
+                                    course
+                                )
+                            )
+                        }
+                        datePlanList.sortByDescending {
+                            it.dateStartDate
+                        }
+                    }
+
+                    override fun onCancelled(databaseError: DatabaseError) {
+                        //실패
+                    }
+                }
+                database.addValueEventListener(postListener)
+            }
+    }
+
 }
