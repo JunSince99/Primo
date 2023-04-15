@@ -2,6 +2,7 @@ package com.example.primo2.screen
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.animateScrollBy
@@ -28,6 +29,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontFamily
@@ -68,7 +70,9 @@ import kotlin.math.roundToInt
 
 
 @Composable
-fun Day(day: CalendarDay, ) { //일
+fun Day(day: CalendarDay,datePlanList: SnapshotStateList<DatePlanInfo>, onVisibleChange:(Boolean) -> Unit ) { //일
+    var planable = true
+
     Box(
         modifier = Modifier
             .aspectRatio(1f)
@@ -76,7 +80,14 @@ fun Day(day: CalendarDay, ) { //일
             .clip(CircleShape)
             .clickable(
                 enabled = day.position == DayPosition.MonthDate,
-                onClick = {/*TODO*/ }
+                onClick = {
+                    if (planable) {
+                        date = "${day.date.year}-%02d-%02d".format(day.date.month.value,day.date.dayOfMonth)
+
+                        Log.e("",""+date)
+                        onVisibleChange(true)
+                    }
+                }
             ),
         contentAlignment = Alignment.Center
     ) {
@@ -97,11 +108,17 @@ fun Day(day: CalendarDay, ) { //일
                 fontWeight = FontWeight.Medium
             )
             Spacer(modifier = Modifier.size(4.dp))
-            Box(
-                modifier = Modifier
-                    .size(4.dp)
-                    .background(Color.Black, CircleShape)
-            )
+            for(i in 0 until datePlanList.size) {
+                if(datePlanList[i].dateStartDate.split("-")[1].toInt() == day.date.month.value && datePlanList[i].dateStartDate.split("-")[2].toInt() == day.date.dayOfMonth) {
+                    Box(
+                        modifier = Modifier
+                            .size(4.dp)
+                            .background(Color.Black, CircleShape)
+                    )
+                    planable = false
+                    break
+                }
+            }
         }
 
     }
@@ -166,25 +183,26 @@ fun DatePlans(requestManager: RequestManager,
 )
 {
     Column {
-        ShowCalendar(onMonthChange)
+        ShowCalendar(onMonthChange,datePlanList,navController)
         LazyColumn(modifier = modifier, state = listState) {
             items(datePlanList.size) {
-                if (datePlanList[it].dateStartDate.split("-")[1].toInt() == month.month.value) {
-                    DatePlan(
-                        datePlanList[it],
-                        requestManager,
-                        it,
-                        navController,
-                        leaderUID,
-                    )
-                }
+                    if (datePlanList[it].dateStartDate.split("-")[1].toInt() == month.month.value) {
+                        Log.e("",""+ datePlanList[it].dateStartDate.split("-"))
+                        DatePlan(
+                            datePlanList[it],
+                            requestManager,
+                            it,
+                            navController,
+                            leaderUID,
+                        )
+                    }
             }
         }
     }
 }
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
+fun ShowCalendar(onMonthChange: (YearMonth) -> Unit, datePlanList: SnapshotStateList<DatePlanInfo>,navController: NavController){
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(3) } // Adjust as needed
     val endMonth = remember { currentMonth.plusMonths(4) } // Adjust as needed
@@ -198,13 +216,15 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
         outDateStyle = OutDateStyle.EndOfGrid
     )
     var calendarheight = 360.dp
-
+    var visible by remember { mutableStateOf(false) }
     HorizontalCalendar(
         modifier = Modifier
             .fillMaxWidth(),
         state = state,
         dayContent = {
-                Day(it)
+                Day(it,datePlanList, onVisibleChange = { vis->
+                    visible = vis
+                } )
                      },
         monthHeader = {
             DaysOfWeekTitle(daysOfWeek = daysOfWeek) // Use the title as month header
@@ -213,7 +233,117 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit){
         userScrollEnabled = true,
         contentPadding = PaddingValues(8.dp),
         )
+    if(visible)
+    {
+        val context = LocalContext.current
+        Dialog(onDismissRequest = { visible = false }) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(color = Color.White)
+            ) {
+                Text(
+                    modifier = Modifier
+                        .padding(top = 24.dp)
+                        .padding(horizontal = 24.dp),
+                    text = "데이트 제목",
+                    style = Typography.h5.copy(fontSize = 17.sp),
+                )
+                Text(
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp,5.dp),
+                    text = "데이트의 이름을 지어주세요.",
+                    style = Typography.h5.copy(fontSize = 12.sp),
+                    color = Color.LightGray
+                )
+                var dateTitle by remember { mutableStateOf("") }
+                TextField(
+                    value = dateTitle,
+                    onValueChange = { dateTitle = it },
+                    modifier = Modifier
+                        .padding(20.dp, 25.dp, 20.dp, 70.dp)
+                        .fillMaxWidth(),
+                    textStyle = androidx.compose.ui.text.TextStyle.Default.copy(fontSize = 20.sp,),
+                    label = {Text("데이트 제목")},
+                    singleLine = true,
+                    colors = TextFieldDefaults.textFieldColors(
+                        backgroundColor = Color.White,
+                        cursorColor = Color.Black,
+                        focusedIndicatorColor = Color.Black,
+                        focusedLabelColor = Color.Black
+                    )
+                )
+                Row(modifier = Modifier
+                    .fillMaxWidth()
+                    .height(40.dp)
+                    .drawBehind {
+                        drawLine(
+                            Color.LightGray,
+                            Offset(0f, 0f),
+                            Offset(size.width, 0f),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                        drawLine(
+                            Color.LightGray,
+                            Offset(size.width / 2, 0f),
+                            Offset(size.width / 2, size.height),
+                            strokeWidth = 1.dp.toPx()
+                        )
+                    }, horizontalArrangement = Arrangement.Center)
+                {
+                    Box(modifier = Modifier
+                        .weight(1f)
+                        .clickable {
+                            var isDuplication = false
+                            for (i in 0 until datePlanList.size) {
+                                if (datePlanList[i].dateTitle == dateTitle) {
+                                    isDuplication = true
+                                    break
+                                }
+                            }
+                            if (isDuplication) {
+                                Toast
+                                    .makeText(
+                                        context, "중복 타이틀 입니다.",
+                                        Toast.LENGTH_SHORT
+                                    )
+                                    .show()
+                            } else {
+                                writeDatePlan(date, dateTitle, navController)
+                            }
+                        })
+                    {
+                        Text(
+                            text = AnnotatedString("등록"),
+                            style = androidx.compose.ui.text.TextStyle(
+                                fontSize = 14.sp
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(10.dp)
+                        )
+                    }
+                    Box(modifier = Modifier
+                        .weight(1f)
+                        .clickable { visible = false })
+                    {
+                        Text(
+                            text = AnnotatedString("취소"),
+                            style = androidx.compose.ui.text.TextStyle(
+                                fontSize = 14.sp,
+                            ),
+                            modifier = Modifier
+                                .align(Alignment.Center)
+                                .padding(10.dp)
+                        )
+                    }
 
+                }
+            }
+        }
+    }
     val calendarIndex = state.layoutInfo.visibleMonthsInfo.lastIndex
     if (calendarIndex != -1) {
         LaunchedEffect(state.layoutInfo.visibleMonthsInfo[calendarIndex]) {
@@ -421,3 +551,32 @@ fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,n
         }
     }
 }
+
+private fun writeDatePlan(startDate:String, dateTitle:String, navController: NavController){
+    val user = Firebase.auth.currentUser
+    val database = Firebase.database.reference
+    database.child("DatePlan").child(leaderUID)
+        .child(dateTitle)
+        .child("dateTitle").setValue(dateTitle)
+
+
+    database.child("DatePlan").child(leaderUID)
+        .child(dateTitle)
+        .child("startDate").setValue(startDate)
+    database.child("DatePlan").child(leaderUID)
+        .child(dateTitle)
+        .child("endDate")
+        .setValue("")
+
+    val insertList = listOf<String>()
+
+    database.child("DatePlan").child(leaderUID)
+        .child(dateTitle)
+        .child("course")
+        .setValue(insertList)
+        .addOnSuccessListener {
+            navController.navigate("${PrimoScreen.Map.name}/$dateTitle/$leaderUID")
+        }
+
+}
+

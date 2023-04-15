@@ -219,7 +219,7 @@ fun SelectDateDateScreen(
         }
     }
 }
-fun writeDatePlan(startDate:String, dateTitle:String){
+private fun writeDatePlan(startDate:String, dateTitle:String){
     val user = Firebase.auth.currentUser
     val database = Firebase.database.reference
 
