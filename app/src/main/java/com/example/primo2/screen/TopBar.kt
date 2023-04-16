@@ -94,12 +94,6 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                                   contentDescription = "데이트 추가",
                               )
                           }
-                    IconButton(onClick = { navController.navigate(PrimoScreen.PlaceBattle.name) }) {
-                        Icon(
-                            imageVector = Icons.Filled.AddCircle,
-                            contentDescription = "이상형 월드컵 테스트",
-                        )
-                    }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.White,

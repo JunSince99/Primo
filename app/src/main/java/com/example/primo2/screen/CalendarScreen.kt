@@ -186,16 +186,15 @@ fun DatePlans(requestManager: RequestManager,
         ShowCalendar(onMonthChange,datePlanList,navController)
         LazyColumn(modifier = modifier, state = listState) {
             items(datePlanList.size) {
-                    if (datePlanList[it].dateStartDate.split("-")[1].toInt() == month.month.value) {
-                        Log.e("",""+ datePlanList[it].dateStartDate.split("-"))
-                        DatePlan(
-                            datePlanList[it],
-                            requestManager,
-                            it,
-                            navController,
-                            leaderUID,
-                        )
-                    }
+                if (datePlanList[it].dateStartDate.split("-")[1].toInt() == month.month.value) {
+                    DatePlan(
+                        datePlanList[it],
+                        requestManager,
+                        it,
+                        navController,
+                        leaderUID,
+                    )
+                }
             }
         }
     }

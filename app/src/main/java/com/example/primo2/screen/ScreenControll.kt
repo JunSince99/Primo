@@ -404,7 +404,7 @@ fun checkBottomVisible (navController:NavController): Boolean{
                 bottomBarState = false
             }
             "PlaceBattle" ->{
-                bottomBarState = false
+                bottomBarState = true
             }
             "SelectWritingCourse" ->{
                 bottomBarState = false
@@ -522,14 +522,16 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
                                         .child(i.toString()).value.toString()
                                 )
                             }
-                            datePlanList.add(
-                                DatePlanInfo(
-                                    title,
-                                    startDate,
-                                    endDate,
-                                    course
+                            if(startDate != "null") {
+                                datePlanList.add(
+                                    DatePlanInfo(
+                                        title,
+                                        startDate,
+                                        endDate,
+                                        course
+                                    )
                                 )
-                            )
+                            }
                         }
                         datePlanList.sortByDescending {
                             it.dateStartDate

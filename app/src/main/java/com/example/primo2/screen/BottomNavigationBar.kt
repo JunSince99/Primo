@@ -75,8 +75,8 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean) {
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "Favorites" } == true,
                     onClick = { if(partnerName != null && userOrientation.isNotEmpty()) {
-                        navController.navigate("Favorites") { popUpTo("Home") } } }
-                ) // 즐겨찾기?
+                        navController.navigate(PrimoScreen.PlaceBattle.name) { popUpTo("Home") } } }
+                ) // 장소 월드컵
                 BottomNavigationItem(
                     icon = {
                         Icon(
