@@ -85,6 +85,7 @@ fun WritingScreen(navController: NavController,requestManager: RequestManager) {
     val articleList = remember { mutableStateListOf<String>() }
     var titlename by remember { mutableStateOf("") }
     var uploading  by remember { mutableStateOf(false) }
+
     articleList.clear()
     for(i in 0 until  postPlaceList.size)
     {
@@ -148,7 +149,7 @@ fun Writingtopbar(navController: NavController,
                     modifier = Modifier
                         .size(45.dp)
                         .clip(CircleShape)
-                        .clickable { /*TODO*/ }
+                        .clickable { navController.navigateUp() }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,

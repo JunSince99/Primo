@@ -1,10 +1,12 @@
 package com.example.primo2.screen
 
 import android.util.Log
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
@@ -15,14 +17,18 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import com.example.primo2.R
 import com.example.primo2.ui.theme.LightPink
 import com.example.primo2.ui.theme.LightRed
 import com.example.primo2.ui.theme.Typography
@@ -80,12 +86,16 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
         } else {
             TopAppBar(
                 title = {
-                    Text(
-                        "Primo",
-                        maxLines = 1,
-                        style = Typography.h1,
-                        overflow = TextOverflow.Ellipsis
-                    )
+                    Row() {
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.logo),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(65.dp)
+                        )
+                    }
                 },
                 actions = {
                           IconButton(onClick = { navController.navigate(PrimoScreen.SelectWritingCourse.name) }) {

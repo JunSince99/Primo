@@ -46,10 +46,6 @@ fun SelectCourse(navController:NavController, requestManager: RequestManager,dat
     Surface(
         modifier = Modifier.fillMaxSize()
     ) {
-        LaunchedEffect(true){
-            postPlaceList.clear()
-            Log.e("클리어","클리어")
-        }
 
         Column {
             Defaulttopbar(navController)
@@ -82,7 +78,7 @@ fun Defaulttopbar(navController: NavController) {
                     modifier = Modifier
                         .size(45.dp)
                         .clip(CircleShape)
-                        .clickable { /*TODO*/ }
+                        .clickable { navController.navigateUp() }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,

@@ -82,7 +82,7 @@ fun Postdetail(navController: NavController, item: Int,requestManager: RequestMa
 }
 
 @Composable
-fun Posttopbar() {
+fun Posttopbar(navController: NavController) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -102,7 +102,7 @@ fun Posttopbar() {
                     modifier = Modifier
                         .size(45.dp)
                         .clip(CircleShape)
-                        .clickable { /*TODO*/ }
+                        .clickable { navController.navigateUp() }
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
@@ -201,14 +201,27 @@ fun Postarticle(item: Int, num: Int, postList: ArrayList<PostInfo>,requestManage
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 //장소
-                Image(
-                    painter = painterResource(id = R.drawable.dog),
+                val uri = placeListHashMap[postList[item].placeName[num]]!!.imageResource
+                GlideImage(
+                    model = uri,
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .clip(CircleShape)
                         .size(60.dp)
+                        .clip(CircleShape)
+                    //.align(Alignment.CenterHorizontally)
                 )
+                {
+                    it
+                        .thumbnail(
+                            requestManager
+                                .asDrawable()
+                                .load(uri)
+                                // .signature(signature)
+                                .override(64)
+                        )
+                    // .signature(signature)
+                }
                 Spacer(modifier = Modifier.padding(6.dp))
                 Column(
                     modifier = Modifier,
