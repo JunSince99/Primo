@@ -6,7 +6,9 @@ import android.widget.Space
 import android.widget.Toast
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FiniteAnimationSpec
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.*
 import androidx.compose.foundation.layout.*
@@ -23,9 +25,11 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.pointer.consumeAllChanges
@@ -570,7 +574,7 @@ fun BottomSheetContent(
         }
         else{
             Column {
-                onBottomNaviSizeChange(400.dp)
+                onBottomNaviSizeChange(350.dp)
 
                 Spacer(modifier = Modifier.padding(4.dp))
 
@@ -605,13 +609,14 @@ fun BottomSheetContent(
                     state = state.listState,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(screenHeight-157.dp)
+                        .height(screenHeight - 187.dp)
                         .reorderable(state)
                 ) {
                     items(courseList, { it }) { item ->
                         ReorderableItem(state, key = item) { isDragging ->
                             val placeName: String = placeListHashMap[item]?.placeName.toString()
                             val elevation = animateDpAsState(if (isDragging) 16.dp else 0.dp)
+                            var expanded by remember { mutableStateOf(false) }
                             Surface(
                                 modifier = Modifier
                                     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -619,77 +624,107 @@ fun BottomSheetContent(
                                         elevation = 1.dp,
                                         shape = RoundedCornerShape(20)
                                     )
-                                    .aspectRatio(20f / 4.5f)
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
+                                Column (
                                     modifier = Modifier
-                                ) {
-                                    Box(
-                                        modifier = Modifier
-                                            .padding(16.dp)
-                                            .size(40.dp)
-                                            .aspectRatio(1f)
-                                            .background(
-                                                color = colorset[courseList.indexOf(item)],
-                                                shape = CircleShape,
+                                        .animateContentSize(
+                                            animationSpec = spring(
+                                                dampingRatio = Spring.DampingRatioMediumBouncy,
+                                                stiffness = Spring.StiffnessLow
                                             )
-                                    ) {
-                                        Text(
-                                            text = (courseList.indexOf(item) + 1).toString(),
-                                            color = Color.White,
-                                            fontSize = 16.sp,
-                                            fontWeight = FontWeight.ExtraBold,
-                                            modifier = Modifier
-                                                .align(Alignment.Center)
                                         )
-                                    }
-                                    Divider(
-                                        color = moreLightGray,
-                                        modifier = Modifier
-                                            .width(1.dp)
-                                            .height(60.dp),
-                                    )
+                                        ) {
                                     Row(
-                                        horizontalArrangement = Arrangement.SpaceBetween,
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(horizontal = 16.dp)
+                                            .padding(vertical = 8.dp)
                                     ) {
-                                        Column(
-                                            verticalArrangement = Arrangement.Center,
+                                        Box(
                                             modifier = Modifier
+                                                .padding(16.dp)
+                                                .size(35.dp)
+                                                .aspectRatio(1f)
+                                                .background(
+                                                    color = colorset[courseList.indexOf(item)],
+                                                    shape = CircleShape,
+                                                )
                                         ) {
                                             Text(
-                                                text = placeName,
-                                                color = Color.Black,
-                                                fontSize = 20.sp,
-                                                textAlign = TextAlign.Center,
-                                                fontWeight = FontWeight.Medium,
-                                                modifier = Modifier.clickable {
-                                                    cameraPositionState.move(
-                                                        CameraUpdate.scrollTo(
-                                                            LatLng(
-                                                                placeListHashMap[item]!!.latitude,
-                                                                placeListHashMap[item]!!.longitude
+                                                text = (courseList.indexOf(item) + 1).toString(),
+                                                color = Color.White,
+                                                fontSize = 16.sp,
+                                                fontWeight = FontWeight.ExtraBold,
+                                                modifier = Modifier
+                                                    .align(Alignment.Center)
+                                            )
+                                        }
+                                        Divider(
+                                            color = moreLightGray,
+                                            modifier = Modifier
+                                                .width(1.dp)
+                                                .height(60.dp),
+                                        )
+                                        Row(
+                                            horizontalArrangement = Arrangement.SpaceBetween,
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(horizontal = 16.dp)
+                                        ) {
+                                            Column(
+                                                verticalArrangement = Arrangement.Center,
+                                                modifier = Modifier
+                                            ) {
+                                                Text(
+                                                    text = placeName,
+                                                    color = Color.Black,
+                                                    fontSize = 16.sp,
+                                                    textAlign = TextAlign.Center,
+                                                    fontWeight = FontWeight.Medium,
+                                                    modifier = Modifier.clickable {
+                                                        cameraPositionState.move(
+                                                            CameraUpdate.scrollTo(
+                                                                LatLng(
+                                                                    placeListHashMap[item]!!.latitude,
+                                                                    placeListHashMap[item]!!.longitude
+                                                                )
                                                             )
                                                         )
+                                                    }
+                                                )
+                                                Spacer(modifier = Modifier.padding(4.dp))
+                                                Row {
+                                                    placetag("걷기 좋은")
+                                                    placetag("공원")
+                                                    placetag("전통")
+                                                }
+                                            }
+                                            Row(
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                IconButton(
+                                                    onClick = { expanded = !expanded }
+                                                ) {
+                                                    Icon(
+                                                        painter = painterResource(id = R.drawable.ic_outline_description_24),
+                                                        contentDescription = null,
+                                                        modifier = Modifier
+                                                            .size(20.dp),
+                                                        tint = Color.Black // 메모 없으면 Color.Gray
                                                     )
                                                 }
-                                            )
-                                            Spacer(modifier = Modifier.padding(4.dp))
-                                            Row {
-                                                placetag("걷기 좋은")
-                                                placetag("공원")
-                                                placetag("전통")
+                                                Spacer(modifier = Modifier.size(8.dp))
+                                                Icon(
+                                                    imageVector = Icons.Default.Menu,
+                                                    contentDescription = null,
+                                                    modifier = Modifier.detectReorder(state)
+                                                )
                                             }
                                         }
-                                        Icon(
-                                            imageVector = Icons.Default.Menu,
-                                            contentDescription = null,
-                                            modifier = Modifier.detectReorder(state)
-                                        )
+                                    }
+                                    if (expanded) {
+                                        Memoform()
                                     }
                                 }
                             }
@@ -756,7 +791,7 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {},navController: NavControlle
         color = Color.White,
         modifier = Modifier
             .fillMaxWidth()
-            .height(105.dp)
+            .height(135.dp)
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -819,13 +854,25 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {},navController: NavControlle
                     fontFamily = spoqasans,
                     fontWeight = FontWeight.Normal
                 )
-                Text( //버튼으로 만들어서 누르면 상세 정보 볼 수 있게 할까 아니면 이렇게 걍 예상 총 금액만 보여줄까
-                    text = "예상 비용 : 54,000원",
-                    textAlign = TextAlign.Center,
-                    color = Color.Black,
-                    fontFamily = spoqasans,
-                    fontWeight = FontWeight.Normal
-                )
+                Button(
+                    onClick = { /*TODO*/ },
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.White
+                    ),
+                    elevation = ButtonDefaults.elevation(
+                        defaultElevation = 1.dp,
+                        pressedElevation = 0.dp
+                    )
+                ) {
+                    Text( //버튼으로 만들어서 누르면 상세 정보 볼 수 있게 할까 아니면 이렇게 걍 예상 총 금액만 보여줄까
+                        text = "예상 비용 : 54,000원",
+                        textAlign = TextAlign.Center,
+                        color = Color.Black,
+                        fontFamily = spoqasans,
+                        fontWeight = FontWeight.Normal
+                    )
+                }
             }
             Spacer(modifier = Modifier.padding(4.dp))
         }
@@ -960,6 +1007,36 @@ fun reviewform(name : String, score : Int, text: String) {
     }
 }
 
+@Composable
+fun Memoform() {
+    Box (
+        modifier = Modifier
+    ) {
+        var content by remember { mutableStateOf("") }
+        TextField(
+            modifier = Modifier.fillMaxWidth(),
+            value = content,
+            onValueChange = {content = it},
+            placeholder = {
+                Text(
+                    modifier = Modifier
+                        .alpha(ContentAlpha.medium),
+                    text = "메모를 추가해주세요",
+                    color = Color.Gray
+                )
+            },
+            colors = TextFieldDefaults.textFieldColors(
+                backgroundColor = Color.White,
+                cursorColor = Color.Black,
+                focusedIndicatorColor = White,
+                unfocusedIndicatorColor = White
+            ),
+            shape = RoundedCornerShape(20.dp),
+            maxLines = 10
+        )
+    }
+}
+
 fun fitnessCalc(userOrientation: HashMap<String, Any>,num :Int) : Double{
     var fitness:Double = 0.0
     for((key, value) in userOrientation){
@@ -1010,10 +1087,3 @@ fun reorderBest(courseList: SnapshotStateList<String>)
         courseList.add(i+1,courseList.removeAt(bestIndex))
     }
 }
-
-
-
-
-
-
-
