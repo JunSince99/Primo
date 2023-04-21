@@ -78,7 +78,6 @@ fun HomeScreen(
     viewModel: PostViewModel = viewModel(),
     listState: LazyListState = LazyListState()
 ){
-
     val user = Firebase.auth.currentUser
     if(user == null) {
         navController.navigate(PrimoScreen.Login.name)
@@ -86,6 +85,7 @@ fun HomeScreen(
     else {
             LaunchedEffect(true) {
                 val db = Firebase.firestore
+
                 val docRef = db.collection("users").document(user!!.uid)
                 docRef.get()// 유저 정보 불러오기
                     .addOnSuccessListener { document ->

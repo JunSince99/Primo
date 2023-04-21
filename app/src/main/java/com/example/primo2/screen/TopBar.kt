@@ -10,6 +10,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -32,6 +33,8 @@ import com.example.primo2.R
 import com.example.primo2.ui.theme.LightPink
 import com.example.primo2.ui.theme.LightRed
 import com.example.primo2.ui.theme.Typography
+import com.google.firebase.firestore.ktx.firestore
+import com.google.firebase.ktx.Firebase
 import java.time.YearMonth
 
 fun Dateform(year : YearMonth) : String {
@@ -104,6 +107,8 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                                   contentDescription = "데이트 추가",
                               )
                           }
+
+
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.White,

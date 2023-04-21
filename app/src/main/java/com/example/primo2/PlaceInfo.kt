@@ -16,15 +16,39 @@ data class PlaceInfo(
     val imageResource: String = "",
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
-    val placeHashMap: HashMap<String,Any>? = null
+    val placeHashMap: HashMap<String,Any>? = null,
+    val address: String = ""
 )
 val placeListHashMap: HashMap<String, PlaceInfo> = HashMap()
 val placeList: ArrayList<PlaceInfo> = ArrayList()
 fun getPlaceInfo(){
+    placeList.clear()
     val db = Firebase.firestore
     val user = Firebase.auth.currentUser
     if(user != null) {
-        db.collection("places")
+        db.collection("places_Incheon")
+            .get()
+            .addOnSuccessListener { documents ->
+                for(document in documents)
+                {
+                    val imageResource = document.data["imageResource"] as String
+                    val address = document.data["address"] as String
+                    val placeID = document.data["id"] as String
+                    val placeName = document.data["placeName"] as String
+                    val placeHashMap = document.data["placeHashMap"]as HashMap<String, Any>
+                    val latitude = document.data["latitude"] as Double
+                    val longitude = document.data["longitude"] as Double
+                    val information = document.data["information"] as String
+                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap,address))
+                }
+                for(i in 0 until placeList.size) {
+                    placeListHashMap[placeList[i].placeID] = placeList[i]
+                }
+            }
+            .addOnFailureListener { exception ->
+                Log.e("오류","플레이스 오류 발생")
+            }
+        db.collection("places_Seoul1")
             .get()
             .addOnSuccessListener { documents ->
                 for(document in documents)
@@ -42,7 +66,28 @@ fun getPlaceInfo(){
                     placeListHashMap[placeList[i].placeID] = placeList[i]
                 }
             }
+            .addOnFailureListener { exception ->
+                Log.e("오류","플레이스 오류 발생")
+            }
 
+        db.collection("places_Seoul2")
+            .get()
+            .addOnSuccessListener { documents ->
+                for(document in documents)
+                {
+                    val imageResource = document.data["imageResource"] as String
+                    val placeID = document.data["id"] as String
+                    val placeName = document.data["placeName"] as String
+                    val placeHashMap = document.data["placeHashMap"]as HashMap<String, Any>
+                    val latitude = document.data["latitude"] as Double
+                    val longitude = document.data["longitude"] as Double
+                    val information = document.data["information"] as String
+                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap))
+                }
+                for(i in 0 until placeList.size) {
+                    placeListHashMap[placeList[i].placeID] = placeList[i]
+                }
+            }
             .addOnFailureListener { exception ->
                 Log.e("오류","플레이스 오류 발생")
             }

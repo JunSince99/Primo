@@ -77,6 +77,7 @@ enum class PrimoScreen() {
     SelectWritingCourse,
     WritingScreen,
     PostScreen,
+    PlaceDetailScreen
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -310,7 +311,7 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
 
             //검색
             composable(route = PrimoScreen.Search.name) {
-                Search(requestManager)
+                Search(requestManager,navController)
             }
 
 
@@ -345,6 +346,22 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                     item,
                     requestManager,
                     viewModel
+                )
+            }
+
+            val placeDetailScreen = PrimoScreen.PlaceDetailScreen.name
+            composable(route = "$placeDetailScreen/{item}",
+                arguments = listOf(
+                    navArgument("item"){
+                        type = NavType.IntType
+                    }
+                )
+            ) { entry->
+                val item = entry.arguments?.getInt("item")!!
+                Placedetail(
+                    navController,
+                    item,
+                    requestManager
                 )
             }
         }
@@ -415,6 +432,9 @@ fun checkBottomVisible (navController:NavController): Boolean{
             "PostScreen" ->{
                 bottomBarState = false
             }
+            "PlaceDetailScreen" ->{
+                bottomBarState = false
+            }
 
         }
     }
@@ -483,6 +503,9 @@ fun checkTopVisible (navController:NavController): Boolean{
                 TopBarState = false
             }
             "PostScreen" ->{
+                TopBarState = false
+            }
+            "PlaceDetailScreen" ->{
                 TopBarState = false
             }
         }

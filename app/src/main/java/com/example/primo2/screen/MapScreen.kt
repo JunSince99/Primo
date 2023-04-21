@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Space
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.animation.core.FiniteAnimationSpec
 import androidx.compose.animation.core.Spring
@@ -84,7 +85,7 @@ import kotlin.collections.HashMap
 import kotlin.math.*
 
 val colorset = arrayOf(LightRed, LightPurple, LightSkyBlue, LightGreen, LightYellow)
-
+var entireDatePlanName:String? = ""
 @Composable
 fun informationPlace(modifier: Modifier = Modifier)
 {
@@ -103,20 +104,37 @@ fun MapScreen(
     onSearchButtonClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ){
+
     val configuration = LocalConfiguration.current
 
     val screenHeight = configuration.screenHeightDp.dp
 
     val courseList = remember { mutableStateListOf<String>() }
+    val commentList = remember { mutableStateListOf<String>() }
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
-    courseList.clear()
-    database.child(datePlanName!!).child("course").get().addOnSuccessListener {
-        for(i in 0 until it.childrenCount)
-        {
-            courseList.add(it.child(i.toString()).value.toString())
+    entireDatePlanName = datePlanName
+    /*
+    LaunchedEffect(true)
+    {
+        courseList.clear()
+        commentList.clear()
+        database.child(datePlanName!!).child("course").get().addOnSuccessListener {
+            for(i in 0 until it.childrenCount)
+            {
+                courseList.add(it.child(i.toString()).value.toString())
+                commentList.add("")
+            }
+        }.addOnFailureListener{
         }
-    }.addOnFailureListener{
-    }
+
+        database.child(datePlanName!!).child("comments").get().addOnSuccessListener {
+            for(i in 0 until it.childrenCount)
+            {
+                commentList[i.toInt()] = it.child(i.toString()).value.toString()
+            }
+        }.addOnFailureListener{
+        }
+    }*/
 
     var mapProperties by remember {
         mutableStateOf(
@@ -153,21 +171,37 @@ fun MapScreen(
                 courseList.add(
                     dataSnapshot.child(i.toString()).value.toString()
                 )
+                commentList.add("")
+            }
+
+
+        }
+        override fun onCancelled(databaseError: DatabaseError) {
+            //실패
+        }
+    }
+
+
+    val commentListener = object : ValueEventListener {
+        override fun onDataChange(dataSnapshot: DataSnapshot) {
+            for(i in 0 until courseList.size) {
+                commentList[i] = dataSnapshot.child(courseList[i]).value.toString()
             }
         }
         override fun onCancelled(databaseError: DatabaseError) {
             //실패
         }
     }
-    database!!.child(datePlanName!!).child("course").addValueEventListener(courseListener)
 
+    database.child(datePlanName!!).child("course").addValueEventListener(courseListener)
+    database.child(datePlanName).child("comments").addValueEventListener(commentListener)
     BottomSheetScaffold(
         topBar = {
-              maptopbar(navController = navController)
+              maptopbar(onSearchButtonClicked = onSearchButtonClicked,navController = navController)
         },
         scaffoldState = scaffoldState,
         sheetContent = {
-            BottomSheetContent(scaffoldState,bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,datePlanName,leaderUID,courseList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it}, cameraPositionState)
+            BottomSheetContent(scaffoldState,bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,datePlanName,leaderUID,courseList,commentList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it}, cameraPositionState)
         },
         sheetPeekHeight = bottomNaviSize,
         drawerElevation = 0.dp,
@@ -314,7 +348,12 @@ fun MapScreen(
     }
 
 @Composable
-fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateList<String>,onShowMapInfo: (Boolean) -> Unit,leaderUID: String?,datePlanName: String?) { // 위로 스와이프 하기전에 보이는거
+fun BottomSheetBeforeSlide(ID:String,
+                           title: String,
+                           courseList: SnapshotStateList<String>,
+                           commentList: SnapshotStateList<String>,
+                           onShowMapInfo: (Boolean) -> Unit,leaderUID: String?,
+                           datePlanName: String?) { // 위로 스와이프 하기전에 보이는거
     val context = LocalContext.current
     Row(
         modifier = Modifier
@@ -359,6 +398,7 @@ fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateLis
                             onShowMapInfo(false)
                             if (courseList.indexOf(ID) == -1) {
                                 courseList.add(ID)
+                                commentList.add("")
                                 val database = Firebase.database.reference
                                     .child("DatePlan")
                                     .child(leaderUID.toString())
@@ -366,6 +406,11 @@ fun BottomSheetBeforeSlide(ID:String, title: String,courseList: SnapshotStateLis
                                     .child(datePlanName!!)
                                     .child("course")
                                     .setValue(courseList)
+
+                                database
+                                    .child(datePlanName!!)
+                                    .child("comments")
+                                    .setValue(commentList)
                             } else {
                                 Toast
                                     .makeText(context, "이미 추가된 장소입니다.", Toast.LENGTH_SHORT)
@@ -390,6 +435,7 @@ fun BottomSheetContent(
     datePlanName: String?,
     leaderUID: String?,
     courseList: SnapshotStateList<String>,
+    commentList: SnapshotStateList<String>,
     onBottomNaviSizeChange: (Dp) -> Unit,
     onShowMapInfo: (Boolean) -> Unit,
     cameraPositionState: CameraPositionState
@@ -398,6 +444,7 @@ fun BottomSheetContent(
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         courseList.add(to.index,courseList.removeAt(from.index))
+        commentList.add(to.index,commentList.removeAt(from.index))
         isVisible = false
         database.child(datePlanName!!).child("course").setValue(courseList)
     })
@@ -414,6 +461,7 @@ fun BottomSheetContent(
                         ID,
                         title,
                         courseList,
+                        commentList,
                         onShowMapInfo,
                         leaderUID,
                         datePlanName
@@ -601,7 +649,7 @@ fun BottomSheetContent(
                             shape = RoundedCornerShape(20),
                         )
                         .clip(RoundedCornerShape(20))
-                        .clickable { reorderBest(courseList) }
+                        .clickable { reorderBest(courseList, commentList) }
                 ) {
                     Text(text = "거리순 정렬", color = Color.Black, modifier = Modifier.padding(8.dp))
                 }
@@ -706,13 +754,25 @@ fun BottomSheetContent(
                                                 IconButton(
                                                     onClick = { expanded = !expanded }
                                                 ) {
-                                                    Icon(
-                                                        painter = painterResource(id = R.drawable.ic_outline_description_24),
-                                                        contentDescription = null,
-                                                        modifier = Modifier
-                                                            .size(20.dp),
-                                                        tint = Color.Black // 메모 없으면 Color.Gray
-                                                    )
+                                                    if(commentList[courseList.indexOf(item)] == "null")
+                                                    {
+                                                        Icon(
+                                                            painter = painterResource(id = R.drawable.ic_outline_description_24),
+                                                            contentDescription = null,
+                                                            modifier = Modifier
+                                                                .size(20.dp),
+                                                            tint = Color.Gray
+                                                        )
+                                                    }
+                                                    else{
+                                                        Icon(
+                                                            painter = painterResource(id = R.drawable.ic_outline_description_24),
+                                                            contentDescription = null,
+                                                            modifier = Modifier
+                                                                .size(20.dp),
+                                                            tint = Color.Black
+                                                        )
+                                                    }
                                                 }
                                                 Spacer(modifier = Modifier.size(8.dp))
                                                 Icon(
@@ -724,7 +784,7 @@ fun BottomSheetContent(
                                         }
                                     }
                                     if (expanded) {
-                                        Memoform()
+                                        Memoform(item,courseList, commentList,datePlanName)
                                     }
                                 }
                             }
@@ -900,123 +960,29 @@ fun placetag(tagname : String){
     Spacer(modifier = Modifier.padding(4.dp))
 }
 
-@Composable
-fun buttonwithicon(ic : ImageVector, description : String){
-    Column(
-        modifier = Modifier
-            .clickable { }
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            imageVector = ic,
-            contentDescription = null,
-            modifier = Modifier
-                .size(30.dp),
-            tint = Color.Black
-        )
-        Spacer(modifier = Modifier.padding(vertical = 1.dp))
-        Text(
-            text = description,
-            color = Color.DarkGray,
-            fontSize = 14.sp
-        )
-    }
-}
+
 
 @Composable
-fun buttonwithicon(ic : Painter, description: String){
-    Column(
-        modifier = Modifier
-            .clickable { }
-            .padding(horizontal = 8.dp, vertical = 4.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Icon(
-            painter = ic,
-            contentDescription = null,
-            modifier = Modifier
-                .size(30.dp),
-            tint = Color.Black
-        )
-        Spacer(modifier = Modifier.padding(vertical = 1.dp))
-        Text(
-            text = description,
-            color = Color.DarkGray,
-            fontSize = 14.sp
-        )
-    }
-}
-
-@Composable
-fun information(title: String, text : String) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = title,
-            color = Color.Black,
-            fontSize = 15.sp,
-            fontWeight = FontWeight.Bold,
-        )
-        Spacer(modifier = Modifier.padding(4.dp))
-        Text(
-            text = text,
-            color = Color.Gray,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Normal,
-        )
-    }
-}
-
-@Composable
-fun reviewform(name : String, score : Int, text: String) {
-    Column(
-        modifier = Modifier.padding(vertical = 8.dp)
-    ) {
-        Row {
-            Image(
-                painter = painterResource(id = R.drawable.dog),
-                contentDescription = "sample image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(43.dp)
-                    .clip(shape = CircleShape)
-            )
-            Spacer(modifier = Modifier.padding(4.dp))
-            Column {
-                Text(
-                    text = name
-                )
-                Row{
-                    Text(
-                        text = "리뷰 10개 "
-                    )
-                    Text(
-                        text = "별점평균 5.0 | "
-                    )
-                    Text(
-                        text = "2023.03.01"
-                    )
-                }
-            }
-        }
-        Text(
-            text = text
-        )
-    }
-}
-
-@Composable
-fun Memoform() {
+fun Memoform(courseName:String,courseList:SnapshotStateList<String>,commentList:SnapshotStateList<String>,datePlanName: String?) {
     Box (
         modifier = Modifier
     ) {
-        var content by remember { mutableStateOf("") }
+        val msg = if(commentList[courseList.indexOf(courseName)] == "null") "" else commentList[courseList.indexOf(courseName)]
+        var content by remember { mutableStateOf(msg) }
+
         TextField(
             modifier = Modifier.fillMaxWidth(),
             value = content,
-            onValueChange = {content = it},
+            onValueChange = {
+                val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
+                database
+                    .child(datePlanName!!)
+                    .child("comments")
+                    .child(courseName)
+                    .setValue(it)
+                commentList[courseList.indexOf(courseName)] = it
+                content = it
+                            },
             placeholder = {
                 Text(
                     modifier = Modifier
@@ -1068,7 +1034,7 @@ fun getDistance(lat1: Double, long1: Double,lat2:Double, long2:Double) : Int{
     return round(R * c).toInt()
 }
 
-fun reorderBest(courseList: SnapshotStateList<String>)
+fun reorderBest(courseList: SnapshotStateList<String>,commentList: SnapshotStateList<String>)
 {
     for(i in 0 until courseList.size-1)
     {
@@ -1085,5 +1051,7 @@ fun reorderBest(courseList: SnapshotStateList<String>)
             }
         }
         courseList.add(i+1,courseList.removeAt(bestIndex))
+        commentList.add(i+1,commentList.removeAt(bestIndex))
+
     }
 }

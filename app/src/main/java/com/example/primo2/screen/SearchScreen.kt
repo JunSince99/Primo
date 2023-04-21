@@ -1,5 +1,7 @@
 package com.example.primo2.screen
 
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -38,7 +40,7 @@ import com.example.primo2.ui.theme.moreLightGray
 
 @Composable
 fun SearchScreen(
-    naviController: NavController,
+    navController: NavController,
     modifier: Modifier = Modifier
 ) {
     Scaffold()
@@ -50,9 +52,9 @@ fun SearchScreen(
 }
 
 @Composable
-fun Search(requestManager: RequestManager) {
+fun Search(requestManager: RequestManager,navController: NavController) {
     var searchKeyword by remember { mutableStateOf("") }
-    val searchPlaceList:ArrayList<Int> = ArrayList()
+    val searchPlaceList = remember { mutableStateListOf<Int>() }
     LaunchedEffect(searchKeyword)
     {
         if (searchKeyword.isNotBlank()) {
@@ -93,7 +95,7 @@ fun Search(requestManager: RequestManager) {
                     IconButton(
                         modifier = Modifier
                             .alpha(ContentAlpha.medium),
-                        onClick = {/*뒤로가기 만들어줘!*/ }
+                        onClick = { navController.navigateUp() }
                     ) {
                         Icon(
                             imageVector = Icons.Default.ArrowBack,
@@ -132,10 +134,10 @@ fun Search(requestManager: RequestManager) {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(190.dp)
+                    .fillMaxHeight()
             ) {
                 items(searchPlaceList) { item ->
-                    Place(item,requestManager)
+                    Place(item,requestManager, navController)
                 }
             }
         }
@@ -144,11 +146,13 @@ fun Search(requestManager: RequestManager) {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun Place(item:Int,requestManager: RequestManager){
+fun Place(item:Int,requestManager: RequestManager,navController: NavController){
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { }
+            .clickable {
+                navController.navigate("${PrimoScreen.PlaceDetailScreen.name}/$item")
+            }
             .padding(horizontal = 16.dp, vertical = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
