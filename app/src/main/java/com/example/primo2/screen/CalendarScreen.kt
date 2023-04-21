@@ -72,7 +72,6 @@ import kotlin.math.roundToInt
 @Composable
 fun Day(day: CalendarDay,datePlanList: SnapshotStateList<DatePlanInfo>, onVisibleChange:(Boolean) -> Unit ) { //일
     var planable = true
-
     Box(
         modifier = Modifier
             .aspectRatio(1f)
@@ -82,9 +81,12 @@ fun Day(day: CalendarDay,datePlanList: SnapshotStateList<DatePlanInfo>, onVisibl
                 enabled = day.position == DayPosition.MonthDate,
                 onClick = {
                     if (planable) {
-                        date = "${day.date.year}-%02d-%02d".format(day.date.month.value,day.date.dayOfMonth)
+                        date = "${day.date.year}-%02d-%02d".format(
+                            day.date.month.value,
+                            day.date.dayOfMonth
+                        )
 
-                        Log.e("",""+date)
+                        Log.e("", "" + date)
                         onVisibleChange(true)
                     }
                 }
@@ -344,12 +346,13 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit, datePlanList: SnapshotState
         }
     }
     val calendarIndex = state.layoutInfo.visibleMonthsInfo.lastIndex
+
     if (calendarIndex != -1) {
         LaunchedEffect(state.layoutInfo.visibleMonthsInfo[calendarIndex]) {
             if (calendarIndex == 1) {
                 if (state.layoutInfo.visibleMonthsInfo[0].month.yearMonth == startMonth) {
                     onMonthChange(state.layoutInfo.visibleMonthsInfo[0].month.yearMonth)
-                } else if (state.layoutInfo.visibleMonthsInfo[1].month.yearMonth == endMonth){
+                } else if (state.layoutInfo.visibleMonthsInfo[1].month.yearMonth == endMonth) {
                     onMonthChange(state.layoutInfo.visibleMonthsInfo[1].month.yearMonth)
                 }
             } else {

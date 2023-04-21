@@ -743,9 +743,9 @@ fun BottomSheetContent(
                                                 )
                                                 Spacer(modifier = Modifier.padding(4.dp))
                                                 Row {
-                                                    placetag("걷기 좋은")
-                                                    placetag("공원")
-                                                    placetag("전통")
+                                                    for(i in 0 until placeListHashMap[item]!!.toptag.size) {
+                                                        placetag(placeListHashMap[item]!!.toptag[i], 10.sp)
+                                                    }
                                                 }
                                             }
                                             Row(

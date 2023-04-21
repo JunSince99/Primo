@@ -138,9 +138,9 @@ fun Placedetail(navController: NavController, item: Int,requestManager: RequestM
             )
             Spacer(modifier = Modifier.padding(2.dp))
             Row {
-                placetag("걷기 좋은")
-                placetag("공원")
-                placetag("전통")
+                for(i in 0 until placeList[item].toptag.size) {
+                    placetag(placeList[item].toptag[i], 10.sp)
+                }
             }
             Spacer(modifier = Modifier.padding(8.dp))
             Row {

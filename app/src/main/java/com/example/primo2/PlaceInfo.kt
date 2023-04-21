@@ -17,7 +17,8 @@ data class PlaceInfo(
     val latitude: Double = 0.0,
     val longitude: Double = 0.0,
     val placeHashMap: HashMap<String,Any>? = null,
-    val address: String = ""
+    val address: String = "",
+    val toptag: ArrayList<String> = arrayListOf()
 )
 val placeListHashMap: HashMap<String, PlaceInfo> = HashMap()
 val placeList: ArrayList<PlaceInfo> = ArrayList()
@@ -39,7 +40,16 @@ fun getPlaceInfo(){
                     val latitude = document.data["latitude"] as Double
                     val longitude = document.data["longitude"] as Double
                     val information = document.data["information"] as String
-                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap,address))
+
+                    val sortedByValue = placeHashMap.toList().sortedByDescending { it.second.toString().toInt() }
+                    val toptag:ArrayList<String> = arrayListOf()
+                    if(sortedByValue.size >= 5) {
+                        for (i in 0 until 5){
+                            toptag.add(sortedByValue[i].first)
+                        }
+                    }
+
+                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap,address,toptag))
                 }
                 for(i in 0 until placeList.size) {
                     placeListHashMap[placeList[i].placeID] = placeList[i]
@@ -54,13 +64,22 @@ fun getPlaceInfo(){
                 for(document in documents)
                 {
                     val imageResource = document.data["imageResource"] as String
+                    val address = document.data["address"] as String
                     val placeID = document.data["id"] as String
                     val placeName = document.data["placeName"] as String
                     val placeHashMap = document.data["placeHashMap"]as HashMap<String, Any>
                     val latitude = document.data["latitude"] as Double
                     val longitude = document.data["longitude"] as Double
                     val information = document.data["information"] as String
-                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap))
+
+                    val sortedByValue = placeHashMap.toList().sortedByDescending { it.second.toString().toInt() }
+                    val toptag:ArrayList<String> = arrayListOf()
+                    if(sortedByValue.size >= 5) {
+                        for (i in 0 until 5){
+                            toptag.add(sortedByValue[i].first)
+                        }
+                    }
+                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap, address,toptag))
                 }
                 for(i in 0 until placeList.size) {
                     placeListHashMap[placeList[i].placeID] = placeList[i]
@@ -76,13 +95,22 @@ fun getPlaceInfo(){
                 for(document in documents)
                 {
                     val imageResource = document.data["imageResource"] as String
+                    val address = document.data["address"] as String
                     val placeID = document.data["id"] as String
                     val placeName = document.data["placeName"] as String
                     val placeHashMap = document.data["placeHashMap"]as HashMap<String, Any>
                     val latitude = document.data["latitude"] as Double
                     val longitude = document.data["longitude"] as Double
                     val information = document.data["information"] as String
-                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap))
+
+                    val sortedByValue = placeHashMap.toList().sortedByDescending { it.second.toString().toInt() }
+                    val toptag:ArrayList<String> = arrayListOf()
+                    if(sortedByValue.size >= 5) {
+                        for (i in 0 until 5){
+                            toptag.add(sortedByValue[i].first)
+                        }
+                    }
+                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap,address,toptag))
                 }
                 for(i in 0 until placeList.size) {
                     placeListHashMap[placeList[i].placeID] = placeList[i]

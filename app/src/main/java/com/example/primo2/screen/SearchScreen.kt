@@ -57,6 +57,10 @@ fun Search(requestManager: RequestManager,navController: NavController) {
     val searchPlaceList = remember { mutableStateListOf<Int>() }
     LaunchedEffect(searchKeyword)
     {
+        if(searchKeyword.isBlank())
+        {
+            searchPlaceList.clear()
+        }
         if (searchKeyword.isNotBlank()) {
             searchPlaceList.clear()
             for (i in 0 until placeList.size) {
@@ -192,9 +196,9 @@ fun Place(item:Int,requestManager: RequestManager,navController: NavController){
             )
             Spacer(modifier = Modifier.padding(2.dp))
             Row {
-                placetag("걷기 좋은", 10.sp)
-                placetag("공원", 10.sp)
-                placetag("전통", 10.sp)
+                for(i in 0 until placeList[item].toptag.size) {
+                    placetag(placeList[item].toptag[i], 10.sp)
+                }
             }
         }
     }
