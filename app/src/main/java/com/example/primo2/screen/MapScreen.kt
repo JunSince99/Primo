@@ -118,6 +118,7 @@ fun MapScreen(
 
     val courseList = remember { mutableStateListOf<String>() }
     val commentList = remember { mutableStateListOf<String>() }
+    val amountList = remember { mutableStateListOf<Int>() }
     val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
     entireDatePlanName = datePlanName
     /*
@@ -178,7 +179,14 @@ fun MapScreen(
                 courseList.add(
                     dataSnapshot.child(i.toString()).value.toString()
                 )
-                commentList.add("")
+            }
+            if(commentList.size != dataSnapshot.childrenCount.toInt()){
+                commentList.clear()
+                amountList.clear()
+                for(i in 0 until dataSnapshot.childrenCount.toInt()) {
+                    commentList.add("")
+                    amountList.add(0)
+                }
             }
 
 
@@ -191,8 +199,27 @@ fun MapScreen(
 
     val commentListener = object : ValueEventListener {
         override fun onDataChange(dataSnapshot: DataSnapshot) {
+            for(i in 0 until amountList.size){
+                amountList[i] = 0
+            }
             for(i in 0 until courseList.size) {
                 commentList[i] = dataSnapshot.child(courseList[i]).value.toString()
+                val cmt = commentList[i]
+                if(commentList[i].isNotEmpty()) {
+                    for (k in 0 until cmt.length) {
+                        if (cmt[k].toString() == "원") {
+                            var j = k - 1
+                            if (j >= 0) {
+                                while (cmt[j].code in 48..57) {
+                                    j--
+                                }
+                            }
+                            if (j + 1 != k) {
+                                amountList[i] += cmt.substring(j + 1, k).toInt()
+                            }
+                        }
+                    }
+                }
             }
         }
         override fun onCancelled(databaseError: DatabaseError) {
@@ -209,7 +236,7 @@ fun MapScreen(
     database.child(datePlanName).child("comments").addValueEventListener(commentListener)
     BottomSheetScaffold(
         topBar = {
-              maptopbar(onSearchButtonClicked = onSearchButtonClicked,navController = navController, startDate)
+              maptopbar(onSearchButtonClicked = onSearchButtonClicked,navController = navController, startDate,amountList)
         },
         scaffoldState = scaffoldState,
         sheetContent = {
@@ -755,7 +782,7 @@ fun BottomSheetContent(
                                                 )
                                                 Spacer(modifier = Modifier.padding(4.dp))
                                                 Row {
-                                                    for(i in 0 until placeListHashMap[item]!!.toptag.size - 1 ) {
+                                                    for(i in 0 until placeListHashMap[item]!!.toptag.size - 2 ) {
                                                         placetag(placeListHashMap[item]!!.toptag[i], 10.sp)
                                                     }
                                                 }
@@ -857,7 +884,7 @@ fun BottomSheetContent(
 }
 
 @Composable
-fun maptopbar(onSearchButtonClicked: () -> Unit = {},navController: NavController,startDate:String) {
+fun maptopbar(onSearchButtonClicked: () -> Unit = {},navController: NavController,startDate:String,amountList: SnapshotStateList<Int>) {
 
     Surface(
         color = Color.White,
@@ -1049,8 +1076,13 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {},navController: NavControlle
                         pressedElevation = 0.dp
                     )
                 ) {
+                    var totalAmount = 0
+                    for(i in 0 until amountList.size)
+                    {
+                        totalAmount += amountList[i]
+                    }
                     Text( //버튼으로 만들어서 누르면 상세 정보 볼 수 있게 할까 아니면 이렇게 걍 예상 총 금액만 보여줄까
-                        text = "예상 비용 : 54,000원",
+                        text = "예상 비용 : " + totalAmount.toString() + "원",
                         textAlign = TextAlign.Center,
                         color = Color.Black,
                         fontFamily = spoqasans,
@@ -1098,12 +1130,6 @@ fun Memoform(courseName:String,courseList:SnapshotStateList<String>,commentList:
             modifier = Modifier.fillMaxWidth(),
             value = content,
             onValueChange = {
-                val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
-                database
-                    .child(datePlanName!!)
-                    .child("comments")
-                    .child(courseName)
-                    .setValue(it)
                 commentList[courseList.indexOf(courseName)] = it
                 content = it
                             },
@@ -1124,6 +1150,17 @@ fun Memoform(courseName:String,courseList:SnapshotStateList<String>,commentList:
             shape = RoundedCornerShape(20.dp),
             maxLines = 10
         )
+    }
+    /* 임시 버튼 */
+    Button(onClick = {
+        val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
+        database
+            .child(datePlanName!!)
+            .child("comments")
+            .child(courseName)
+            .setValue(commentList[courseList.indexOf(courseName)])
+    }) {
+        Text(text = "저장")
     }
 }
 

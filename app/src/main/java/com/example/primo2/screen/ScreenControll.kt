@@ -593,30 +593,32 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
             call.enqueue(object : retrofit2.Callback<WEATHER> {
                 override fun onResponse(call: Call<WEATHER>, response: Response<WEATHER>) {
                     if (response.isSuccessful) {
-                        val info = response.body()!!.response.body.items.item
-                        for (i in 0 until info.size) {
-                            if (info[i].category == "POP") {
-                                weatherInfo.dateList.add(info[i].fcstDate)
-                                weatherInfo.timeList.add(info[i].fcstTime)
-                                weatherInfo.rainPercent.add(info[i].fcstValue.toInt())
-                            }
-                            if(info[i].category == "PTY"){
-                                weatherInfo.typeList.add(info[i].fcstValue.toInt())
-                            }
-                            if(info[i].category == "REH"){
-                                weatherInfo.humidity.add(info[i].fcstValue.toInt())
-                            }
-                            if(info[i].category == "SKY"){
-                                weatherInfo.skyList.add(info[i].fcstValue.toInt())
-                            }
-                            if(info[i].category == "TMX"){
-                                weatherInfo.maxTmp.add(info[i].fcstValue.toFloat())
-                            }
-                            if(info[i].category == "TMN"){
-                                weatherInfo.minTmp.add(info[i].fcstValue.toFloat())
-                            }
-                            if(info[i].category == "WSD"){
-                                weatherInfo.windSpeed.add(info[i].fcstValue.toFloat())
+                        if(response.body()?.response?.body?.items?.item != null) {
+                            val info = response.body()!!.response.body.items.item
+                            for (i in 0 until info.size) {
+                                if (info[i].category == "POP") {
+                                    weatherInfo.dateList.add(info[i].fcstDate)
+                                    weatherInfo.timeList.add(info[i].fcstTime)
+                                    weatherInfo.rainPercent.add(info[i].fcstValue.toInt())
+                                }
+                                if (info[i].category == "PTY") {
+                                    weatherInfo.typeList.add(info[i].fcstValue.toInt())
+                                }
+                                if (info[i].category == "REH") {
+                                    weatherInfo.humidity.add(info[i].fcstValue.toInt())
+                                }
+                                if (info[i].category == "SKY") {
+                                    weatherInfo.skyList.add(info[i].fcstValue.toInt())
+                                }
+                                if (info[i].category == "TMX") {
+                                    weatherInfo.maxTmp.add(info[i].fcstValue.toFloat())
+                                }
+                                if (info[i].category == "TMN") {
+                                    weatherInfo.minTmp.add(info[i].fcstValue.toFloat())
+                                }
+                                if (info[i].category == "WSD") {
+                                    weatherInfo.windSpeed.add(info[i].fcstValue.toFloat())
+                                }
                             }
                         }
                     }

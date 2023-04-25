@@ -22,12 +22,16 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Query
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 val num_of_rows = 1000
 val page_no = 1
 val data_type = "JSON"
 val base_time = 1100
-val base_data = 20230423
+val formatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+val current = LocalDate.now().minusDays(1)
+val base_data = current.format(formatter).toString().toInt()
 val nx = "55"
 val ny = "127"
 
