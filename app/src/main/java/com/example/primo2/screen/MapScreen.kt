@@ -59,6 +59,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.*
 import com.example.primo2.R
+import com.example.primo2.activity.*
 import com.example.primo2.ui.theme.*
 import com.google.accompanist.permissions.*
 import com.google.firebase.auth.ktx.auth
@@ -67,6 +68,7 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import com.kizitonwose.calendar.core.daysOfWeek
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraPosition
 import com.naver.maps.map.CameraUpdate
@@ -79,6 +81,12 @@ import com.naver.maps.map.util.MarkerIcons
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.*
+import retrofit2.Call
+import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.time.DayOfWeek
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
@@ -104,7 +112,6 @@ fun MapScreen(
     onSearchButtonClicked: () -> Unit = {},
     modifier: Modifier = Modifier
 ){
-
     val configuration = LocalConfiguration.current
 
     val screenHeight = configuration.screenHeightDp.dp
@@ -192,12 +199,17 @@ fun MapScreen(
             //실패
         }
     }
-
+    var startDate by remember { mutableStateOf("") }
+    LaunchedEffect(true){
+        database.child(datePlanName!!).child("startDate").get().addOnSuccessListener {
+            startDate = it.value.toString()
+        }
+    }
     database.child(datePlanName!!).child("course").addValueEventListener(courseListener)
     database.child(datePlanName).child("comments").addValueEventListener(commentListener)
     BottomSheetScaffold(
         topBar = {
-              maptopbar(onSearchButtonClicked = onSearchButtonClicked,navController = navController)
+              maptopbar(onSearchButtonClicked = onSearchButtonClicked,navController = navController, startDate)
         },
         scaffoldState = scaffoldState,
         sheetContent = {
@@ -743,7 +755,7 @@ fun BottomSheetContent(
                                                 )
                                                 Spacer(modifier = Modifier.padding(4.dp))
                                                 Row {
-                                                    for(i in 0 until placeListHashMap[item]!!.toptag.size) {
+                                                    for(i in 0 until placeListHashMap[item]!!.toptag.size - 1 ) {
                                                         placetag(placeListHashMap[item]!!.toptag[i], 10.sp)
                                                     }
                                                 }
@@ -845,7 +857,7 @@ fun BottomSheetContent(
 }
 
 @Composable
-fun maptopbar(onSearchButtonClicked: () -> Unit = {},navController: NavController) {
+fun maptopbar(onSearchButtonClicked: () -> Unit = {},navController: NavController,startDate:String) {
 
     Surface(
         color = Color.White,
@@ -907,13 +919,125 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {},navController: NavControlle
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
             ) {
-                Text(
-                    text = "3월 23일 목",
-                    textAlign = TextAlign.Center,
-                    color = Color.Black,
-                    fontFamily = spoqasans,
-                    fontWeight = FontWeight.Normal
-                )
+                for(i in 0 until weatherInfo.dateList.size)
+                {
+
+                }
+                if(startDate.isNotBlank()) {
+                    val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+                    val printformat = DateTimeFormatter.ofPattern("MM월 dd일")
+
+                    val weatherformatter = DateTimeFormatter.ofPattern("yyyyMMdd")
+
+                    val Datedate = LocalDate.parse(startDate, formatter)
+                    val dayOfWeekName = doDayOfWeek(Datedate)
+                    var number = -1
+                    for(i in 0 until weatherInfo.dateList.size)
+                    {
+                        if(LocalDate.parse(weatherInfo.dateList[i],weatherformatter).isEqual(Datedate) && weatherInfo.timeList[i] == "1200")
+                        {
+                            number = i
+                            break
+                        }
+                    }
+                    if(number == -1) {
+                        Text(
+                            text = Datedate.format(printformat) + " " + dayOfWeekName,
+                            textAlign = TextAlign.Center,
+                            color = Color.Black,
+                            fontFamily = spoqasans,
+                            fontWeight = FontWeight.Normal
+                        )
+                    }
+                    else{
+                        Row()
+                        {
+                            Text(
+                                text = Datedate.format(printformat) + " " + dayOfWeekName,
+                                textAlign = TextAlign.Center,
+                                color = Color.Black,
+                                fontFamily = spoqasans,
+                                fontWeight = FontWeight.Normal
+                            )
+                            Spacer(modifier = Modifier.padding(horizontal = 5.dp))
+                            if(weatherInfo.typeList[number] == 0) // 비 x
+                            {
+                                if(weatherInfo.skyList[number] == 1) // 맑음
+                                {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.sunny),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                }
+                                else if(weatherInfo.skyList[number] == 3) // 구름많음
+                                {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.cloudy),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                }
+                                else if(weatherInfo.skyList[number] == 4) // 흐림
+                                {
+                                    Image(
+                                        painter = painterResource(id = R.drawable.cloudy),
+                                        contentDescription = null,
+                                        contentScale = ContentScale.Crop,
+                                        modifier = Modifier
+                                            .size(20.dp)
+                                    )
+                                }
+
+                            }
+
+                            else if(weatherInfo.typeList[number] == 1)//비
+                            {
+                                Image(
+                                    painter = painterResource(id = R.drawable.rainny),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                )
+                            }
+                            else if(weatherInfo.typeList[number] == 2)// 비/눈
+                            {
+                                Image(
+                                    painter = painterResource(id = R.drawable.rainny),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                )
+                            }
+                            else if(weatherInfo.typeList[number] == 3)//눈
+                            {
+                                Image(
+                                    painter = painterResource(id = R.drawable.snow),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                )
+                            }
+                            else if(weatherInfo.typeList[number] == 4)//소나기
+                            {
+                                Image(
+                                    painter = painterResource(id = R.drawable.rainny),
+                                    contentDescription = null,
+                                    contentScale = ContentScale.Crop,
+                                    modifier = Modifier
+                                        .size(20.dp)
+                                )
+                            }
+                        }
+                    }
+                }
                 Button(
                     onClick = { /*TODO*/ },
                     shape = RoundedCornerShape(20.dp),
@@ -1054,4 +1178,26 @@ fun reorderBest(courseList: SnapshotStateList<String>,commentList: SnapshotState
         commentList.add(i+1,commentList.removeAt(bestIndex))
 
     }
+}
+
+private fun doDayOfWeek(date:LocalDate): String? {
+    var strWeek: String? = null
+    val nWeek = date.dayOfWeek
+
+    if (nWeek == DayOfWeek.SUNDAY) {
+        strWeek = "일"
+    } else if (nWeek == DayOfWeek.MONDAY) {
+        strWeek = "월"
+    } else if (nWeek == DayOfWeek.TUESDAY) {
+        strWeek = "화"
+    } else if (nWeek == DayOfWeek.WEDNESDAY) {
+        strWeek = "수"
+    } else if (nWeek == DayOfWeek.THURSDAY) {
+        strWeek = "목"
+    } else if (nWeek == DayOfWeek.FRIDAY) {
+        strWeek = "금"
+    } else if (nWeek == DayOfWeek.SATURDAY) {
+        strWeek = "토"
+    }
+    return strWeek
 }

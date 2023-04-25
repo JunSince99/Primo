@@ -41,7 +41,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.bumptech.glide.RequestManager
 import com.example.primo2.*
-import com.example.primo2.activity.MainActivity
+import com.example.primo2.activity.*
 import com.google.android.material.behavior.HideBottomViewOnScrollBehavior.ScrollState
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -54,7 +54,13 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.launch
 import org.burnoutcrew.reorderable.rememberReorderableLazyListState
+import retrofit2.Call
+import retrofit2.Response
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
 import java.time.YearMonth
+import java.time.format.DateTimeFormatter
+import java.util.*
 
 
 enum class PrimoScreen() {
@@ -533,6 +539,7 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
                     val database = Firebase.database.reference.child("DatePlan").child(leaderUID)
                     val postListener = object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            Log.e("하하","하하")
                             datePlanList.clear()
                             for (datePlanSnapshot in dataSnapshot.children) {
                                 val title = datePlanSnapshot.child("dateTitle").value.toString()
@@ -546,6 +553,7 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
                                             .child(i.toString()).value.toString()
                                     )
                                 }
+
                                 if (startDate != "null") {
                                     datePlanList.add(
                                         DatePlanInfo(
@@ -569,6 +577,55 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
                     database.addValueEventListener(postListener)
                 }
         }
-    }
 
+    }
+    LaunchedEffect(true) {
+        if (weatherInfo.dateList.isEmpty()) {
+            val call = ApiObject.retrofitService.GetWeather(
+                data_type,
+                num_of_rows,
+                page_no,
+                base_data,
+                base_time,
+                nx,
+                ny
+            )
+            call.enqueue(object : retrofit2.Callback<WEATHER> {
+                override fun onResponse(call: Call<WEATHER>, response: Response<WEATHER>) {
+                    if (response.isSuccessful) {
+                        val info = response.body()!!.response.body.items.item
+                        for (i in 0 until info.size) {
+                            if (info[i].category == "POP") {
+                                weatherInfo.dateList.add(info[i].fcstDate)
+                                weatherInfo.timeList.add(info[i].fcstTime)
+                                weatherInfo.rainPercent.add(info[i].fcstValue.toInt())
+                            }
+                            if(info[i].category == "PTY"){
+                                weatherInfo.typeList.add(info[i].fcstValue.toInt())
+                            }
+                            if(info[i].category == "REH"){
+                                weatherInfo.humidity.add(info[i].fcstValue.toInt())
+                            }
+                            if(info[i].category == "SKY"){
+                                weatherInfo.skyList.add(info[i].fcstValue.toInt())
+                            }
+                            if(info[i].category == "TMX"){
+                                weatherInfo.maxTmp.add(info[i].fcstValue.toFloat())
+                            }
+                            if(info[i].category == "TMN"){
+                                weatherInfo.minTmp.add(info[i].fcstValue.toFloat())
+                            }
+                            if(info[i].category == "WSD"){
+                                weatherInfo.windSpeed.add(info[i].fcstValue.toFloat())
+                            }
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<WEATHER>, t: Throwable) {
+                    Log.d("api fail : ", t.message.toString())
+                }
+            })
+        }
+    }
 }

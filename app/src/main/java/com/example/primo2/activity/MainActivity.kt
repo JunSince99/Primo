@@ -3,6 +3,7 @@ package com.example.primo2.activity
 import android.app.Activity
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.WindowManager
 import androidx.activity.compose.setContent
 import androidx.appcompat.app.AppCompatActivity
@@ -15,6 +16,72 @@ import com.example.primo2.screen.PrimoApp
 import com.example.primo2.screen.PrimoScreen
 import com.example.primo2.screen.Search
 import com.google.firebase.auth.FirebaseAuth
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
+
+val num_of_rows = 1000
+val page_no = 1
+val data_type = "JSON"
+val base_time = 1100
+val base_data = 20230423
+val nx = "55"
+val ny = "127"
+
+data class WEATHER (
+    val response : RESPONSE
+)
+data class RESPONSE (
+    val header : HEADER,
+    val body : BODY
+)
+data class HEADER(
+    val resultCode : Int,
+    val resultMsg : String
+)
+data class BODY(
+    val dataType : String,
+    val items : ITEMS
+)
+data class ITEMS(
+    val item : List<ITEM>
+)
+data class ITEM(
+    val baseDate : Int,
+    val baseTime : Int,
+    val category : String,
+    val fcstDate : String,
+    val fcstTime : String,
+    val fcstValue : String
+)
+
+interface WeatherInterface {
+    @GET("getVilageFcst?serviceKey=03CPR7byhzPvUucGTMnB8gYLFbeIvj2BdTcOYpdPdnE4hC0pTm4DcHzyo7DWcH6dR1N3gCLQylpqCjY2Acwtqg%3D%3D")
+    fun GetWeather(
+        @Query("dataType") data_type : String,
+        @Query("numOfRows") num_of_rows : Int,
+        @Query("pageNo") page_no : Int,
+        @Query("base_date") base_date : Int,
+        @Query("base_time") base_time : Int,
+        @Query("nx") nx : String,
+        @Query("ny") ny : String
+    ): Call<WEATHER>
+}
+
+
+private val retrofit = Retrofit.Builder()
+    .baseUrl("https://apis.data.go.kr/1360000/VilageFcstInfoService_2.0/") // 마지막 / 반드시 들어가야 함
+    .addConverterFactory(GsonConverterFactory.create()) // converter 지정
+    .build() // retrofit 객체 생성
+
+object ApiObject {
+    val retrofitService: WeatherInterface by lazy {
+        retrofit.create(WeatherInterface::class.java)
+    }
+}
 
 
 class MainActivity : AppCompatActivity() {
@@ -30,10 +97,11 @@ class MainActivity : AppCompatActivity() {
 
             //MapScreen()
         }
-
     }
 
 }
+
+
 /*
 fun Activity.setStatusBarTransparent() {
     window.apply {
