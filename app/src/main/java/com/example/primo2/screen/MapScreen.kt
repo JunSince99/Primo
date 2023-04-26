@@ -721,11 +721,11 @@ fun BottomSheetContent(
                                             )
                                         )
                                         ) {
+                                    Spacer(modifier = Modifier.padding(8.dp))
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier
                                             .fillMaxWidth()
-                                            .padding(vertical = 8.dp)
                                     ) {
                                         Box(
                                             modifier = Modifier
@@ -825,6 +825,14 @@ fun BottomSheetContent(
                                     if (expanded) {
                                         Memoform(item,courseList, commentList,datePlanName)
                                     }
+                                    Text(
+                                        text = "에상 비용 : 10000원",
+                                        color = Color.Gray,
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 12.sp,
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                    Spacer(modifier = Modifier.padding(4.dp))
                                 }
                             }
                         }
@@ -1120,12 +1128,11 @@ fun placetag(tagname : String){
 
 @Composable
 fun Memoform(courseName:String,courseList:SnapshotStateList<String>,commentList:SnapshotStateList<String>,datePlanName: String?) {
-    Box (
+    Column (
         modifier = Modifier
     ) {
         val msg = if(commentList[courseList.indexOf(courseName)] == "null") "" else commentList[courseList.indexOf(courseName)]
         var content by remember { mutableStateOf(msg) }
-
         TextField(
             modifier = Modifier.fillMaxWidth(),
             value = content,
@@ -1151,17 +1158,30 @@ fun Memoform(courseName:String,courseList:SnapshotStateList<String>,commentList:
             maxLines = 10
         )
     }
-    /* 임시 버튼 */
-    Button(onClick = {
-        val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
-        database
-            .child(datePlanName!!)
-            .child("comments")
-            .child(courseName)
-            .setValue(commentList[courseList.indexOf(courseName)])
-    }) {
-        Text(text = "저장")
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.Center
+    ) {
+        Button(
+            onClick = {
+            val database = Firebase.database.reference.child("DatePlan").child(leaderUID.toString())
+            database
+                .child(datePlanName!!)
+                .child("comments")
+                .child(courseName)
+                .setValue(commentList[courseList.indexOf(courseName)])
+            },
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color.White,
+                contentColor = Color.Black
+            ),
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.size(width = 140.dp, height = 35.dp)
+        ) {
+            Text(text = "저장하기")
+        }
     }
+    Spacer(modifier = Modifier.size(8.dp))
 }
 
 fun fitnessCalc(userOrientation: HashMap<String, Any>,num :Int) : Double{
