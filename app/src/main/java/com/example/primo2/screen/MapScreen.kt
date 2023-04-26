@@ -240,7 +240,7 @@ fun MapScreen(
         },
         scaffoldState = scaffoldState,
         sheetContent = {
-            BottomSheetContent(scaffoldState,bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,datePlanName,leaderUID,courseList,commentList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it}, cameraPositionState)
+            BottomSheetContent(scaffoldState,bottomNaviID,bottomNaviTitle,bottomNaviPaint,bottomNaviInfo,requestManager,showMapInfo,datePlanName,leaderUID,courseList,commentList,amountList,onBottomNaviSizeChange = { bottomNaviSize = it }, onShowMapInfo = { showMapInfo = it}, cameraPositionState)
         },
         sheetPeekHeight = bottomNaviSize,
         drawerElevation = 0.dp,
@@ -475,6 +475,7 @@ fun BottomSheetContent(
     leaderUID: String?,
     courseList: SnapshotStateList<String>,
     commentList: SnapshotStateList<String>,
+    amountList: SnapshotStateList<Int>,
     onBottomNaviSizeChange: (Dp) -> Unit,
     onShowMapInfo: (Boolean) -> Unit,
     cameraPositionState: CameraPositionState
@@ -826,7 +827,7 @@ fun BottomSheetContent(
                                         Memoform(item,courseList, commentList,datePlanName)
                                     }
                                     Text(
-                                        text = "에상 비용 : 10000원",
+                                        text = "예상 비용 : " + amountList[courseList.indexOf(item)],
                                         color = Color.Gray,
                                         textAlign = TextAlign.Center,
                                         fontSize = 12.sp,
@@ -1089,7 +1090,7 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {},navController: NavControlle
                     {
                         totalAmount += amountList[i]
                     }
-                    Text( //버튼으로 만들어서 누르면 상세 정보 볼 수 있게 할까 아니면 이렇게 걍 예상 총 금액만 보여줄까
+                    Text(
                         text = "예상 비용 : " + totalAmount.toString() + "원",
                         textAlign = TextAlign.Center,
                         color = Color.Black,
