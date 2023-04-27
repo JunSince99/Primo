@@ -263,19 +263,80 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int,navController
                             }
                             compareTime = calcuDate.toString() + timeUnit
                         }
-                        Text(
-                            text = "걷기 좋은 공원",
-                            fontSize = 14.sp,
-                            color = Color.DarkGray,
-                            fontFamily = spoqasans,
-                            fontWeight = FontWeight.Normal,
-                        )
-                        Text(
-                            text = compareTime,
-                            fontSize = 12.sp,
-                            modifier = Modifier,
-                            color = Color.DarkGray
-                        )
+                        Row {
+                            Text(
+                                text = "JuSiErW · ",
+                                fontSize = 14.sp,
+                                color = Color.DarkGray,
+                                fontFamily = spoqasans,
+                                fontWeight = FontWeight.Normal,
+                            )
+                            Text(
+                                text = compareTime,
+                                fontSize = 12.sp,
+                                modifier = Modifier,
+                                color = Color.DarkGray
+                            )
+                        }
+                        Row {
+                            Button(
+                                onClick = { /*TODO*/ },
+                                shape = CircleShape,
+                                colors = ButtonDefaults.buttonColors(
+                                    backgroundColor = Color.White,
+                                    contentColor = Color.Black
+                                ),
+                                elevation = ButtonDefaults.elevation(
+                                    defaultElevation = 0.dp,
+                                    pressedElevation = 0.dp
+                                ),
+                                contentPadding = PaddingValues(8.dp),
+                                modifier = Modifier.size(35.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.FavoriteBorder,
+                                    contentDescription = "좋아요",
+                                )
+                            }
+                            Button(
+                                onClick = { /*TODO*/ },
+                                shape = CircleShape,
+                                colors = ButtonDefaults.buttonColors(
+                                    backgroundColor = Color.White,
+                                    contentColor = Color.Black
+                                ),
+                                elevation = ButtonDefaults.elevation(
+                                    defaultElevation = 0.dp,
+                                    pressedElevation = 0.dp
+                                ),
+                                contentPadding = PaddingValues(8.dp),
+                                modifier = Modifier.size(35.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "코스 담기"
+                                )
+                            }
+                            Button(
+                                onClick = { /*TODO*/ },
+                                shape = CircleShape,
+                                colors = ButtonDefaults.buttonColors(
+                                    backgroundColor = Color.White,
+                                    contentColor = Color.Black
+                                ),
+                                elevation = ButtonDefaults.elevation(
+                                    defaultElevation = 0.dp,
+                                    pressedElevation = 0.dp
+                                ),
+                                contentPadding = PaddingValues(8.dp),
+                                modifier = Modifier.size(35.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.MoreVert,
+                                    contentDescription = "부가 설정"
+                                )
+                            }
+                        }
                     }
                 }
                 Spacer(modifier = Modifier.padding(8.dp))

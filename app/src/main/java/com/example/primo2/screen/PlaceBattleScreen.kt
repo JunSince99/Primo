@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +14,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.RequestManager
@@ -21,6 +23,7 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.placeList
 import com.example.primo2.placeListHashMap
 import com.example.primo2.rankTaste
+import com.example.primo2.ui.theme.spoqasans
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -39,127 +42,152 @@ fun PlaceBattle(requestManager:RequestManager) {
         secondPlace = second
         type = typecheck
     }
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
+    Column (
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        var showFirstPlaceList = placeList[firstPlace]
-        var showSecondPlaceList = placeList[secondPlace]
+        Spacer(modifier = Modifier.padding(50.dp))
+        Text(
+            text = "더 마음에 드는 장소를 선택해주세요",
+            fontSize = 20.sp,
+            fontFamily = spoqasans,
+            fontWeight = FontWeight.Medium,
+        )
+        Spacer(modifier = Modifier.padding(60.dp))
+        Row (
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            var showFirstPlaceList = placeList[firstPlace]
+            var showSecondPlaceList = placeList[secondPlace]
 
-        if(type == 1) {
-            showFirstPlaceList = placeListHashMap[rankTaste[firstPlace]]!!
-            showSecondPlaceList = placeListHashMap[rankTaste[secondPlace]]!!
-        }
-        Text(showFirstPlaceList.placeName, modifier = Modifier.align(Alignment.CenterHorizontally), fontSize = 20.sp)
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.5f)
-                .clickable {
-                    val firstPlaceIndex = rankTaste.indexOf(showFirstPlaceList.placeID)
-                    val secondPlaceIndex = rankTaste.indexOf(showSecondPlaceList.placeID)
-                    Log.e("퍼스트","" + firstPlaceIndex)
-                    Log.e("세컨드","" + secondPlaceIndex)
-                    if(firstPlaceIndex != -1 && secondPlaceIndex != -1)
-                    {
-                        if(secondPlaceIndex < firstPlaceIndex)
-                        {
-                            val tmp = rankTaste[secondPlaceIndex]
-                            rankTaste[secondPlaceIndex] = rankTaste[firstPlaceIndex]
-                            rankTaste[firstPlaceIndex] = tmp
-                        }
-                    }
-                    else if(secondPlaceIndex != -1)
-                    {
-                        rankTaste.add(secondPlaceIndex, showFirstPlaceList.placeID)
-                    }
-                    else if(firstPlaceIndex == -1){
-                        rankTaste.add(0, showFirstPlaceList.placeID)
-                        rankTaste.add(rankTaste.size, showSecondPlaceList.placeID)
-                    }
-                    saveTasteRank()
-                    val (first,second,checktype) = settingPlaces()
-                    firstPlace = first
-                    secondPlace = second
-                    type = checktype
-                }
-        ) {
-            val uri = showFirstPlaceList.imageResource
-            GlideImage(
-                model = uri,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(300.dp)
-                //.align(Alignment.CenterHorizontally)
-            )
-            {
-                it
-                    .thumbnail(
-                        requestManager
-                            .asDrawable()
-                            .load(uri)
-                            // .signature(signature)
-                            .override(64)
-                    )
-                // .signature(signature)
+            if (type == 1) {
+                showFirstPlaceList = placeListHashMap[rankTaste[firstPlace]]!!
+                showSecondPlaceList = placeListHashMap[rankTaste[secondPlace]]!!
             }
-        }
-        Text(text = showSecondPlaceList.placeName, modifier = Modifier.align(Alignment.CenterHorizontally), fontSize = 20.sp)
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight()
-                .clickable {
-                    val firstPlaceIndex = rankTaste.indexOf(showFirstPlaceList.placeID)
-                    val secondPlaceIndex = rankTaste.indexOf(showSecondPlaceList.placeID)
-                    if(firstPlaceIndex != -1 && secondPlaceIndex != -1)
-                    {
-                        if(secondPlaceIndex > firstPlaceIndex)
-                        {
-                            val tmp = rankTaste[secondPlaceIndex]
-                            rankTaste[secondPlaceIndex] = rankTaste[firstPlaceIndex]
-                            rankTaste[firstPlaceIndex] = tmp
+            Column(
+                modifier = Modifier,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .clickable {
+                            val firstPlaceIndex = rankTaste.indexOf(showFirstPlaceList.placeID)
+                            val secondPlaceIndex = rankTaste.indexOf(showSecondPlaceList.placeID)
+                            Log.e("퍼스트", "" + firstPlaceIndex)
+                            Log.e("세컨드", "" + secondPlaceIndex)
+                            if (firstPlaceIndex != -1 && secondPlaceIndex != -1) {
+                                if (secondPlaceIndex < firstPlaceIndex) {
+                                    val tmp = rankTaste[secondPlaceIndex]
+                                    rankTaste[secondPlaceIndex] = rankTaste[firstPlaceIndex]
+                                    rankTaste[firstPlaceIndex] = tmp
+                                }
+                            } else if (secondPlaceIndex != -1) {
+                                rankTaste.add(secondPlaceIndex, showFirstPlaceList.placeID)
+                            } else if (firstPlaceIndex == -1) {
+                                rankTaste.add(0, showFirstPlaceList.placeID)
+                                rankTaste.add(rankTaste.size, showSecondPlaceList.placeID)
+                            }
+                            saveTasteRank()
+                            val (first, second, checktype) = settingPlaces()
+                            firstPlace = first
+                            secondPlace = second
+                            type = checktype
                         }
-                    }
-                    else if(firstPlaceIndex != -1)
-                    {
-                        rankTaste.add(firstPlaceIndex, showSecondPlaceList.placeID)
-                    }
-                    else if(secondPlaceIndex == -1){
-                        rankTaste.add(0, showSecondPlaceList.placeID)
-                        rankTaste.add(rankTaste.size, showFirstPlaceList.placeID)
-                    }
-                    saveTasteRank()
-                    val (first,second,checktype) = settingPlaces()
-                    firstPlace = first
-                    secondPlace = second
-                    type = checktype
-                }
-        ) {
-            val uri = showSecondPlaceList.imageResource
-            GlideImage(
-                model = uri,
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .width(300.dp)
-                    .height(300.dp)
-                //.align(Alignment.CenterHorizontally)
-            )
-            {
-                it
-                    .thumbnail(
-                        requestManager
-                            .asDrawable()
-                            .load(uri)
-                            // .signature(signature)
-                            .override(64)
+                ) {
+                    val uri = showFirstPlaceList.imageResource
+                    GlideImage(
+                        model = uri,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(120.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                        //.align(Alignment.CenterHorizontally)
                     )
-                // .signature(signature)
+                    {
+                        it
+                            .thumbnail(
+                                requestManager
+                                    .asDrawable()
+                                    .load(uri)
+                                    // .signature(signature)
+                                    .override(64)
+                            )
+                        // .signature(signature)
+                    }
+                }
+                Text(
+                    showFirstPlaceList.placeName,
+                    modifier = Modifier,
+                    fontSize = 10.sp
+                )
+            }
+            Text(
+                text = "VS",
+                fontSize = 20.sp,
+                fontFamily = spoqasans,
+                fontWeight = FontWeight.Bold,
+            )
+            Column (
+                modifier = Modifier,
+                horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    modifier = Modifier
+                        .clickable {
+                            val firstPlaceIndex = rankTaste.indexOf(showFirstPlaceList.placeID)
+                            val secondPlaceIndex = rankTaste.indexOf(showSecondPlaceList.placeID)
+                            if (firstPlaceIndex != -1 && secondPlaceIndex != -1) {
+                                if (secondPlaceIndex > firstPlaceIndex) {
+                                    val tmp = rankTaste[secondPlaceIndex]
+                                    rankTaste[secondPlaceIndex] = rankTaste[firstPlaceIndex]
+                                    rankTaste[firstPlaceIndex] = tmp
+                                }
+                            } else if (firstPlaceIndex != -1) {
+                                rankTaste.add(firstPlaceIndex, showSecondPlaceList.placeID)
+                            } else if (secondPlaceIndex == -1) {
+                                rankTaste.add(0, showSecondPlaceList.placeID)
+                                rankTaste.add(rankTaste.size, showFirstPlaceList.placeID)
+                            }
+                            saveTasteRank()
+                            val (first, second, checktype) = settingPlaces()
+                            firstPlace = first
+                            secondPlace = second
+                            type = checktype
+                        }
+                ) {
+                    val uri = showSecondPlaceList.imageResource
+                    GlideImage(
+                        model = uri,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .width(120.dp)
+                            .height(120.dp)
+                            .clip(RoundedCornerShape(20.dp))
+                        //.align(Alignment.CenterHorizontally)
+                    )
+                    {
+                        it
+                            .thumbnail(
+                                requestManager
+                                    .asDrawable()
+                                    .load(uri)
+                                    // .signature(signature)
+                                    .override(64)
+                            )
+                        // .signature(signature)
+                    }
+                }
+                Text(
+                    text = showSecondPlaceList.placeName,
+                    modifier = Modifier,
+                    fontSize = 10.sp
+                )
             }
         }
     }
