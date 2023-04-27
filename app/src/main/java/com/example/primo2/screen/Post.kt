@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,9 +38,13 @@ import com.example.primo2.postPlaceList
 import com.example.primo2.ui.theme.spoqasans
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 @Composable
 fun Postdetail(navController: NavController, item: Int,requestManager: RequestManager,viewModel: PostViewModel) {
+    val uiState by viewModel.postState.collectAsState()
     Surface(
         modifier = Modifier.fillMaxSize(),
     ) {
@@ -56,7 +61,7 @@ fun Postdetail(navController: NavController, item: Int,requestManager: RequestMa
             ) {
                 items(postList[item].Contents.size) { num ->
                     if(num == 0){
-                        Posttitle(item, requestManager, postList)
+                        Posttitle(item, requestManager, postList, uiState[0]) //이거 수정좀 몇일전 게시글인지
                     }
                     Spacer(modifier = Modifier.size(8.dp))
                     Postarticle(item, num, postList, requestManager)
@@ -64,21 +69,6 @@ fun Postdetail(navController: NavController, item: Int,requestManager: RequestMa
             }
         }
     }
-    TopAppBar(
-        title = { Text("") },
-        backgroundColor = Color.Transparent,
-        navigationIcon = {
-            IconButton(onClick = {})
-            {
-                Icon(
-                    Icons.Default.ArrowBack,
-                    "Open/Close menu",
-                    tint = Color.White
-                )
-            }
-        },
-        elevation = 1.dp
-    )
 }
 
 @Composable
@@ -119,7 +109,15 @@ fun Posttopbar(navController: NavController) {
 
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun Posttitle(item: Int, requestManager:RequestManager,postList:ArrayList<PostInfo>) {
+fun Posttitle(item: Int, requestManager:RequestManager,postList:ArrayList<PostInfo>, postInfo: PostInfo) {
+    val contrast = 1f // 0f..10f (1 should be default)
+    val brightness = -95f // -255f..255f (0 should be default)
+    val colorMatrix = floatArrayOf(
+        contrast, 0f, 0f, 0f, brightness,
+        0f, contrast, 0f, 0f, brightness,
+        0f, 0f, contrast, 0f, brightness,
+        0f, 0f, 0f, 1f, 0f
+    )
     Box {
         val uri = postList[item].ImageResources[0]
         // 이미지
@@ -129,7 +127,8 @@ fun Posttitle(item: Int, requestManager:RequestManager,postList:ArrayList<PostIn
             contentScale = ContentScale.Crop,
             modifier = Modifier
                 .fillMaxWidth()
-                .aspectRatio(16f / 10f)
+                .aspectRatio(16f / 10f),
+            colorFilter = ColorFilter.colorMatrix(colorMatrix = ColorMatrix(colorMatrix))
             //.align(Alignment.CenterHorizontally)
         )
         {
@@ -145,7 +144,33 @@ fun Posttitle(item: Int, requestManager:RequestManager,postList:ArrayList<PostIn
         }
 
         Column {
-            Spacer(modifier = Modifier.size(140.dp))
+            TopAppBar(
+                title = { Text("") },
+                backgroundColor = Color.Transparent,
+                navigationIcon = {
+                    IconButton(onClick = {})
+                    {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            "",
+                            tint = Color.White
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {})
+                    {
+                        Icon(
+                            Icons.Default.MoreVert,
+                            "",
+                            tint = Color.White
+                        )
+                    }
+                },
+                elevation = 0.dp,
+                modifier = Modifier.fillMaxWidth()
+            )
+            Spacer(modifier = Modifier.size(95.dp))
             Text(
                 text = "송도",
                 fontSize = 17.5.sp,
@@ -167,16 +192,60 @@ fun Posttitle(item: Int, requestManager:RequestManager,postList:ArrayList<PostIn
                 fontWeight = FontWeight.Bold,
                 color = Color.White
             )
-            Text(
-                text = "걷기 좋은 공원",
-                fontSize = 17.5.sp,
-                color = Color.White,
-                fontFamily = spoqasans,
-                fontWeight = FontWeight.Normal,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.Start,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-            )
+                    .padding(horizontal = 16.dp)
+            ) {
+                if (postInfo.PostDate != null) {
+
+                    var today = Calendar.getInstance()
+                    var compareTime = "error"
+                    var sf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    var date = sf.parse(postInfo.PostDate)
+                    var calcuDate = (today.time.time - date.time) / (60 * 1000)
+                    var timeUnit = "error"
+
+                    if (calcuDate <= 0) {
+                        compareTime = "방금 전"
+                    } else {
+                        timeUnit = "분 전"
+                        compareTime = calcuDate.toString() + "개월 전"
+                        if (calcuDate >= 60) {
+                            calcuDate /= 60
+                            timeUnit = "시간 전"
+                            if (calcuDate >= 24) {
+                                calcuDate /= 24
+                                timeUnit = "일 전"
+                                if (calcuDate >= 30) {
+                                    calcuDate /= 30
+                                    timeUnit = "개월 전"
+                                    if (calcuDate >= 12) {
+                                        calcuDate /= 12
+                                        timeUnit = "년 전"
+                                    }
+                                }
+                            }
+                        }
+                        compareTime = calcuDate.toString() + timeUnit
+                    }
+                    Text(
+                        text = "JuSiErW · ",
+                        fontSize = 14.sp,
+                        color = Color.White,
+                        fontFamily = spoqasans,
+                        fontWeight = FontWeight.Normal,
+                    )
+                    Text(
+                        text = compareTime,
+                        fontSize = 12.sp,
+                        modifier = Modifier,
+                        color = Color.White
+                    )
+                }
+            }
         }
     }
 }
@@ -186,17 +255,18 @@ fun Posttitle(item: Int, requestManager:RequestManager,postList:ArrayList<PostIn
 fun Postarticle(item: Int, num: Int, postList: ArrayList<PostInfo>,requestManager: RequestManager) {
     Surface(
         modifier = Modifier
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 16.dp, vertical = 8.dp)
             .shadow(
                 elevation = 1.dp,
                 shape = RoundedCornerShape(10)
             )
     ) {
-        Column {
-            Spacer(modifier = Modifier.size(16.dp))
+        Column(
+            modifier = Modifier
+                .padding(horizontal = 16.dp, vertical = 16.dp)
+        ) {
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
                     .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
@@ -255,7 +325,9 @@ fun Postarticle(item: Int, num: Int, postList: ArrayList<PostInfo>,requestManage
             }
             if(count > 0){
                 HorizontalPager(
-                    modifier = Modifier.fillMaxSize(),
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .clip(shape = RoundedCornerShape(10)),
                     count = count
                 ) { page ->
                     val uri = postList[item].ImageResources[start + page]
@@ -266,8 +338,6 @@ fun Postarticle(item: Int, num: Int, postList: ArrayList<PostInfo>,requestManage
                         modifier = Modifier
                             .fillMaxWidth()
                             .aspectRatio(16f / 10f)
-                            .clip(shape = RoundedCornerShape(10))
-                            .fillMaxWidth()
                         //.align(Alignment.CenterHorizontally)
                     )
                     {
@@ -284,15 +354,12 @@ fun Postarticle(item: Int, num: Int, postList: ArrayList<PostInfo>,requestManage
                 }
             }
 
-
-
-
+            Spacer(modifier = Modifier.padding(6.dp))
             //내용
             Text(
                 text = postList[item].Contents[num]!!,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
+                    .fillMaxWidth(),
                 fontSize = 16.sp,
                 fontFamily = spoqasans,
                 fontWeight = FontWeight.Normal,
