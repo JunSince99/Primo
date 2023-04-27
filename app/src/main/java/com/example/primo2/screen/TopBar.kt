@@ -108,7 +108,6 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                               )
                           }
 
-
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.White,

@@ -485,6 +485,7 @@ fun BottomSheetContent(
     val state = rememberReorderableLazyListState(onMove = { from, to ->
         courseList.add(to.index,courseList.removeAt(from.index))
         commentList.add(to.index,commentList.removeAt(from.index))
+        amountList.add(to.index,amountList.removeAt(from.index))
         isVisible = false
         database.child(datePlanName!!).child("course").setValue(courseList)
     })
@@ -689,7 +690,7 @@ fun BottomSheetContent(
                             shape = RoundedCornerShape(20),
                         )
                         .clip(RoundedCornerShape(20))
-                        .clickable { reorderBest(courseList, commentList) }
+                        .clickable { reorderBest(courseList, commentList,amountList) }
                 ) {
                     Text(text = "거리순 정렬", color = Color.Black, modifier = Modifier.padding(8.dp))
                 }
@@ -955,10 +956,6 @@ fun maptopbar(onSearchButtonClicked: () -> Unit = {},navController: NavControlle
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier
             ) {
-                for(i in 0 until weatherInfo.dateList.size)
-                {
-
-                }
                 if(startDate.isNotBlank()) {
                     val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
                     val printformat = DateTimeFormatter.ofPattern("MM월 dd일")
@@ -1216,7 +1213,7 @@ fun getDistance(lat1: Double, long1: Double,lat2:Double, long2:Double) : Int{
     return round(R * c).toInt()
 }
 
-fun reorderBest(courseList: SnapshotStateList<String>,commentList: SnapshotStateList<String>)
+fun reorderBest(courseList: SnapshotStateList<String>,commentList: SnapshotStateList<String>,amountList: SnapshotStateList<Int>)
 {
     for(i in 0 until courseList.size-1)
     {
@@ -1234,7 +1231,7 @@ fun reorderBest(courseList: SnapshotStateList<String>,commentList: SnapshotState
         }
         courseList.add(i+1,courseList.removeAt(bestIndex))
         commentList.add(i+1,commentList.removeAt(bestIndex))
-
+        amountList.add(i+1,amountList.removeAt(bestIndex))
     }
 }
 
