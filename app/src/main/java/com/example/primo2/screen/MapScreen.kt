@@ -722,7 +722,7 @@ fun BottomSheetContent(
                                             )
                                         )
                                         ) {
-                                    Spacer(modifier = Modifier.padding(8.dp))
+                                    Spacer(modifier = Modifier.padding(4.dp))
                                     Row(
                                         verticalAlignment = Alignment.CenterVertically,
                                         modifier = Modifier

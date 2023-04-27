@@ -8,12 +8,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.AbsoluteRoundedCornerShape
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.R
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.runtime.*
@@ -22,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -37,19 +40,7 @@ import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.placeList
 import com.example.primo2.ui.theme.moreLightGray
-
-@Composable
-fun SearchScreen(
-    navController: NavController,
-    modifier: Modifier = Modifier
-) {
-    Scaffold()
-    {
-        modifier.padding(it)
-        Text(text = "서치 페이지", style = MaterialTheme.typography.h4)
-
-    }
-}
+import com.example.primo2.ui.theme.spoqasans
 
 @Composable
 fun Search(requestManager: RequestManager,navController: NavController) {
@@ -135,15 +126,57 @@ fun Search(requestManager: RequestManager,navController: NavController) {
                     unfocusedIndicatorColor = moreLightGray
                 )
             )
-            LazyColumn(
+            Places(requestManager,navController)
+//            LazyColumn(
+//                modifier = Modifier
+//                    .fillMaxWidth()
+//                    .fillMaxHeight()
+//            ) {
+//                items(searchPlaceList) { item ->
+//                    Place(item,requestManager, navController)
+//                }
+//            }
+        }
+    }
+}
+
+@Composable
+fun Places(requestManager: RequestManager,navController: NavController){
+    Spacer(modifier = Modifier.padding(8.dp))
+    Column(
+        modifier = Modifier.padding(horizontal = 20.dp)
+    ) {
+        Text(
+            text = "추천 장소",
+            fontSize = 20.sp,
+            fontFamily = spoqasans,
+            fontWeight = FontWeight.Medium
+        )
+        Spacer(modifier = Modifier.padding(4.dp))
+        Place(1,requestManager,navController)
+        Place(2,requestManager,navController)
+        Place(3,requestManager,navController)
+        Button(
+            onClick = { /*TODO*/ },
+            elevation = ButtonDefaults.elevation(
+                defaultElevation = 1.dp,
+                pressedElevation = 0.dp
+            ),
+            shape = RoundedCornerShape(20.dp),
+            colors = ButtonDefaults.buttonColors(
+                backgroundColor = Color.White,
+                contentColor = Color.Black
+            ),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text(
+                text = "더보기",
+                color = Color.Black,
+                fontSize = 14.sp,
+                textAlign = TextAlign.Center,
+                fontWeight = FontWeight.Medium,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-            ) {
-                items(searchPlaceList) { item ->
-                    Place(item,requestManager, navController)
-                }
-            }
+            )
         }
     }
 }
@@ -151,56 +184,109 @@ fun Search(requestManager: RequestManager,navController: NavController) {
 @OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun Place(item:Int,requestManager: RequestManager,navController: NavController){
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clickable {
-                navController.navigate("${PrimoScreen.PlaceDetailScreen.name}/$item")
-            }
-            .padding(horizontal = 16.dp, vertical = 10.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-
-        val url = placeList[item].imageResource
-        GlideImage(
-            model = url,
-            contentDescription = "",
+    Row {
+        Surface(
             modifier = Modifier
-                .clip(CircleShape)
-                .size(50.dp),
-            contentScale = ContentScale.Crop
-
-        )
-        {
-            it
-                .thumbnail(
-                    requestManager
-                        .asDrawable()
-                        .load(url)
-                        // .signature(signature)
-                        .override(64)
-                )
-        }
-        Spacer(modifier = Modifier.padding(6.dp))
-        Column(
-            verticalArrangement = Arrangement.Center,
-            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
+                .shadow(elevation = 1.dp, shape = RoundedCornerShape(20.dp))
+                .clickable {
+                    navController.navigate("${PrimoScreen.PlaceDetailScreen.name}/$item")
+                }
         ) {
-            Text(
-                text = placeList[item].placeName,
-                color = Color.Black,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center,
-                fontWeight = FontWeight.Medium,
-                modifier = Modifier
-            )
-            Spacer(modifier = Modifier.padding(2.dp))
-            Row {
-                for(i in 0 until placeList[item].toptag.size) {
-                    placetag(placeList[item].toptag[i], 10.sp)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+                modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp)
+            ) {
+                val url = placeList[item].imageResource
+                Row {
+                    GlideImage(
+                        model = url,
+                        contentDescription = "",
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(50.dp),
+                        contentScale = ContentScale.Crop
+
+                    )
+                    {
+                        it
+                            .thumbnail(
+                                requestManager
+                                    .asDrawable()
+                                    .load(url)
+                                    // .signature(signature)
+                                    .override(64)
+                            )
+                    }
+                    Spacer(modifier = Modifier.padding(6.dp))
+                    Column(
+                        verticalArrangement = Arrangement.Center,
+                        modifier = Modifier
+                    ) {
+                        Text(
+                            text = placeList[item].placeName,
+                            color = Color.Black,
+                            fontSize = 14.sp,
+                            textAlign = TextAlign.Center,
+                            fontWeight = FontWeight.Medium,
+                            modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.padding(2.dp))
+                        Row {
+                            for (i in 0 until 4) {
+                                placetag(placeList[item].toptag[i], 8.sp)
+                            }
+                        }
+                    }
+                }
+                Button(
+                    onClick = { /*TODO*/ },
+                    modifier = Modifier
+                        .size(width = 50.dp,height = 30.dp),
+                    elevation = ButtonDefaults.elevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 0.dp
+                    ),
+                    shape = RoundedCornerShape(20.dp),
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = moreLightGray,
+                        contentColor = Color.Black
+                    ),
+                    contentPadding = PaddingValues(1.dp)
+                ) {
+                    Text(
+                        text = "추가",
+                        color = Color.Black,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier
+                    )
                 }
             }
         }
+//        Button(
+//            onClick = { /*TODO*/ },
+//            modifier = Modifier
+//                .weight(0.7f)
+//                .aspectRatio(1f / 1f),
+//            elevation = ButtonDefaults.elevation(
+//                defaultElevation = 1.dp,
+//                pressedElevation = 0.dp
+//            ),
+//            shape = RoundedCornerShape(20.dp),
+//            colors = ButtonDefaults.buttonColors(
+//                backgroundColor = Color.White,
+//                contentColor = Color.Black
+//            )
+//        ) {
+//            Icon(
+//                imageVector = Icons.Default.Add,
+//                contentDescription = "장소 추가",
+//                modifier = Modifier.size(20.dp)
+//            )
+//        }
     }
 }
 

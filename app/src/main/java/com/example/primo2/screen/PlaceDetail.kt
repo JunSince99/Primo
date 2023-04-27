@@ -143,50 +143,51 @@ fun Placedetail(navController: NavController, item: Int,requestManager: RequestM
                 }
             }
             Spacer(modifier = Modifier.padding(8.dp))
-            Row {
+            Row(
+                horizontalArrangement = Arrangement.SpaceEvenly,
+                modifier = Modifier.fillMaxWidth()
+            ) {
                 buttonwithicon(ic = Icons.Outlined.FavoriteBorder, description = "저장하기")
-                Spacer(modifier = Modifier.padding(12.dp))
                 buttonwithicon(
                     ic = painterResource(id = R.drawable.ic_outline_comment_24),
                     description = "리뷰보기"
                 )
                 val context = LocalContext.current
-                Spacer(modifier = Modifier.padding(12.dp))
-                    buttonwithicon(
-                        ic = painterResource(id = R.drawable.ic_outline_calendar_month_24),
-                        description = "일정추가",
-                        onButtonClicked = {
-                            val database = Firebase.database.reference
-                                .child("DatePlan")
-                                .child(leaderUID)
-                            val courseList:ArrayList<String> = arrayListOf()
-                            database.child(entireDatePlanName!!).child("course").get().addOnSuccessListener {
-                                for(i in 0 until it.childrenCount)
-                                {
-                                    courseList.add(it.child(i.toString()).value.toString())
-                                }
-                                val ID = placeList[item].placeID
-                                if (courseList.indexOf(ID) == -1) {
-                                    courseList.add(ID)
+                buttonwithicon(
+                    ic = painterResource(id = R.drawable.ic_outline_calendar_month_24),
+                    description = "일정추가",
+                    onButtonClicked = {
+                        val database = Firebase.database.reference
+                            .child("DatePlan")
+                            .child(leaderUID)
+                        val courseList:ArrayList<String> = arrayListOf()
+                        database.child(entireDatePlanName!!).child("course").get().addOnSuccessListener {
+                            for(i in 0 until it.childrenCount)
+                            {
+                                courseList.add(it.child(i.toString()).value.toString())
+                            }
+                            val ID = placeList[item].placeID
+                            if (courseList.indexOf(ID) == -1) {
+                                courseList.add(ID)
 
-                                    database
-                                        .child(entireDatePlanName!!)
-                                        .child("course")
-                                        .setValue(courseList)
-                                        .addOnSuccessListener {
-                                            Toast
-                                                .makeText(context, "일정에 장소를 추가 했습니다", Toast.LENGTH_SHORT)
-                                                .show();
-                                        }
+                                database
+                                    .child(entireDatePlanName!!)
+                                    .child("course")
+                                    .setValue(courseList)
+                                    .addOnSuccessListener {
+                                        Toast
+                                            .makeText(context, "일정에 장소를 추가 했습니다", Toast.LENGTH_SHORT)
+                                            .show();
+                                    }
 
-                                } else {
-                                    Toast
-                                        .makeText(context, "이미 추가된 장소입니다.", Toast.LENGTH_SHORT)
-                                        .show();
-                                }
+                            } else {
+                                Toast
+                                    .makeText(context, "이미 추가된 장소입니다.", Toast.LENGTH_SHORT)
+                                    .show();
                             }
                         }
-                    )
+                    }
+                )
             }
             Divider(
                 modifier = Modifier
