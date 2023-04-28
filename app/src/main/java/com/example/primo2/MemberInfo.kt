@@ -10,9 +10,9 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.update
 var myName:String = ""
+var userOrientation:HashMap<String,Int> = HashMap()
 var rankTaste:MutableList<String> = mutableListOf()
-var userOrientation:HashMap<String,Any> = HashMap()
-var partnerOrientation:HashMap<String,Any> = HashMap()
+var partnerOrientation:HashMap<String,Int> = HashMap()
 var leaderUID:String = ""
 var partnerName:String? = null
 var partnerPhotoURL:String? = null
@@ -49,9 +49,28 @@ fun getPartnerInfo(){
                         .addOnSuccessListener { document2 ->
                             partnerName = document2.getString("name") ?: ""
                             partnerPhotoURL = document2.getString("photoUrl") ?: ""
-                            startDating = document2.getString("startDating")?:""
-                            partnerOrientation = document2.data!!["taste"] as HashMap<String, Any>
+                            startDating = document2.getString("startDating")?: ""
                             partnerBirthDay = document2.getString("birthDay") ?: "19990223"
+
+                            val rankTastePartner = document2.get("rankTaste") as MutableList<String>
+                            val favSize = (rankTastePartner.size * 0.3).toInt()
+                            for (i in 0 until favSize) {
+                                for ((key, value) in placeListHashMap[rankTastePartner[i]]!!.placeHashMap!!) {
+                                    if (!partnerOrientation.containsKey(key)) {
+                                        partnerOrientation[key] = value.toString().toInt()
+                                    } else {
+                                        partnerOrientation.replace(
+                                            key,
+                                            partnerOrientation[key]!! + value.toString().toInt()
+                                        )
+                                    }
+                                }
+                            }
+
+                            for ((key, value) in partnerOrientation) {
+                                partnerOrientation.replace(key, value / favSize)
+                            }
+                            Log.e("",""+ partnerOrientation)
                         }
 
                         .addOnFailureListener { exception ->
@@ -86,7 +105,7 @@ fun getPartnerInfoAndMove(navController: NavController){
                             partnerName = document2.getString("name") ?: ""
                             partnerPhotoURL = document2.getString("photoUrl") ?: ""
                             startDating = document2.getString("startDating")?:""
-                            partnerOrientation = document2.data!!["taste"] as HashMap<String, Any>
+                            //                            partnerOrientation = document2.data!!["taste"] as HashMap<String, Any>
                             navController.navigate("ManageAccount")
 
                         }
@@ -108,16 +127,30 @@ fun getUserOrientation()
         db.collection("users").document(user.uid)
             .get()
             .addOnSuccessListener { document ->
-                if(document.exists()) {
+                if (document.exists()) {
                     rankTaste = document.get("rankTaste") as MutableList<String>
-                    userOrientation = document.get("taste") as HashMap<String, Any>
-                    userOrientation = userOrientation.toList()
-                        .sortedByDescending { it.second.toString().toDouble() }
-                        .toMap() as HashMap<String, Any>
+                    val favSize = (rankTaste.size * 0.3).toInt()
+                    for (i in 0 until favSize) {
+                        for ((key, value) in placeListHashMap[rankTaste[i]]!!.placeHashMap!!) {
+                            if (!userOrientation.containsKey(key)) {
+                                userOrientation[key] = value.toString().toInt()
+                            } else {
+                                userOrientation.replace(
+                                    key,
+                                    userOrientation[key]!! + value.toString().toInt()
+                                )
+                            }
+                        }
+                    }
+
+                    for ((key, value) in userOrientation) {
+                        userOrientation.replace(key, value / favSize)
+                    }
+                    Log.e("",""+ userOrientation)
                 }
             }
             .addOnFailureListener { exception ->
-                Log.e("실패","실패")
+                Log.e("실패", "실패")
             }
     }
 }

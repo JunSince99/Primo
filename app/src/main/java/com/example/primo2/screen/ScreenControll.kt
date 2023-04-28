@@ -521,16 +521,15 @@ fun checkTopVisible (navController:NavController): Boolean{
 
 @Composable
 fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
-
-    getPlaceInfo() // 장소 정보
-    getPartnerInfo() // 연인 정보
-    getUserOrientation() // 유저 정보
-
-
-    val user = Firebase.auth.currentUser
-    val db = Firebase.firestore
-    var leaderUID = ""
+    var clearPlace by remember { mutableStateOf(false) }
     LaunchedEffect(true) {
+        getPlaceInfo(onClearPlaceChange = { clearPlace = it }) // 장소 정보
+
+
+        val user = Firebase.auth.currentUser
+        val db = Firebase.firestore
+        var leaderUID = ""
+
         if (user != null) {
             db.collection("users").document(user!!.uid)
                 .get()
@@ -539,7 +538,7 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
                     val database = Firebase.database.reference.child("DatePlan").child(leaderUID)
                     val postListener = object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            Log.e("하하","하하")
+                            Log.e("하하", "하하")
                             datePlanList.clear()
                             for (datePlanSnapshot in dataSnapshot.children) {
                                 val title = datePlanSnapshot.child("dateTitle").value.toString()
@@ -578,8 +577,6 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
                 }
         }
 
-    }
-    LaunchedEffect(true) {
         if (weatherInfo.dateList.isEmpty()) {
             val call = ApiObject.retrofitService.GetWeather(
                 data_type,
@@ -593,7 +590,7 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
             call.enqueue(object : retrofit2.Callback<WEATHER> {
                 override fun onResponse(call: Call<WEATHER>, response: Response<WEATHER>) {
                     if (response.isSuccessful) {
-                        if(response.body()?.response?.body?.items?.item != null) {
+                        if (response.body()?.response?.body?.items?.item != null) {
                             val info = response.body()!!.response.body.items.item
                             for (i in 0 until info.size) {
                                 if (info[i].category == "POP") {
@@ -628,6 +625,14 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
                     Log.d("api fail : ", t.message.toString())
                 }
             })
+        }
+    }
+
+
+    LaunchedEffect(clearPlace){
+        if(clearPlace) {
+            getUserOrientation() // 유저 정보
+            getPartnerInfo() // 연인 정보
         }
     }
 }

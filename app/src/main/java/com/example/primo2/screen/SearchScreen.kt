@@ -41,6 +41,8 @@ import com.bumptech.glide.integration.compose.GlideImage
 import com.example.primo2.placeList
 import com.example.primo2.ui.theme.moreLightGray
 import com.example.primo2.ui.theme.spoqasans
+import com.example.primo2.userOrientation
+import kotlin.math.absoluteValue
 
 @Composable
 fun Search(requestManager: RequestManager,navController: NavController) {
@@ -126,16 +128,20 @@ fun Search(requestManager: RequestManager,navController: NavController) {
                     unfocusedIndicatorColor = moreLightGray
                 )
             )
-            Places(requestManager,navController)
-//            LazyColumn(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .fillMaxHeight()
-//            ) {
-//                items(searchPlaceList) { item ->
-//                    Place(item,requestManager, navController)
-//                }
-//            }
+            if(searchKeyword.isEmpty()) {
+                Places(requestManager, navController)
+            }
+            else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .fillMaxHeight()
+                ) {
+                    items(searchPlaceList) { item ->
+                        Place(item, requestManager, navController)
+                    }
+                }
+            }
         }
     }
 }
@@ -153,9 +159,22 @@ fun Places(requestManager: RequestManager,navController: NavController){
             fontWeight = FontWeight.Medium
         )
         Spacer(modifier = Modifier.padding(4.dp))
-        Place(1,requestManager,navController)
-        Place(2,requestManager,navController)
-        Place(3,requestManager,navController)
+
+        //선호도순 정렬
+        placeList.sortBy {
+            var total = 0
+            for((key,value) in userOrientation){
+                if(key != "편의시설" && key != "대중교통") {
+                    if (it.placeHashMap!!.containsKey(key)) {
+                        total += (value-it.placeHashMap[key].toString().toInt()).absoluteValue
+                    }
+                }
+            }
+            total
+        }
+        for(i in 0 until 3) {
+            Place(i, requestManager, navController)
+        }
         Button(
             onClick = { /*TODO*/ },
             elevation = ButtonDefaults.elevation(

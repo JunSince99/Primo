@@ -22,10 +22,11 @@ data class PlaceInfo(
 )
 val placeListHashMap: HashMap<String, PlaceInfo> = HashMap()
 val placeList: ArrayList<PlaceInfo> = ArrayList()
-fun getPlaceInfo(){
+fun getPlaceInfo(onClearPlaceChange:(Boolean) -> Unit){
     placeList.clear()
     val db = Firebase.firestore
     val user = Firebase.auth.currentUser
+    var clearCount = 0
     if(user != null) {
         db.collection("places_Incheon")
             .get()
@@ -53,6 +54,10 @@ fun getPlaceInfo(){
                 }
                 for(i in 0 until placeList.size) {
                     placeListHashMap[placeList[i].placeID] = placeList[i]
+                }
+                clearCount ++
+                if(clearCount == 3){
+                    onClearPlaceChange(true)
                 }
             }
             .addOnFailureListener { exception ->
@@ -84,6 +89,10 @@ fun getPlaceInfo(){
                 for(i in 0 until placeList.size) {
                     placeListHashMap[placeList[i].placeID] = placeList[i]
                 }
+                clearCount ++
+                if(clearCount == 3){
+                    onClearPlaceChange(true)
+                }
             }
             .addOnFailureListener { exception ->
                 Log.e("오류","플레이스 오류 발생")
@@ -114,6 +123,10 @@ fun getPlaceInfo(){
                 }
                 for(i in 0 until placeList.size) {
                     placeListHashMap[placeList[i].placeID] = placeList[i]
+                }
+                clearCount ++
+                if(clearCount == 3){
+                    onClearPlaceChange(true)
                 }
             }
             .addOnFailureListener { exception ->
