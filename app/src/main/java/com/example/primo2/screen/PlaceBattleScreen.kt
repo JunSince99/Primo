@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.RequestManager
@@ -136,13 +137,15 @@ fun PlaceBattle(requestManager:RequestManager) {
                     )
                     Spacer(modifier = Modifier.size(4.dp))
                     Text(
-                        text = "\"태초의 생명과 대자연의 역사가 펼쳐지는 자연사 박물관\"",
+                        text = showFirstPlaceList.information,
                         modifier = Modifier
                             .weight(1f),
-                        fontSize = 14.sp,
+                        fontSize = 10.sp,
                         fontFamily = spoqasans,
                         fontWeight = FontWeight.Medium,
-                        color = Color.Gray
+                        color = Color.Gray,
+                        maxLines = 7,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
             }
@@ -207,14 +210,16 @@ fun PlaceBattle(requestManager:RequestManager) {
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     Text(
-                        text = "\"태초의 생명과 대자연의 역사가 펼쳐지는 자연사 박물관\"",
+                        text = showSecondPlaceList.information,
                         modifier = Modifier
                             .fillMaxWidth(),
-                        fontSize = 14.sp,
+                        fontSize = 10.sp,
                         fontFamily = spoqasans,
                         fontWeight = FontWeight.Medium,
                         color = Color.Gray,
-                        textAlign = TextAlign.End
+                        textAlign = TextAlign.End,
+                        maxLines = 7,
+                        overflow = TextOverflow.Ellipsis
                     )
                 }
                 Spacer(modifier = Modifier.size(16.dp))
