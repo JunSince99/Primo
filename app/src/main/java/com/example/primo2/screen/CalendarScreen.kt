@@ -46,8 +46,10 @@ import androidx.navigation.NavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.primo2.*
+import com.example.primo2.DatePlanInfo
 import com.example.primo2.R
+import com.example.primo2.leaderUID
+import com.example.primo2.placeListHashMap
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.example.primo2.ui.theme.Typography
 import com.example.primo2.ui.theme.spoqasans
@@ -64,7 +66,6 @@ import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
 import java.time.*
-import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
 import kotlin.math.roundToInt
@@ -77,6 +78,7 @@ fun Day(day: CalendarDay,datePlanList: SnapshotStateList<DatePlanInfo>, onVisibl
         modifier = Modifier
             .aspectRatio(1f)
             .padding(8.dp)
+            .clip(CircleShape)
             .clickable(
                 enabled = day.position == DayPosition.MonthDate,
                 onClick = {
@@ -93,37 +95,49 @@ fun Day(day: CalendarDay,datePlanList: SnapshotStateList<DatePlanInfo>, onVisibl
             ),
         contentAlignment = Alignment.Center
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = day.date.dayOfMonth.toString(),
-                color = if (day.position != DayPosition.MonthDate) {
-                    Color.Gray
-                } else if (day.date.dayOfWeek == DayOfWeek.SUNDAY) {
-                    Color.Red
-                } else if (day.date.dayOfWeek == DayOfWeek.SATURDAY) {
-                    Color.Red
-                } else Color.Black,
-                fontFamily = spoqasans,
-                fontWeight = FontWeight.Medium,
-            )
-            Spacer(modifier = Modifier.size(4.dp))
-            for(i in 0 until datePlanList.size) {
-                if(datePlanList[i].dateStartDate.split("-")[1].toInt() == day.date.month.value && datePlanList[i].dateStartDate.split("-")[2].toInt() == day.date.dayOfMonth) {
-                    Box(
-                        modifier = Modifier
-                            .size(4.dp)
-                            .background(Color.Black, CircleShape)
-                    )
-                    planable = false
-                    break
+        if(false){
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Text(
+                    text = day.date.dayOfMonth.toString(),
+                    color = if (day.position != DayPosition.MonthDate) {
+                        Color.Gray
+                    } else if (day.date.dayOfWeek == DayOfWeek.SUNDAY) {
+                        Color.Red
+                    } else if (day.date.dayOfWeek == DayOfWeek.SATURDAY) {
+                        Color.Red
+                    } else Color.Black,
+                    fontFamily = spoqasans,
+                    fontWeight = FontWeight.Medium
+                )
+                Spacer(modifier = Modifier.size(4.dp))
+                for (i in 0 until datePlanList.size) {
+                    if (datePlanList[i].dateStartDate.split("-")[1].toInt() == day.date.month.value && datePlanList[i].dateStartDate.split(
+                            "-"
+                        )[2].toInt() == day.date.dayOfMonth
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(4.dp)
+                                .background(Color.Black, CircleShape)
+                        )
+                        planable = false
+                        break
+                    }
                 }
             }
+        } else{
+            Icon(
+                painterResource(id = R.drawable.ic_outline_celebration_24),
+                null
+            )
+//            Icon(
+//                painterResource(id = R.drawable.ic_outline_cake_24),
+//                null
+//            )
         }
-
-
     }
 }
 

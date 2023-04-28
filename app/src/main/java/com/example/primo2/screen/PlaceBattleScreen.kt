@@ -5,16 +5,20 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bumptech.glide.RequestManager
@@ -43,7 +47,8 @@ fun PlaceBattle(requestManager:RequestManager) {
         type = typecheck
     }
     Column (
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.padding(16.dp)
     ) {
         Spacer(modifier = Modifier.padding(50.dp))
         Text(
@@ -52,142 +57,188 @@ fun PlaceBattle(requestManager:RequestManager) {
             fontFamily = spoqasans,
             fontWeight = FontWeight.Medium,
         )
-        Spacer(modifier = Modifier.padding(60.dp))
-        Row (
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            var showFirstPlaceList = placeList[firstPlace]
-            var showSecondPlaceList = placeList[secondPlace]
+        Spacer(modifier = Modifier.padding(20.dp))
+        var showFirstPlaceList = placeList[firstPlace]
+        var showSecondPlaceList = placeList[secondPlace]
 
-            if (type == 1) {
-                showFirstPlaceList = placeListHashMap[rankTaste[firstPlace]]!!
-                showSecondPlaceList = placeListHashMap[rankTaste[secondPlace]]!!
-            }
-            Column(
-                modifier = Modifier,
-                horizontalAlignment = Alignment.CenterHorizontally
+        if (type == 1) {
+            showFirstPlaceList = placeListHashMap[rankTaste[firstPlace]]!!
+            showSecondPlaceList = placeListHashMap[rankTaste[secondPlace]]!!
+        }
+        Surface(
+            modifier = Modifier
+                .shadow(
+                    elevation = 1.dp,
+                    shape = RoundedCornerShape(20)
+                )
+                .aspectRatio(2.3f / 1f)
+                .clickable {
+                    val firstPlaceIndex = rankTaste.indexOf(showFirstPlaceList.placeID)
+                    val secondPlaceIndex =
+                        rankTaste.indexOf(showSecondPlaceList.placeID)
+                    Log.e("퍼스트", "" + firstPlaceIndex)
+                    Log.e("세컨드", "" + secondPlaceIndex)
+                    if (firstPlaceIndex != -1 && secondPlaceIndex != -1) {
+                        if (secondPlaceIndex < firstPlaceIndex) {
+                            val tmp = rankTaste[secondPlaceIndex]
+                            rankTaste[secondPlaceIndex] = rankTaste[firstPlaceIndex]
+                            rankTaste[firstPlaceIndex] = tmp
+                        }
+                    } else if (secondPlaceIndex != -1) {
+                        rankTaste.add(secondPlaceIndex, showFirstPlaceList.placeID)
+                    } else if (firstPlaceIndex == -1) {
+                        rankTaste.add(0, showFirstPlaceList.placeID)
+                        rankTaste.add(rankTaste.size, showSecondPlaceList.placeID)
+                    }
+                    saveTasteRank()
+                    val (first, second, checktype) = settingPlaces()
+                    firstPlace = first
+                    secondPlace = second
+                    type = checktype
+                }
+
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    contentAlignment = Alignment.Center,
+                val uri = showFirstPlaceList.imageResource
+                GlideImage(
+                    model = uri,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
-                        .clickable {
-                            val firstPlaceIndex = rankTaste.indexOf(showFirstPlaceList.placeID)
-                            val secondPlaceIndex = rankTaste.indexOf(showSecondPlaceList.placeID)
-                            Log.e("퍼스트", "" + firstPlaceIndex)
-                            Log.e("세컨드", "" + secondPlaceIndex)
-                            if (firstPlaceIndex != -1 && secondPlaceIndex != -1) {
-                                if (secondPlaceIndex < firstPlaceIndex) {
-                                    val tmp = rankTaste[secondPlaceIndex]
-                                    rankTaste[secondPlaceIndex] = rankTaste[firstPlaceIndex]
-                                    rankTaste[firstPlaceIndex] = tmp
-                                }
-                            } else if (secondPlaceIndex != -1) {
-                                rankTaste.add(secondPlaceIndex, showFirstPlaceList.placeID)
-                            } else if (firstPlaceIndex == -1) {
-                                rankTaste.add(0, showFirstPlaceList.placeID)
-                                rankTaste.add(rankTaste.size, showSecondPlaceList.placeID)
-                            }
-                            saveTasteRank()
-                            val (first, second, checktype) = settingPlaces()
-                            firstPlace = first
-                            secondPlace = second
-                            type = checktype
-                        }
-                ) {
-                    val uri = showFirstPlaceList.imageResource
-                    GlideImage(
-                        model = uri,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .width(120.dp)
-                            .height(120.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                        //.align(Alignment.CenterHorizontally)
-                    )
-                    {
-                        it
-                            .thumbnail(
-                                requestManager
-                                    .asDrawable()
-                                    .load(uri)
-                                    // .signature(signature)
-                                    .override(64)
-                            )
-                        // .signature(signature)
-                    }
-                }
-                Text(
-                    showFirstPlaceList.placeName,
-                    modifier = Modifier,
-                    fontSize = 10.sp
+                        .width(120.dp)
+                        .height(120.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                    //.align(Alignment.CenterHorizontally)
                 )
+                {
+                    it
+                        .thumbnail(
+                            requestManager
+                                .asDrawable()
+                                .load(uri)
+                                // .signature(signature)
+                                .override(64)
+                        )
+                    // .signature(signature)
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+                Column {
+                    Text(
+                        showFirstPlaceList.placeName,
+                        modifier = Modifier,
+                        fontSize = 16.sp,
+                        fontFamily = spoqasans,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                    Text(
+                        text = "\"태초의 생명과 대자연의 역사가 펼쳐지는 자연사 박물관\"",
+                        modifier = Modifier
+                            .weight(1f),
+                        fontSize = 14.sp,
+                        fontFamily = spoqasans,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Gray
+                    )
+                }
             }
-            Text(
-                text = "VS",
-                fontSize = 20.sp,
-                fontFamily = spoqasans,
-                fontWeight = FontWeight.Bold,
-            )
-            Column (
-                modifier = Modifier,
-                horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .clickable {
-                            val firstPlaceIndex = rankTaste.indexOf(showFirstPlaceList.placeID)
-                            val secondPlaceIndex = rankTaste.indexOf(showSecondPlaceList.placeID)
-                            if (firstPlaceIndex != -1 && secondPlaceIndex != -1) {
-                                if (secondPlaceIndex > firstPlaceIndex) {
-                                    val tmp = rankTaste[secondPlaceIndex]
-                                    rankTaste[secondPlaceIndex] = rankTaste[firstPlaceIndex]
-                                    rankTaste[firstPlaceIndex] = tmp
-                                }
-                            } else if (firstPlaceIndex != -1) {
-                                rankTaste.add(firstPlaceIndex, showSecondPlaceList.placeID)
-                            } else if (secondPlaceIndex == -1) {
-                                rankTaste.add(0, showSecondPlaceList.placeID)
-                                rankTaste.add(rankTaste.size, showFirstPlaceList.placeID)
-                            }
-                            saveTasteRank()
-                            val (first, second, checktype) = settingPlaces()
-                            firstPlace = first
-                            secondPlace = second
-                            type = checktype
-                        }
-                ) {
-                    val uri = showSecondPlaceList.imageResource
-                    GlideImage(
-                        model = uri,
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                            .width(120.dp)
-                            .height(120.dp)
-                            .clip(RoundedCornerShape(20.dp))
-                        //.align(Alignment.CenterHorizontally)
-                    )
-                    {
-                        it
-                            .thumbnail(
-                                requestManager
-                                    .asDrawable()
-                                    .load(uri)
-                                    // .signature(signature)
-                                    .override(64)
-                            )
-                        // .signature(signature)
-                    }
-                }
-                Text(
-                    text = showSecondPlaceList.placeName,
-                    modifier = Modifier,
-                    fontSize = 10.sp
+        }
+        Text(
+            text = "VS",
+            fontSize = 20.sp,
+            fontFamily = spoqasans,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.size(width = 40.dp, height = 40.dp)
+        )
+        Surface(
+            modifier = Modifier
+                .shadow(
+                    elevation = 1.dp,
+                    shape = RoundedCornerShape(20)
                 )
+                .aspectRatio(2.3f / 1f)
+                .clickable {
+                    val firstPlaceIndex = rankTaste.indexOf(showFirstPlaceList.placeID)
+                    val secondPlaceIndex =
+                        rankTaste.indexOf(showSecondPlaceList.placeID)
+                    if (firstPlaceIndex != -1 && secondPlaceIndex != -1) {
+                        if (secondPlaceIndex > firstPlaceIndex) {
+                            val tmp = rankTaste[secondPlaceIndex]
+                            rankTaste[secondPlaceIndex] = rankTaste[firstPlaceIndex]
+                            rankTaste[firstPlaceIndex] = tmp
+                        }
+                    } else if (firstPlaceIndex != -1) {
+                        rankTaste.add(firstPlaceIndex, showSecondPlaceList.placeID)
+                    } else if (secondPlaceIndex == -1) {
+                        rankTaste.add(0, showSecondPlaceList.placeID)
+                        rankTaste.add(rankTaste.size, showFirstPlaceList.placeID)
+                    }
+                    saveTasteRank()
+                    val (first, second, checktype) = settingPlaces()
+                    firstPlace = first
+                    secondPlace = second
+                    type = checktype
+                }
+        ) {
+            Row(
+                modifier = Modifier
+                    .padding(16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End
+            ) {
+                val uri = showSecondPlaceList.imageResource
+                Column(
+                    modifier = Modifier
+                        .size(width = 180.dp, height = 130.dp)
+                ) {
+                    Text(
+                        text = showSecondPlaceList.placeName,
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        fontSize = 16.sp,
+                        fontFamily = spoqasans,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Right
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    Text(
+                        text = "\"태초의 생명과 대자연의 역사가 펼쳐지는 자연사 박물관\"",
+                        modifier = Modifier
+                            .fillMaxWidth(),
+                        fontSize = 14.sp,
+                        fontFamily = spoqasans,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Gray,
+                        textAlign = TextAlign.End
+                    )
+                }
+                Spacer(modifier = Modifier.size(16.dp))
+                GlideImage(
+                    model = uri,
+                    contentDescription = null,
+                    contentScale = ContentScale.Crop,
+                    modifier = Modifier
+                        .width(120.dp)
+                        .height(120.dp)
+                        .clip(RoundedCornerShape(20.dp))
+                    //.align(Alignment.CenterHorizontally)
+                )
+                {
+                    it
+                        .thumbnail(
+                            requestManager
+                                .asDrawable()
+                                .load(uri)
+                                // .signature(signature)
+                                .override(64)
+                        )
+                    // .signature(signature)
+                }
             }
         }
     }
