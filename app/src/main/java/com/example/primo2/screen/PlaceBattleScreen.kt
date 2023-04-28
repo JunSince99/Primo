@@ -254,7 +254,7 @@ fun settingPlaces():Triple<Int, Int, Int>{
     var firstPlace = 0
     var secondPlace = 0
     var type = 0
-    if(rankTaste.size >= 4) {
+    if(rankTaste.size >= 10) {
         val selectWhat = random.nextInt(2)
         if(selectWhat == 0) {
             firstPlace = random.nextInt(rankTaste.size)

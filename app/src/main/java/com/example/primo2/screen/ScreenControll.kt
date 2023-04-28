@@ -538,7 +538,6 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
                     val database = Firebase.database.reference.child("DatePlan").child(leaderUID)
                     val postListener = object : ValueEventListener {
                         override fun onDataChange(dataSnapshot: DataSnapshot) {
-                            Log.e("하하", "하하")
                             datePlanList.clear()
                             for (datePlanSnapshot in dataSnapshot.children) {
                                 val title = datePlanSnapshot.child("dateTitle").value.toString()
@@ -564,7 +563,7 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
                                     )
                                 }
                             }
-                            datePlanList.sortByDescending {
+                            datePlanList.sortBy {
                                 it.dateStartDate
                             }
                         }

@@ -86,7 +86,7 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     actionIconContentColor = topAppBarElementColor,
                 ),
             )
-        } else {
+        } else if(name == "Home") {
             TopAppBar(
                 title = {
                     Row() {
