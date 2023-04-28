@@ -46,10 +46,8 @@ import androidx.navigation.NavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.primo2.DatePlanInfo
+import com.example.primo2.*
 import com.example.primo2.R
-import com.example.primo2.leaderUID
-import com.example.primo2.placeListHashMap
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.example.primo2.ui.theme.Typography
 import com.example.primo2.ui.theme.spoqasans
@@ -65,7 +63,9 @@ import com.kizitonwose.calendar.compose.ContentHeightMode
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.*
+import java.text.SimpleDateFormat
 import java.time.*
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.*
 import kotlin.math.roundToInt
@@ -95,7 +95,25 @@ fun Day(day: CalendarDay,datePlanList: SnapshotStateList<DatePlanInfo>, onVisibl
             ),
         contentAlignment = Alignment.Center
     ) {
-        if(false){
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+        val formatter2 = DateTimeFormatter.ofPattern("yyyyMMdd")
+        val myDay = LocalDate.parse(myBirthDay,formatter2)
+        val partnerDay = LocalDate.parse(partnerBirthDay,formatter2)
+        val startDate = LocalDate.parse(startDating, formatter)
+        if(day.date.isEqual(startDate.plusDays(100))){
+            Icon(
+                painterResource(id = R.drawable.ic_outline_celebration_24),
+                null
+            )
+        }
+        else if((day.date.month == myDay.month && day.date.dayOfMonth == myDay.dayOfMonth )
+            || (day.date.month == partnerDay.month && day.date.dayOfMonth == partnerDay.dayOfMonth))
+        {
+            Icon(
+                painterResource(id = R.drawable.ic_outline_cake_24), null)
+        }
+        else{
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
@@ -128,15 +146,6 @@ fun Day(day: CalendarDay,datePlanList: SnapshotStateList<DatePlanInfo>, onVisibl
                     }
                 }
             }
-        } else{
-            Icon(
-                painterResource(id = R.drawable.ic_outline_celebration_24),
-                null
-            )
-//            Icon(
-//                painterResource(id = R.drawable.ic_outline_cake_24),
-//                null
-//            )
         }
     }
 }
@@ -238,17 +247,17 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit, datePlanList: SnapshotState
             .fillMaxWidth(),
         state = state,
         dayContent = {
-                Day(it,datePlanList, onVisibleChange = { vis->
-                    visible = vis
-                } )
-                     },
+            Day(it,datePlanList, onVisibleChange = { vis->
+                visible = vis
+            } )
+        },
         monthHeader = {
             DaysOfWeekTitle(daysOfWeek = daysOfWeek) // Use the title as month header
         },
         calendarScrollPaged = true,
         userScrollEnabled = true,
         contentPadding = PaddingValues(8.dp),
-        )
+    )
     if(visible)
     {
         val context = LocalContext.current

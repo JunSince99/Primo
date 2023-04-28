@@ -17,6 +17,8 @@ var leaderUID:String = ""
 var partnerName:String? = null
 var partnerPhotoURL:String? = null
 var startDating:String? = null
+var myBirthDay:String = ""
+var partnerBirthDay:String = ""
 
 data class MemberInfo(
     val name: String? = null,
@@ -36,8 +38,8 @@ fun getPartnerInfo(){
                 myName = document.getString("name") ?: ""
                 leaderUID = document.getString("leaderUID")?:""
                 val partnerUID = document.getString("partnerUID") ?: ""
-                if(partnerUID == "")
-                {
+                myBirthDay = document.getString("birthDay") ?: "19990228"
+                if(partnerUID == "") {
                     partnerName = ""
                 }
                 else {
@@ -49,7 +51,7 @@ fun getPartnerInfo(){
                             partnerPhotoURL = document2.getString("photoUrl") ?: ""
                             startDating = document2.getString("startDating")?:""
                             partnerOrientation = document2.data!!["taste"] as HashMap<String, Any>
-                            Log.e("파트너 호출", "파트너 호출")
+                            partnerBirthDay = document2.getString("birthDay") ?: "19990223"
                         }
 
                         .addOnFailureListener { exception ->

@@ -61,7 +61,8 @@ fun RegisterPartnerScreen(
 
             AndroidView(factory = { CalendarView(it) }, update = {
                 it.setOnDateChangeListener { calendarView, year, month, day ->
-                    date = "$year-${month+1}-$day"
+                    date = "%04d-%02d-%02d".format(year,month+1,day)
+ //                   date = "$year-${month+1}-$day".format()
                 }
             }, modifier = modifier.fillMaxSize())
 
