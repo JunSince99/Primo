@@ -141,6 +141,7 @@ fun Posts(requestManager: RequestManager,
         listState.scrollToItem(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
     }
 }
+
 @OptIn(ExperimentalGlideComposeApi::class, ExperimentalPagerApi::class)
 @Composable
 fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int,navController: NavController) {

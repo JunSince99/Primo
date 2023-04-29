@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -117,6 +118,38 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     actionIconContentColor = topAppBarElementColor,
                 ),
                 scrollBehavior = scrollBehavior,
+                modifier = Modifier,
+            )
+        } else if(name == "ManageAccount") {
+            TopAppBar(
+                title = {
+                    Row() {
+                        Spacer(modifier = Modifier.width(20.dp))
+                        Image(
+                            painter = painterResource(id = R.drawable.logo),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(65.dp)
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = {  }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "설정",
+                        )
+                    }
+
+                },
+                colors = TopAppBarDefaults.mediumTopAppBarColors(
+                    containerColor = Color.White,
+                    scrolledContainerColor = Color.White,
+                    navigationIconContentColor = topAppBarElementColor,
+                    titleContentColor = Color.Black,
+                    actionIconContentColor = topAppBarElementColor,
+                ),
                 modifier = Modifier,
             )
         }

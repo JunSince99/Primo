@@ -209,6 +209,14 @@ fun Day(day: CalendarDay,datePlanList: SnapshotStateList<DatePlanInfo>, onVisibl
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
+                    for (i in 0 until datePlanList.size) {
+                        if (datePlanList[i].dateStartDate.split("-")[1].toInt() == day.date.month.value && datePlanList[i].dateStartDate.split(
+                                "-"
+                            )[2].toInt() == day.date.dayOfMonth
+                        ) {
+                            Spacer(modifier = Modifier.size(4.dp))
+                        }
+                    }
                     Text(
                         text = day.date.dayOfMonth.toString(),
                         color = if (day.position != DayPosition.MonthDate) {
