@@ -334,10 +334,13 @@ fun Places(requestManager: RequestManager,navController: NavController, mode:Int
             ),
             shape = RoundedCornerShape(20.dp),
             colors = ButtonDefaults.buttonColors(
-                backgroundColor = Color.White,
+                backgroundColor = moreLightGray,
                 contentColor = Color.Black
             ),
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .align(Alignment.CenterHorizontally)
+                .size(width = 355.dp, 50.dp)
+                .padding(vertical = 8.dp)
         ) {
             Text(
                 text = "더보기",
@@ -348,6 +351,7 @@ fun Places(requestManager: RequestManager,navController: NavController, mode:Int
                 modifier = Modifier
             )
         }
+        Spacer(modifier = Modifier.size(10.dp))
     }
 }
 
@@ -401,13 +405,13 @@ fun Place(item:Int,requestManager: RequestManager,navController: NavController,c
                             color = Color.Black,
                             fontSize = 14.sp,
                             textAlign = TextAlign.Center,
-                            fontWeight = FontWeight.Medium,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier
                         )
                         Spacer(modifier = Modifier.padding(2.dp))
                         Row {
                             for (i in 0 until 4) {
-                                placetag(placeList[item].toptag[i], 8.sp)
+                                placetag(placeList[item].toptag[i], 10.sp)
                             }
                         }
                     }
@@ -498,7 +502,7 @@ fun placetag(tagname : String, scale : TextUnit){
             text = tagname,
             color = Color.Black,
             fontSize = scale,
-            fontWeight = FontWeight.Normal,
+            fontWeight = FontWeight.Medium,
             modifier = Modifier.padding(6.dp)
         )
     }
