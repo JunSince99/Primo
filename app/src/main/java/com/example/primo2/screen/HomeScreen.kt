@@ -265,7 +265,7 @@ fun Post(postInfo: PostInfo,requestManager: RequestManager,num:Int,navController
                             compareTime = calcuDate.toString() + timeUnit
                         }
                         Text(
-                            text = "JuSiErW · ",
+                            text = postInfo.Writer.toString() + " · ",
                             fontSize = 14.sp,
                             color = Color.DarkGray,
                             fontFamily = spoqasans,

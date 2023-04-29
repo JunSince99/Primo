@@ -63,15 +63,13 @@ fun ManageAccountScreen(
     onLogoutButton: () -> Unit = {},
     navController: NavController,
     requestManager: RequestManager,
-    modifier: Modifier = Modifier,
-    viewModel: PostViewModel = viewModel(),
-    listState: LazyListState = LazyListState()
+    modifier: Modifier = Modifier
 ) {
     Surface()
     {
         Column(modifier = Modifier.fillMaxSize()) {
             ProfileBox(navController, requestManager)
-            ProfilePosts(requestManager, Modifier, viewModel,listState,navController)
+            ProfilePosts(requestManager, Modifier, navController)
         }
     }
 }
@@ -241,33 +239,45 @@ fun ProfileInfoBlock(amount: String, info:String) {
 @Composable
 fun ProfilePosts(requestManager: RequestManager,
           modifier: Modifier = Modifier,
-          viewModel: PostViewModel = viewModel(),
-          listState: LazyListState = LazyListState(),
           navController: NavController
 )
 {
-    val uiState by viewModel.postState.collectAsState()
-    if(uiState.isEmpty())
-    {
-        Column(modifier = Modifier
-            .fillMaxWidth()
-            .fillMaxHeight(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            CircularProgressIndicator()
-        }
-        if(!viewModel.isUpdate) {
-            viewModel.updatePostInformation()
-            viewModel.isUpdate = true
-        }
+    val selfPostArrayList = remember { mutableStateListOf<PostInfo>() }
+    val db = Firebase.firestore
+    val user = Firebase.auth.currentUser
+    var countPost by remember { mutableStateOf(0) }
+    if(user != null) {
+        db.collection("posts")
+            .whereEqualTo("writerID", user.uid)
+            .get()
+            .addOnSuccessListener { documents ->
+                selfPostArrayList.clear()
+                for(document in documents) {
+                    selfPostArrayList.add(
+                        PostInfo(
+                            document.id,
+                            document.getString("title"),
+                            document.data["contents"] as ArrayList<String?>,
+                            document.data["splitNumber"] as ArrayList<Int>,
+                            document.data["imageResources"] as MutableList<String>,
+                            document.data["spam"] as ArrayList<Double>,
+                            document.data["background"] as ArrayList<Double>,
+                            document.data["person"] as ArrayList<Double>,
+                            document.data["placeName"] as ArrayList<String>,
+                            document.getString("writer"),
+                            document.getString("writerID"),
+                            document.getString("postDate"),
+                            document.data["like"] as HashMap<String, Boolean>
+                        )
+                    )
+                }
+                countPost = selfPostArrayList.size
+            }
     }
-
-    LazyColumn(modifier = modifier, state = listState) {
-        items(uiState.size){
-            ProfilePost(uiState[it],requestManager,it, navController)
+    LazyColumn(modifier = modifier) {
+        items(selfPostArrayList.size){
+            ProfilePost(selfPostArrayList[it],requestManager,it, navController)
         }
-    }
-    val coroutineScope = rememberCoroutineScope()
-    coroutineScope.launch {
-        listState.scrollToItem(listState.firstVisibleItemIndex, listState.firstVisibleItemScrollOffset)
     }
 }
 
@@ -294,7 +304,7 @@ fun ProfilePost(postInfo: PostInfo,requestManager: RequestManager,num:Int,navCon
                     .clip(RoundedCornerShape(20))
                     .size(70.dp)
             ) {
-                if (postInfo.Contents[0] != null) // 사진 & 동영상
+                if (postInfo.Contents[0] != null)
                 {
                     Box(modifier = Modifier
                     ) {
