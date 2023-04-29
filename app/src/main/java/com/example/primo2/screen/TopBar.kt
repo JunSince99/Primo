@@ -32,6 +32,7 @@ import com.example.primo2.R
 import com.example.primo2.ui.theme.LightPink
 import com.example.primo2.ui.theme.LightRed
 import com.example.primo2.ui.theme.Typography
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import java.time.YearMonth
@@ -146,7 +147,13 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                         modifier = Modifier.background(Color.White)
                     ) {
                         androidx.compose.material.DropdownMenuItem(
-                            onClick = { /*TODO*/ }
+                            onClick = {
+                                FirebaseAuth.getInstance().signOut()
+                                navController.navigate(PrimoScreen.Login.name)
+                                {
+                                    popUpTo("Home")
+                                }
+                            }
                         ) {
                             Text(text = "로그아웃")
                         }
