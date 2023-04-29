@@ -73,12 +73,8 @@ fun Defaulttopbar(navController: NavController) {
                     .padding(horizontal = 8.dp, vertical = 8.dp)
                     .fillMaxWidth()
             ) {
-                Box(
-                    contentAlignment = Alignment.Center,
-                    modifier = Modifier
-                        .size(45.dp)
-                        .clip(CircleShape)
-                        .clickable { navController.navigateUp() }
+                IconButton(
+                    onClick = { navController.navigateUp() },
                 ) {
                     Icon(
                         imageVector = Icons.Default.ArrowBack,
@@ -94,24 +90,15 @@ fun Defaulttopbar(navController: NavController) {
                     color = Color.Black,
                     fontFamily = spoqasans,
                     fontWeight = FontWeight.Medium,
-                    fontSize = 20.sp
+                    fontSize = 20.sp,
                 )
-                Box(
-                    contentAlignment = Alignment.Center,
+                Icon(
+                    imageVector = Icons.Default.ArrowBack,
+                    contentDescription = null,
                     modifier = Modifier
-                        .clickable {
-                            navController.navigate(PrimoScreen.WritingScreen.name)
-                        }
-                            ) {
-                            Text(
-                                text = "건너뛰기",
-                                textAlign = TextAlign.Center,
-                                color = Color.Black,
-                                fontFamily = spoqasans,
-                                fontWeight = FontWeight.Normal
-                            )
-                        }
-
+                        .size(25.dp),
+                    tint = Color.White
+                )
             }
         }
     }
@@ -148,8 +135,8 @@ fun PostPlace(item:Int, datePlanList: SnapshotStateList<DatePlanInfo>, requestMa
                 .clickable {
                     postPlaceList.clear()
                     postPlaceList.addAll(datePlanList[item].course)
-                    Log.e("",""+ datePlanList[item].course)
-                    Log.e("",""+ postPlaceList)
+                    Log.e("", "" + datePlanList[item].course)
+                    Log.e("", "" + postPlaceList)
                     navController.navigate(PrimoScreen.WritingScreen.name)
                 }
         ) {
