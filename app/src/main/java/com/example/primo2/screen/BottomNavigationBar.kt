@@ -76,7 +76,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean) {
                     selectedContentColor = MaterialTheme.colors.primary,
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "Favorites" } == true,
-                    onClick = { if(partnerName != null && userOrientation.isNotEmpty()) {
+                    onClick = { if(partnerName != "" && userOrientation.isNotEmpty()) {
                         navController.navigate(PrimoScreen.PlaceBattle.name) { popUpTo("Home") } } }
                 ) // 장소 월드컵
                 BottomNavigationItem(
@@ -90,7 +90,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean) {
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "ManageAccount" } == true,
                     onClick = {
-                            if(partnerName!= null){navController.navigate("ManageAccount") { popUpTo("Home") }}
+                            if(partnerName!= ""){navController.navigate("ManageAccount") { popUpTo("Home") }}
                     }
                 ) // 계정 관리
             }

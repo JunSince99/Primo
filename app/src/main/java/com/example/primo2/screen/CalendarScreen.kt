@@ -100,49 +100,141 @@ fun Day(day: CalendarDay,datePlanList: SnapshotStateList<DatePlanInfo>, onVisibl
         val myDay = LocalDate.parse(myBirthDay,formatter2)
         val partnerDay = LocalDate.parse(partnerBirthDay,formatter2)
         val startDate = LocalDate.parse(startDating, formatter)
-        if(day.date.isEqual(startDate.plusDays(100))){
-            Icon(
-                painterResource(id = R.drawable.ic_outline_celebration_24),
-                null
-            )
+        var isPlan = false
+        for(i in 0 until datePlanList.size){
+            if(LocalDate.parse(datePlanList[i].dateStartDate) == day.date){
+                isPlan = true
+            }
         }
-        else if((day.date.month == myDay.month && day.date.dayOfMonth == myDay.dayOfMonth )
-            || (day.date.month == partnerDay.month && day.date.dayOfMonth == partnerDay.dayOfMonth))
-        {
-            Icon(
-                painterResource(id = R.drawable.ic_outline_cake_24), null)
-        }
-        else{
-
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = day.date.dayOfMonth.toString(),
-                    color = if (day.position != DayPosition.MonthDate) {
-                        Color.Gray
-                    } else if (day.date.dayOfWeek == DayOfWeek.SUNDAY) {
-                        Color.Red
-                    } else if (day.date.dayOfWeek == DayOfWeek.SATURDAY) {
-                        Color.Red
-                    } else Color.Black,
-                    fontFamily = spoqasans,
-                    fontWeight = FontWeight.Medium
+        if(!isPlan) {
+            for (i in 100..2000 step (100)) {
+                if (day.date.isEqual(startDate.plusDays(i.toLong()))) {
+                    Icon(
+                        painterResource(id = R.drawable.ic_outline_celebration_24),
+                        null
+                    )
+                    LaunchedEffect(true) {
+                        if (!datePlanList.contains(
+                                DatePlanInfo(
+                                    i.toString() + "일",
+                                    day.date.format(formatter),
+                                    "",
+                                    specialDay = 1
+                                )
+                            )
+                        ) {
+                            datePlanList.add(
+                                DatePlanInfo(
+                                    i.toString() + "일",
+                                    day.date.format(formatter),
+                                    "", specialDay = 1
+                                )
+                            )
+                            datePlanList.sortBy { it.dateStartDate }
+                        }
+                    }
+                }
+            }
+            if ((day.date.month == myDay.month && day.date.dayOfMonth == myDay.dayOfMonth)) {
+                Icon(
+                    painterResource(id = R.drawable.ic_outline_cake_24), null
                 )
-                Spacer(modifier = Modifier.size(4.dp))
-                for (i in 0 until datePlanList.size) {
-                    if (datePlanList[i].dateStartDate.split("-")[1].toInt() == day.date.month.value && datePlanList[i].dateStartDate.split(
-                            "-"
-                        )[2].toInt() == day.date.dayOfMonth
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(4.dp)
-                                .background(Color.Black, CircleShape)
+                LaunchedEffect(true) {
+                    if (!datePlanList.contains(
+                            DatePlanInfo(
+                                myName + "님의 생일",
+                                day.date.format(formatter),
+                                "", specialDay = 2
+                            )
                         )
-                        planable = false
-                        break
+                    ) {
+                        datePlanList.add(
+                            DatePlanInfo(
+                                myName + "님의 생일",
+                                day.date.format(formatter),
+                                "", specialDay = 2
+                            )
+                        )
+                        datePlanList.sortBy { it.dateStartDate }
+                    }
+                }
+            } else if (day.date.month == partnerDay.month && day.date.dayOfMonth == partnerDay.dayOfMonth) {
+                Icon(
+                    painterResource(id = R.drawable.ic_outline_cake_24), null
+                )
+                LaunchedEffect(true) {
+                    if (!datePlanList.contains(
+                            DatePlanInfo(
+                                partnerName + "님의 생일",
+                                day.date.format(formatter),
+                                "", specialDay = 1
+                            )
+                        )
+                    ) {
+                        datePlanList.add(
+                            DatePlanInfo(
+                                partnerName + "님의 생일",
+                                day.date.format(formatter),
+                                "",
+                                specialDay = 1
+                            )
+                        )
+                        datePlanList.sortBy { it.dateStartDate }
+                    }
+                }
+            }
+        }
+        var isSpecial = false
+        for (i in 100..2000 step (100)) {
+            if (day.date.isEqual(startDate.plusDays(i.toLong()))) {
+                Icon(
+                    painterResource(id = R.drawable.ic_outline_celebration_24),
+                    null
+                )
+                isSpecial = true
+            }
+        }
+        if(!isSpecial) {
+            if ((day.date.month == myDay.month && day.date.dayOfMonth == myDay.dayOfMonth)) {
+                Icon(
+                    painterResource(id = R.drawable.ic_outline_cake_24), null
+                )
+            } else if (day.date.month == partnerDay.month && day.date.dayOfMonth == partnerDay.dayOfMonth) {
+                Icon(
+                    painterResource(id = R.drawable.ic_outline_cake_24), null
+                )
+            }
+            else {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    Text(
+                        text = day.date.dayOfMonth.toString(),
+                        color = if (day.position != DayPosition.MonthDate) {
+                            Color.Gray
+                        } else if (day.date.dayOfWeek == DayOfWeek.SUNDAY) {
+                            Color.Red
+                        } else if (day.date.dayOfWeek == DayOfWeek.SATURDAY) {
+                            Color.Red
+                        } else Color.Black,
+                        fontFamily = spoqasans,
+                        fontWeight = FontWeight.Medium
+                    )
+                    Spacer(modifier = Modifier.size(4.dp))
+                    for (i in 0 until datePlanList.size) {
+                        if (datePlanList[i].dateStartDate.split("-")[1].toInt() == day.date.month.value && datePlanList[i].dateStartDate.split(
+                                "-"
+                            )[2].toInt() == day.date.dayOfMonth
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(4.dp)
+                                    .background(Color.Black, CircleShape)
+                            )
+                            planable = false
+                            break
+                        }
                     }
                 }
             }
@@ -208,17 +300,27 @@ fun DatePlans(requestManager: RequestManager,
               month: YearMonth
 )
 {
+    var visible by remember { mutableStateOf(false) }
     Column {
-        ShowCalendar(onMonthChange,datePlanList,navController)
-        LazyColumn(modifier = modifier, state = listState) {
+        ShowCalendar(onMonthChange,datePlanList,navController,visible,
+            onVisibleChange = { vis->
+            visible = vis
+        })
+            val formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+            LazyColumn(modifier = modifier, state = listState) {
             items(datePlanList.size) {
-                if (datePlanList[it].dateStartDate.split("-")[1].toInt() == month.month.value) {
+                val dateStartDay = LocalDate.parse(datePlanList[it].dateStartDate,formatter2)
+                if (dateStartDay.month == month.month) {
                     DatePlan(
                         datePlanList[it],
                         requestManager,
                         it,
                         navController,
                         leaderUID,
+                        onVisibleChange = { vis->
+                            visible = vis
+                        },
+                        datePlanList
                     )
                 }
             }
@@ -227,7 +329,7 @@ fun DatePlans(requestManager: RequestManager,
 }
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ShowCalendar(onMonthChange: (YearMonth) -> Unit, datePlanList: SnapshotStateList<DatePlanInfo>,navController: NavController){
+fun ShowCalendar(onMonthChange: (YearMonth) -> Unit, datePlanList: SnapshotStateList<DatePlanInfo>,navController: NavController,visible:Boolean, onVisibleChange: (Boolean) -> Unit){
     val currentMonth = remember { YearMonth.now() }
     val startMonth = remember { currentMonth.minusMonths(3) } // Adjust as needed
     val endMonth = remember { currentMonth.plusMonths(4) } // Adjust as needed
@@ -241,15 +343,12 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit, datePlanList: SnapshotState
         outDateStyle = OutDateStyle.EndOfGrid
     )
     var calendarheight = 360.dp
-    var visible by remember { mutableStateOf(false) }
     HorizontalCalendar(
         modifier = Modifier
             .fillMaxWidth(),
         state = state,
         dayContent = {
-            Day(it,datePlanList, onVisibleChange = { vis->
-                visible = vis
-            } )
+            Day(it,datePlanList, onVisibleChange )
         },
         monthHeader = {
             DaysOfWeekTitle(daysOfWeek = daysOfWeek) // Use the title as month header
@@ -261,7 +360,7 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit, datePlanList: SnapshotState
     if(visible)
     {
         val context = LocalContext.current
-        Dialog(onDismissRequest = { visible = false }) {
+        Dialog(onDismissRequest = { onVisibleChange(false) }) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -336,7 +435,7 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit, datePlanList: SnapshotState
                                     )
                                     .show()
                             } else {
-                                writeDatePlan(date, dateTitle, navController)
+                                writeDatePlan(date, dateTitle, navController,datePlanList)
                             }
                         })
                     {
@@ -352,7 +451,7 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit, datePlanList: SnapshotState
                     }
                     Box(modifier = Modifier
                         .weight(1f)
-                        .clickable { visible = false })
+                        .clickable { onVisibleChange(false) })
                     {
                         Text(
                             text = AnnotatedString("취소"),
@@ -392,193 +491,293 @@ fun ShowCalendar(onMonthChange: (YearMonth) -> Unit, datePlanList: SnapshotState
     ExperimentalMaterialApi::class
 )
 @Composable
-fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,navController: NavController,leaderUID:String) {
+fun DatePlan(datePlanInfo: DatePlanInfo,requestManager: RequestManager,num:Int,navController: NavController,leaderUID:String,onVisibleChange: (Boolean) -> Unit,datePlanList: SnapshotStateList<DatePlanInfo>) {
     val swipeSize = 75.dp
     val swipeableState = rememberSwipeableState(0)
     val sizePx = with(LocalDensity.current) { swipeSize.toPx() }
     val anchors = mapOf(0f to 0, -sizePx to 1)
     var visible by remember { mutableStateOf(false) }
-    Column {
-        Text(
-            text = datePlanInfo.dateStartDate.substring(8, 10) + "일",
-            color = Color.Black,
-            fontSize = 16.sp,
-            fontWeight = FontWeight.Medium,
-            fontFamily = spoqasans,
-            modifier = Modifier
-                .padding(horizontal = 16.dp)
-        )
-        Surface(
-            modifier = Modifier
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .shadow(
-                    elevation = 1.dp,
-                    shape = RoundedCornerShape(20)
-                )
-                .aspectRatio(16f / 4f)
-                .clickable {
-                    val datePlanName = datePlanInfo.dateTitle
-                    navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
+    if(datePlanInfo.specialDay == 0)
+    {
+        Column {
+            Text(
+                text = datePlanInfo.dateStartDate.substring(8, 10) + "일",
+                color = Color.Black,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = spoqasans,
+                modifier = Modifier
+                    .padding(horizontal = 16.dp)
+            )
+            Surface(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .shadow(
+                        elevation = 1.dp,
+                        shape = RoundedCornerShape(20)
+                    )
+                    .aspectRatio(16f / 4f)
+                    .clickable {
+                        val datePlanName = datePlanInfo.dateTitle
+                        navController.navigate("${PrimoScreen.Map.name}/$datePlanName/$leaderUID")
+                    }
+                    .swipeable(
+                        swipeableState,
+                        anchors = anchors,
+                        thresholds = { _, _ -> FractionalThreshold(0.8f) },
+                        orientation = Orientation.Horizontal
+                    )
+            ) {
+                if (visible) {
+                    Dialog(onDismissRequest = { visible = false }) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .wrapContentHeight()
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(color = Color.White)
+                        ) {
+                            Text(
+                                modifier = Modifier
+                                    .padding(24.dp),
+                                text = "삭제한 일정은 복구할 수 없습니다, 삭제하시겠습니까?",
+                                style = Typography.h5.copy(fontSize = 12.sp),
+                            )
+                            Row(modifier = Modifier
+                                .fillMaxWidth()
+                                .height(40.dp)
+                                .drawBehind {
+                                    drawLine(
+                                        Color.LightGray, Offset(0f, 0f),
+                                        Offset(size.width, 0f), strokeWidth = 1.dp.toPx()
+                                    )
+                                    drawLine(
+                                        Color.LightGray,
+                                        Offset(size.width / 2, 0f),
+                                        Offset(size.width / 2, size.height),
+                                        strokeWidth = 1.dp.toPx()
+                                    )
+                                }, horizontalArrangement = Arrangement.Center
+                            )
+                            {
+                                val database =
+                                    Firebase.database.reference.child("DatePlan").child(leaderUID)
+                                        .child(datePlanInfo.dateTitle)
+                                Box(modifier = Modifier
+                                    .weight(1f)
+                                    .clickable {
+                                        visible = false
+                                        database.removeValue()
+                                        for(i in 0 until datePlanList.size){
+                                            if(datePlanList[i].dateTitle == datePlanInfo.dateTitle){
+                                                datePlanList.removeAt(i)
+                                                break
+                                            }
+                                        }
+
+                                    })
+                                {
+                                    Text(
+                                        text = AnnotatedString("삭제"),
+                                        style = androidx.compose.ui.text.TextStyle(
+                                            fontSize = 14.sp
+                                        ),
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .padding(10.dp)
+                                    )
+                                }
+                                Box(modifier = Modifier
+                                    .weight(1f)
+                                    .clickable { visible = false })
+                                {
+                                    Text(
+                                        text = AnnotatedString("취소"),
+                                        style = androidx.compose.ui.text.TextStyle(
+                                            fontSize = 14.sp,
+                                        ),
+                                        modifier = Modifier
+                                            .align(Alignment.Center)
+                                            .padding(10.dp)
+                                    )
+                                }
+
+                            }
+                        }
+                    }
                 }
-                .swipeable(
-                    swipeableState,
-                    anchors = anchors,
-                    thresholds = { _, _ -> FractionalThreshold(0.8f) },
-                    orientation = Orientation.Horizontal
-                )
-        ) {
-            if (visible) {
-                Dialog(onDismissRequest = { visible = false }) {
-                    Column(
+                Row(
+                    modifier = Modifier
+                        .background(color = Color.Red),
+                    horizontalArrangement = Arrangement.End,
+                    verticalAlignment = Alignment.CenterVertically
+
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .wrapContentHeight()
-                            .clip(RoundedCornerShape(12.dp))
-                            .background(color = Color.White)
+                            .size(30.dp)
+                            .clickable {
+                                if (swipeableState.currentValue == 1) {
+                                    visible = true
+                                }
+                            },
+                        tint = Color.White,
+                    )
+                    Spacer(modifier = Modifier.padding(10.dp, 0.dp))
+                }
+                Row(
+                    modifier = Modifier
+                        .offset {
+                            if (swipeableState.offset.value.roundToInt() < 0) {
+                                Log.e("", "" + swipeableState.progress.fraction)
+                                IntOffset(swipeableState.offset.value.roundToInt(), 0)
+                            } else {
+                                IntOffset(0, 0)
+                            }
+                        }
+                        .background(Color.White),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Spacer(modifier = Modifier.padding(6.dp))
+                    var url = ""
+                    if (datePlanInfo.course.isNotEmpty()) {
+                        url = placeListHashMap[datePlanInfo.course[0]]?.imageResource
+                            ?: "https://firebasestorage.googleapis.com/v0/b/primo-92b68.appspot.com/o/places%2F%ED%95%98%EB%8A%98.jpg?alt=media&token=dce6f873-3c4c-46e5-bf27-72bcc2a7ddcc"
+                    }
+                    GlideImage(
+                        model = url,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                            .clip(CircleShape)
+                            .size(60.dp)
+                    )
+                    {
+                        it
+                            .thumbnail(
+                                requestManager
+                                    .asDrawable()
+                                    .load(url)
+                                    .override(64)
+                            )
+                        // .signature(signature)
+                    }
+                    Spacer(modifier = Modifier.padding(6.dp))
+                    Column(
+                        modifier = Modifier,
                     ) {
                         Text(
+                            text = datePlanInfo.dateTitle,
+                            color = Color.Black,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
                             modifier = Modifier
-                                .padding(24.dp),
-                            text = "삭제한 일정은 복구할 수 없습니다, 삭제하시겠습니까?",
-                            style = Typography.h5.copy(fontSize = 12.sp),
                         )
-                        Row(modifier = Modifier
-                            .fillMaxWidth()
-                            .height(40.dp)
-                            .drawBehind {
-                                drawLine(
-                                    Color.LightGray, Offset(0f, 0f),
-                                    Offset(size.width, 0f), strokeWidth = 1.dp.toPx()
-                                )
-                                drawLine(
-                                    Color.LightGray,
-                                    Offset(size.width / 2, 0f),
-                                    Offset(size.width / 2, size.height),
-                                    strokeWidth = 1.dp.toPx()
-                                )
-                            }, horizontalArrangement = Arrangement.Center
+                        Spacer(modifier = Modifier.padding(2.dp))
+                        Text(
+                            text = "인천광역시 송도동",
+                            color = Color.DarkGray,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier
                         )
-                        {
-                            val database =
-                                Firebase.database.reference.child("DatePlan").child(leaderUID)
-                                    .child(datePlanInfo.dateTitle)
-                            Box(modifier = Modifier
-                                .weight(1f)
-                                .clickable {
-                                    visible = false
-                                    database.removeValue()
-                                })
-                            {
-                                Text(
-                                    text = AnnotatedString("삭제"),
-                                    style = androidx.compose.ui.text.TextStyle(
-                                        fontSize = 14.sp
-                                    ),
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(10.dp)
-                                )
-                            }
-                            Box(modifier = Modifier
-                                .weight(1f)
-                                .clickable { visible = false })
-                            {
-                                Text(
-                                    text = AnnotatedString("취소"),
-                                    style = androidx.compose.ui.text.TextStyle(
-                                        fontSize = 14.sp,
-                                    ),
-                                    modifier = Modifier
-                                        .align(Alignment.Center)
-                                        .padding(10.dp)
-                                )
-                            }
-
-                        }
                     }
                 }
             }
-            Row(
+        }
+    }
+    else{
+        Column {
+            Text(
+                text = datePlanInfo.dateStartDate.substring(8, 10) + "일",
+                color = Color.Black,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Medium,
+                fontFamily = spoqasans,
                 modifier = Modifier
-                    .background(color = Color.Red),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = null,
-                    modifier = Modifier
-                        .size(30.dp)
-                        .clickable {
-                            visible = true
-                        },
-                    tint = Color.White,
-                )
-                Spacer(modifier = Modifier.padding(10.dp, 0.dp))
-            }
-            Row(
+                    .padding(horizontal = 16.dp)
+            )
+            Surface(
                 modifier = Modifier
-                    .offset {
-                        if (swipeableState.offset.value.roundToInt() < 0) {
-                            IntOffset(swipeableState.offset.value.roundToInt(), 0)
-                        } else {
-                            IntOffset(0, 0)
-                        }
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .shadow(
+                        elevation = 1.dp,
+                        shape = RoundedCornerShape(20)
+                    )
+                    .aspectRatio(16f / 4f)
+                    .clickable {
+                        date = datePlanInfo.dateStartDate
+                        onVisibleChange(true)
                     }
-                    .background(Color.White),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Spacer(modifier = Modifier.padding(6.dp))
-                var url = ""
-                if (datePlanInfo.course.isNotEmpty()) {
-                    url = placeListHashMap[datePlanInfo.course[0]]?.imageResource
-                        ?: "https://firebasestorage.googleapis.com/v0/b/primo-92b68.appspot.com/o/places%2F%ED%95%98%EB%8A%98.jpg?alt=media&token=dce6f873-3c4c-46e5-bf27-72bcc2a7ddcc"
-                }
-                GlideImage(
-                    model = url,
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
+            )
+            {
+                Row(
                     modifier = Modifier
-                        .clip(CircleShape)
-                        .size(60.dp)
-                )
-                {
-                    it
-                        .thumbnail(
-                            requestManager
-                                .asDrawable()
-                                .load(url)
-                                .override(64)
-                        )
-                    // .signature(signature)
-                }
-                Spacer(modifier = Modifier.padding(6.dp))
-                Column(
-                    modifier = Modifier,
+                        .background(Color.White),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Text(
-                        text = datePlanInfo.dateTitle,
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
+                    Spacer(modifier = Modifier.padding(6.dp))
+                    val url = if (datePlanInfo.specialDay == 1) {
+                        partnerPhotoURL
+                    } else{
+                        myPhotoURL
+                    }
+                    GlideImage(
+                        model = url,
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
                         modifier = Modifier
+                            .clip(CircleShape)
+                            .size(60.dp)
                     )
-                    Spacer(modifier = Modifier.padding(2.dp))
-                    Text(
-                        text = "인천광역시 송도동",
-                        color = Color.DarkGray,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Normal,
-                        modifier = Modifier
-                    )
+                    {
+                        it
+                            .thumbnail(
+                                requestManager
+                                    .asDrawable()
+                                    .load(url)
+                                    .override(64)
+                            )
+                        // .signature(signature)
+                    }
+                    Spacer(modifier = Modifier.padding(6.dp))
+                    Column(
+                        modifier = Modifier,
+                    ) {
+                        Text(
+                            text = datePlanInfo.dateTitle,
+                            color = Color.Black,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier
+                        )
+                        Spacer(modifier = Modifier.padding(2.dp))
+                        Text(
+                            text = "기념일을 맞이하여 특별한 데이트를 계획해보세요!",
+                            color = Color.DarkGray,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Normal,
+                            modifier = Modifier
+                        )
+                    }
                 }
             }
         }
     }
 }
 
-private fun writeDatePlan(startDate:String, dateTitle:String, navController: NavController){
+
+
+
+private fun writeDatePlan(startDate:String, dateTitle:String, navController: NavController,datePlanList: SnapshotStateList<DatePlanInfo>){
+    for(i in 0 until datePlanList.size){
+        if(datePlanList[i].dateStartDate == startDate){
+            datePlanList.removeAt(i)
+            break
+        }
+    }
     val user = Firebase.auth.currentUser
     val database = Firebase.database.reference
     database.child("DatePlan").child(leaderUID)

@@ -10,12 +10,13 @@ import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.flow.update
 var myName:String = ""
+var myPhotoURL:String = ""
 var userOrientation:HashMap<String,Int> = HashMap()
 var rankTaste:MutableList<String> = mutableListOf()
 var partnerOrientation:HashMap<String,Int> = HashMap()
 var leaderUID:String = ""
-var partnerName:String? = null
-var partnerPhotoURL:String? = null
+var partnerName:String = ""
+var partnerPhotoURL:String = ""
 var startDating:String? = null
 var myBirthDay:String = ""
 var partnerBirthDay:String = ""
@@ -36,18 +37,19 @@ fun getPartnerInfo(){
             .get()
             .addOnSuccessListener { document ->
                 myName = document.getString("name") ?: ""
+                myPhotoURL = document.getString("photoUrl") ?: ""
                 leaderUID = document.getString("leaderUID")?:""
                 val partnerUID = document.getString("partnerUID") ?: ""
                 myBirthDay = document.getString("birthDay") ?: "19990228"
                 if(partnerUID == "") {
-                    partnerName = ""
+                    partnerName = "없음"
                 }
                 else {
 
                     db.collection("users").document(partnerUID)
                         .get()
                         .addOnSuccessListener { document2 ->
-                            partnerName = document2.getString("name") ?: ""
+                            partnerName = document2.getString("name") ?: "error"
                             partnerPhotoURL = document2.getString("photoUrl") ?: ""
                             startDating = document2.getString("startDating")?: ""
                             partnerBirthDay = document2.getString("birthDay") ?: "19990223"

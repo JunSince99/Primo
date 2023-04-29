@@ -558,7 +558,8 @@ fun InitailLoading(datePlanList: SnapshotStateList<DatePlanInfo>){
                                             title,
                                             startDate,
                                             endDate,
-                                            course
+                                            course,
+                                            specialDay = 0
                                         )
                                     )
                                 }
