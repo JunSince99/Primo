@@ -92,7 +92,7 @@ import kotlin.collections.ArrayList
 import kotlin.collections.HashMap
 import kotlin.math.*
 
-val colorset = arrayOf(LightRed, LightPurple, LightSkyBlue, LightGreen, LightYellow)
+val colorset = arrayOf(LightRed, LightPurple, LightSkyBlue, LightGreen, LightYellow,LightRed, LightPurple, LightSkyBlue, LightGreen, LightYellow)
 var entireDatePlanName:String? = ""
 @Composable
 fun informationPlace(modifier: Modifier = Modifier)

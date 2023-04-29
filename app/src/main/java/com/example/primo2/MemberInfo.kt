@@ -49,13 +49,16 @@ fun getPartnerInfo(){
                     db.collection("users").document(partnerUID)
                         .get()
                         .addOnSuccessListener { document2 ->
-                            partnerName = document2.getString("name") ?: "error"
                             partnerPhotoURL = document2.getString("photoUrl") ?: ""
                             startDating = document2.getString("startDating")?: ""
                             partnerBirthDay = document2.getString("birthDay") ?: "19990223"
 
+                            partnerOrientation.clear()
                             val rankTastePartner = document2.get("rankTaste") as MutableList<String>
                             val favSize = (rankTastePartner.size * 0.3).toInt()
+                            if(favSize == 0){
+                                partnerOrientation["없음"] = 1
+                            }
                             for (i in 0 until favSize) {
                                 for ((key, value) in placeListHashMap[rankTastePartner[i]]!!.placeHashMap!!) {
                                     if (!partnerOrientation.containsKey(key)) {
@@ -68,11 +71,14 @@ fun getPartnerInfo(){
                                     }
                                 }
                             }
-
-                            for ((key, value) in partnerOrientation) {
-                                partnerOrientation.replace(key, value / favSize)
+                            if(favSize != 0) {
+                                for ((key, value) in partnerOrientation) {
+                                    partnerOrientation.replace(key, value / favSize)
+                                }
+                                Log.e("", "" + partnerOrientation)
                             }
-                            Log.e("",""+ partnerOrientation)
+
+                            partnerName = document2.getString("name") ?: "error"
                         }
 
                         .addOnFailureListener { exception ->
@@ -130,8 +136,12 @@ fun getUserOrientation()
             .get()
             .addOnSuccessListener { document ->
                 if (document.exists()) {
+                    userOrientation.clear()
                     rankTaste = document.get("rankTaste") as MutableList<String>
                     val favSize = (rankTaste.size * 0.3).toInt()
+                    if(favSize == 0){
+                        userOrientation["없음"] = 1
+                    }
                     for (i in 0 until favSize) {
                         for ((key, value) in placeListHashMap[rankTaste[i]]!!.placeHashMap!!) {
                             if (!userOrientation.containsKey(key)) {
@@ -144,11 +154,12 @@ fun getUserOrientation()
                             }
                         }
                     }
-
-                    for ((key, value) in userOrientation) {
-                        userOrientation.replace(key, value / favSize)
+                    if(favSize != 0) {
+                        for ((key, value) in userOrientation) {
+                            userOrientation.replace(key, value / favSize)
+                        }
+                        Log.e("", "" + userOrientation)
                     }
-                    Log.e("",""+ userOrientation)
                 }
             }
             .addOnFailureListener { exception ->
