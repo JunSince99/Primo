@@ -45,7 +45,7 @@ fun Dateform(year : YearMonth) : String {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, topBarText:String, homeListState: LazyListState, datePlanListState: LazyListState, scrollBehavior: TopAppBarScrollBehavior,month:YearMonth) {
+fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, topBarText:String, homeListState: LazyListState, datePlanListState: LazyListState, scrollBehavior: TopAppBarScrollBehavior,month:YearMonth,) {
     if(TopBarState) {
         val topAppBarElementColor = Color.Black
         if (name == "DatePlans") {
