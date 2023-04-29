@@ -13,10 +13,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
 import com.example.primo2.R
 import com.example.primo2.ui.theme.LightPink
@@ -121,6 +119,7 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                 modifier = Modifier,
             )
         } else if(name == "ManageAccount") {
+            var isExpanded by remember { mutableStateOf(false)}
             TopAppBar(
                 title = {
                     Row() {
@@ -135,13 +134,23 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     }
                 },
                 actions = {
-                    IconButton(onClick = {  }) {
+                    IconButton(onClick = { isExpanded = true }) {
                         Icon(
                             imageVector = Icons.Default.MoreVert,
                             contentDescription = "설정",
                         )
                     }
-
+                    DropdownMenuNoPaddingVeitical(
+                        expanded = isExpanded,
+                        onDismissRequest = { isExpanded = false },
+                        modifier = Modifier.background(Color.White)
+                    ) {
+                        androidx.compose.material.DropdownMenuItem(
+                            onClick = { /*TODO*/ }
+                        ) {
+                            Text(text = "로그아웃")
+                        }
+                    }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = Color.White,
