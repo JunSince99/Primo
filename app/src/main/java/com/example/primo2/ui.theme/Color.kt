@@ -20,7 +20,8 @@ val LightPurple = Color(0xFFB4B8FF)
 val LightSkyBlue = Color(0xFFB1F7FF)
 val LightGreen = Color(0xFFAEFFBB)
 val LightYellow = Color(0xFFF9FF8B)
-
 val LightPink = Color(0xFFFBEEF8)
 
 val Crimson = Color(0xFFFF7F81)
+
+val DeepYellow = Color(0xFFFFEA03)

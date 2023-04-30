@@ -35,6 +35,7 @@ import com.example.primo2.DatePlanInfo
 import com.example.primo2.R
 import com.example.primo2.placeListHashMap
 import com.example.primo2.postPlaceList
+import com.example.primo2.ui.theme.DeepYellow
 import com.example.primo2.ui.theme.spoqasans
 
 @Composable
@@ -112,19 +113,16 @@ fun Method(navController: NavController)
                     contentDescription = null,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .size(40.dp)
+                        .size(40.dp),
+                    tint = Color.Gray
                 )
-                Column(
-                    modifier = Modifier,
-                ) {
-                    Text(
-                        text = "내가 갔던 데이트 코스로 글쓰기",
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                    )
-                }
+                Text(
+                    text = "내가 갔던 데이트 코스로 글쓰기",
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                )
             }
         }
         Surface(
@@ -144,23 +142,20 @@ fun Method(navController: NavController)
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Icon(
-                    imageVector = Icons.Default.Add,
+                    painter = painterResource(id = R.drawable.ic_baseline_add_circle_24),
                     contentDescription = null,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .size(40.dp)
+                        .size(40.dp),
+                    tint = Color.Gray
                 )
-                Column(
-                    modifier = Modifier,
-                ) {
-                    Text(
-                        text = "새로운 코스로 글쓰기",
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                    )
-                }
+                Text(
+                    text = "새로운 코스로 글쓰기",
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                )
             }
         }
         Surface(
@@ -184,19 +179,16 @@ fun Method(navController: NavController)
                     contentDescription = null,
                     modifier = Modifier
                         .padding(horizontal = 16.dp)
-                        .size(40.dp)
+                        .size(40.dp),
+                    tint = Color.Gray
                 )
-                Column(
-                    modifier = Modifier,
-                ) {
-                    Text(
-                        text = "코스 없이 글만 쓰기",
-                        color = Color.Black,
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier
-                    )
-                }
+                Text(
+                    text = "코스 없이 글만 쓰기",
+                    color = Color.Black,
+                    fontSize = 20.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier
+                )
             }
         }
     }
