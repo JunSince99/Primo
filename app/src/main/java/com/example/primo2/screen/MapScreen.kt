@@ -285,7 +285,7 @@ fun MapScreen(
                     val courseIndex = courseList.indexOf(placeList[i].placeID)
                     if (courseIndex != -1) {
                         Marker(
-                            icon = MarkerIcons.BLACK/*OverlayImage.fromResource(R.drawable.circle)*/,
+                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_circle_24),
                             width = 20.dp,
                             height = 20.dp,
                             state = MarkerState(
@@ -355,19 +355,9 @@ fun MapScreen(
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
 
-                var latlist : List<LatLng> = listOf(
-                    LatLng(
-                        placeList[0].latitude,
-                        placeList[0].longitude
-                    )
-                )
-                repeat(times = placeList.size) {
-                    latlist = listOf(
-                        LatLng(
-                            placeList[it].latitude,
-                            placeList[it].longitude
-                        )
-                    )
+                var latlist = mutableListOf<LatLng>()
+                for(i in 0 until placeList.size) {
+                    latlist.add(LatLng(placeList[i].latitude, placeList[i].longitude))
                 }
                 if (latlist.size >= 2) {
                     PathOverlay(
