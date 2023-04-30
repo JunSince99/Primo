@@ -29,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.*
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.graphics.painter.Painter
@@ -144,13 +145,13 @@ fun MapScreen(
         }
     }*/
 
-    var mapProperties by remember {
+    val mapProperties by remember {
         mutableStateOf(
             MapProperties(locationTrackingMode = LocationTrackingMode.Follow
                     ,maxZoom = 20.0, minZoom = 5.0),
         )
     }
-    var mapUiSettings by remember {
+    val mapUiSettings by remember {
         mutableStateOf(
             MapUiSettings(isLocationButtonEnabled = true, isIndoorLevelPickerEnabled = true)
         )
@@ -281,22 +282,35 @@ fun MapScreen(
 //                        ,color = Color.Gray)
 //                }
 
-                for (i in 0 until placeList.size) {
-                    val courseIndex = courseList.indexOf(placeList[i].placeID)
-                    if (courseIndex != -1) {
+                val latlist:ArrayList<LatLng> = arrayListOf()
+                for (i in 0 until courseList.size) {
+
+                    latlist.add(LatLng(placeListHashMap[courseList[i]]!!.latitude, placeListHashMap[courseList[i]]!!.longitude))
+                        if (latlist.size >= 2) {
+                            PathOverlay(
+                                coords = latlist,
+                                width = 3.dp,
+                                color = Color.White,
+                                outlineColor = Color.Black
+                            )
+                        }
+
                         Marker(
                             icon = OverlayImage.fromResource(R.drawable.ic_baseline_circle_24),
+                            iconTintColor = colorset[i],
                             width = 20.dp,
                             height = 20.dp,
+                            anchor = Offset(0.45f,0.45f),
                             state = MarkerState(
                                 position = LatLng(
-                                    placeList[i].latitude,
-                                    placeList[i].longitude
+                                    placeListHashMap[courseList[i]]!!.latitude,
+                                    placeListHashMap[courseList[i]]!!.longitude
                                 )
                             ),
                             //captionText = placeList[i].placeName + "\n" + (courseIndex + 1),
                             //captionColor = Color.Green,
                             onClick = { overlay ->
+
                                 bottomNaviInfo = placeList[i].information
                                 bottomNaviID = placeList[i].placeID
                                 bottomNaviTitle = placeList[i].placeName
@@ -315,58 +329,9 @@ fun MapScreen(
                             },
                             tag = i,
                         )
-
-                    } else {
-//                        var fitness: Double = fitnessCalc(userOrientation, i)
-//                        Marker(
-//                            icon = OverlayImage.fromResource(R.drawable.ic_baseline_place_24),
-//                            width = 40.dp,
-//                            height = 40.dp,
-//                            state = MarkerState(
-//                                position = LatLng(
-//                                    placeList[i].latitude,
-//                                    placeList[i].longitude
-//                                )
-//                            ),
-//                            captionText = placeList[i].placeName + "\n" + "적합도 : " + fitness.roundToInt() + "%",
-//                            captionMinZoom = 12.2,
-//                            minZoom = 12.2,
-//                            onClick = { overlay ->
-//                                bottomNaviInfo = placeList[i].information
-//                                bottomNaviID = placeList[i].placeID
-//                                bottomNaviTitle = placeList[i].placeName
-//                                bottomNaviPaint = placeList[i].imageResource
-//                                showMapInfo = true
-//
-//                                scope.launch {
-//                                    scaffoldState.bottomSheetState.apply {
-//                                        if (!isCollapsed) {
-//                                            collapse()
-//                                        }
-//                                    }
-//                                }
-//
-//                                true
-//                            },
-//                            tag = i,
-//                            zIndex = fitness.roundToInt() // 겹칠때 적합도 높은게 위로 가게
-//                        )
-                    }
                 }
                 // Marker(state = rememberMarkerState(position = BOUNDS_1.northEast))
 
-                var latlist = mutableListOf<LatLng>()
-                for(i in 0 until placeList.size) {
-                    latlist.add(LatLng(placeList[i].latitude, placeList[i].longitude))
-                }
-                if (latlist.size >= 2) {
-                    PathOverlay(
-                        coords = latlist,
-                        width = 3.dp,
-                        color = Color.White,
-                        outlineColor = Color.Black
-                    )
-                }
             }
 
             }

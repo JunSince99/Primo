@@ -159,6 +159,13 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                         ) {
                             Text(text = "로그아웃")
                         }
+                        androidx.compose.material.DropdownMenuItem(
+                            onClick = {
+                                navController.navigate(PrimoScreen.MapImsi.name)
+                            }
+                        ) {
+                            Text(text = "임시")
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(

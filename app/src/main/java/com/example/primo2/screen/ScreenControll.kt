@@ -85,7 +85,8 @@ enum class PrimoScreen() {
     PostScreen,
     PlaceDetailScreen,
     SelectWritingMethod,
-    RegisterUser
+    RegisterUser,
+    MapImsi
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -384,6 +385,12 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             composable(route = PrimoScreen.RegisterUser.name) {
                 RegisterUser(navController)
             }
+
+            //데이트 계획 관리
+            composable(route = PrimoScreen.MapImsi.name) {
+                MapImsi(
+                )
+            }
         }
     }
 }
@@ -459,6 +466,9 @@ fun checkBottomVisible (navController:NavController): Boolean{
                 bottomBarState = false
             }
             "RegisterUser" ->{
+                bottomBarState = false
+            }
+            "MapImsi" ->{
                 bottomBarState = false
             }
         }
@@ -537,6 +547,9 @@ fun checkTopVisible (navController:NavController): Boolean{
                 TopBarState = false
             }
             "RegisterUser" ->{
+                TopBarState = false
+            }
+            "MapImsi" ->{
                 TopBarState = false
             }
         }

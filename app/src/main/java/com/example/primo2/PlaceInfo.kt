@@ -23,7 +23,6 @@ data class PlaceInfo(
 val placeListHashMap: HashMap<String, PlaceInfo> = HashMap()
 val placeList: ArrayList<PlaceInfo> = ArrayList()
 fun getPlaceInfo(onClearPlaceChange:(Boolean) -> Unit){
-    placeList.clear()
     val db = Firebase.firestore
     val user = Firebase.auth.currentUser
     var clearCount = 0
@@ -31,6 +30,7 @@ fun getPlaceInfo(onClearPlaceChange:(Boolean) -> Unit){
         db.collection("places_Incheon")
             .get()
             .addOnSuccessListener { documents ->
+                placeList.clear()
                 for(document in documents)
                 {
                     val imageResource = document.data["imageResource"] as String
