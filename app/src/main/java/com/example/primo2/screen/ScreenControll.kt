@@ -84,7 +84,8 @@ enum class PrimoScreen() {
     WritingScreen,
     PostScreen,
     PlaceDetailScreen,
-    SelectWritingMethod
+    SelectWritingMethod,
+    RegisterUser
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -245,7 +246,8 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                 RegisterEmail_1(
                     onRegisterButtonClicked = { userEmail ->
                         navController.navigate("${PrimoScreen.Register2.name}/$userEmail")
-                    }
+                    },
+                    navController,
                 )
             }
             val pass2 = PrimoScreen.Register2.name
@@ -263,8 +265,9 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                             .addOnSuccessListener { task ->
                                 navController.navigate(PrimoScreen.Home.name)
                             }
-                    }
-                ,userEmail
+                    },
+                    userEmail,
+                    navController
                 )
             }
 
@@ -377,6 +380,10 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             composable(route = PrimoScreen.SelectWritingMethod.name) {
                 SelectMethod(navController)
             }
+
+            composable(route = PrimoScreen.RegisterUser.name) {
+                RegisterUser(navController)
+            }
         }
     }
 }
@@ -449,6 +456,9 @@ fun checkBottomVisible (navController:NavController): Boolean{
                 bottomBarState = false
             }
             "SelectWritingMethod" ->{
+                bottomBarState = false
+            }
+            "RegisterUser" ->{
                 bottomBarState = false
             }
         }
@@ -524,6 +534,9 @@ fun checkTopVisible (navController:NavController): Boolean{
                 TopBarState = false
             }
             "SelectWritingMethod" ->{
+                TopBarState = false
+            }
+            "RegisterUser" ->{
                 TopBarState = false
             }
         }
