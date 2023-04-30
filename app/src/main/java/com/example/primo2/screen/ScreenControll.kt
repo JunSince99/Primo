@@ -132,7 +132,8 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
                     requestManager,
                     modifier = Modifier,
                     viewModel,
-                    homeListState
+                    homeListState,
+                    datePlanList
                 )
             }
 
@@ -335,7 +336,8 @@ fun PrimoApp(activity: Activity, requestManager: RequestManager,modifier: Modifi
             composable(route = PrimoScreen.WritingScreen.name) {
                 WritingScreen(
                     navController,
-                    requestManager
+                    requestManager,
+                    viewModel
                 )
             }
 

@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.PopupProperties
 import androidx.navigation.NavController
 import com.example.primo2.R
+import com.example.primo2.myName
 import com.example.primo2.ui.theme.LightPink
 import com.example.primo2.ui.theme.LightRed
 import com.example.primo2.ui.theme.Typography
@@ -148,6 +149,7 @@ fun TopBar(navController: NavController, name: String?, TopBarState:Boolean, top
                     ) {
                         androidx.compose.material.DropdownMenuItem(
                             onClick = {
+                                myName = ""
                                 FirebaseAuth.getInstance().signOut()
                                 navController.navigate(PrimoScreen.Login.name)
                                 {

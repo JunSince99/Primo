@@ -828,7 +828,7 @@ fun BottomSheetContent(
                                         Memoform(item,courseList, commentList,datePlanName)
                                     }
                                     Text(
-                                        text = "예상 비용 : " + amountList[courseList.indexOf(item)],
+                                        text = "예상 비용 : " + amountList[courseList.indexOf(item)] + "원",
                                         color = Color.Gray,
                                         textAlign = TextAlign.Center,
                                         fontSize = 12.sp,

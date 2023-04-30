@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.*
@@ -35,8 +36,7 @@ import androidx.navigation.NavController
 import com.bumptech.glide.RequestManager
 import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
 import com.bumptech.glide.integration.compose.GlideImage
-import com.example.primo2.MemberInfo
-import com.example.primo2.PostInfo
+import com.example.primo2.*
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.example.primo2.ui.theme.Typography
 import com.example.primo2.ui.theme.spoqasans
@@ -76,16 +76,19 @@ fun HomeScreen(
     requestManager: RequestManager,
     modifier: Modifier = Modifier,
     viewModel: PostViewModel = viewModel(),
-    listState: LazyListState = LazyListState()
+    listState: LazyListState = LazyListState(),
+    datePlanList: SnapshotStateList<DatePlanInfo>
 ){
     val user = Firebase.auth.currentUser
     if(user == null) {
         navController.navigate(PrimoScreen.Login.name)
     }
+    if(myName == "") {
+        InitailLoading(datePlanList)
+    }
     else {
             LaunchedEffect(true) {
                 val db = Firebase.firestore
-
                 val docRef = db.collection("users").document(user!!.uid)
                 docRef.get()// 유저 정보 불러오기
                     .addOnSuccessListener { document ->

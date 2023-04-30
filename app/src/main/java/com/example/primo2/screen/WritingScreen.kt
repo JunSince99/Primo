@@ -1,5 +1,6 @@
 package com.example.primo2.screen
 
+import PostViewModel
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.ImageDecoder
@@ -77,7 +78,7 @@ import kotlin.math.min
 
 
 @Composable
-fun WritingScreen(navController: NavController,requestManager: RequestManager) {
+fun WritingScreen(navController: NavController,requestManager: RequestManager,viewModel: PostViewModel) {
     val isSpam = ArrayList<ArrayList<Double>>()
     val isBackground  = ArrayList<ArrayList<Double>>()
     val isPerson = ArrayList<ArrayList<Double>>()
@@ -105,7 +106,7 @@ fun WritingScreen(navController: NavController,requestManager: RequestManager) {
                 CircularProgressIndicator()
             }
             //탑바
-            Writingtopbar(navController, articleList, titlename,postImageResource,isSpam,isBackground,isPerson,uploading, onUploadChange = {uploading  = it})
+            Writingtopbar(navController, articleList, titlename,postImageResource,isSpam,isBackground,isPerson,uploading, onUploadChange = {uploading  = it}, viewModel)
             //제목
             Titletextfield(titlename,onTitleChange = { titlename = it})
             //내용
@@ -126,7 +127,8 @@ fun Writingtopbar(navController: NavController,
                   isBackground: ArrayList<ArrayList<Double>>,
                   isPerson: ArrayList<ArrayList<Double>>,
                   uploading:Boolean,
-                  onUploadChange:(Boolean) -> Unit
+                  onUploadChange:(Boolean) -> Unit,
+                  viewModel: PostViewModel
 ) {
     Surface(
         color = Color.White,
@@ -266,7 +268,8 @@ fun Writingtopbar(navController: NavController,
                                                             uploader(
                                                                 documentReference,
                                                                 postInfo,
-                                                                navController
+                                                                navController,
+                                                                viewModel
                                                             )
                                                         }
                                                     }
@@ -636,9 +639,13 @@ private fun Uri.parseBitmap(context: Context): Bitmap {
     }
 }
 
-private fun uploader(documentReference: DocumentReference, postInfo: PostInfo,navController: NavController){
+private fun uploader(documentReference: DocumentReference, postInfo: PostInfo,navController: NavController,viewModel: PostViewModel){
     documentReference.set(postInfo)
         .addOnSuccessListener {
+            if(!viewModel.isUpdate) {
+                viewModel.updatePostInformation()
+                viewModel.isUpdate = true
+            }
             navController.navigate(PrimoScreen.Home.name)
            Log.e("","포스트 업로드 성공")
         }
