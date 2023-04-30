@@ -10,8 +10,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -158,6 +157,20 @@ fun Posttitle(item: Int, requestManager:RequestManager,postList:ArrayList<PostIn
                     }
                 },
                 actions = {
+                    IconButton(onClick = {  }) {
+                        Icon(
+                            Icons.Default.Add,
+                            "",
+                            tint = Color.White
+                        )
+                    }
+                    IconButton(onClick = {  }) {
+                        Icon(
+                            Icons.Default.FavoriteBorder,
+                            "",
+                            tint = Color.White
+                        )
+                    }
                     IconButton(onClick = {})
                     {
                         Icon(
