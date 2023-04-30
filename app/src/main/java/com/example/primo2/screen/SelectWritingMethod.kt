@@ -52,35 +52,18 @@ fun SelectMethod(navController: NavController) {
 
 @Composable
 fun Methodtopbar(navController: NavController) {
-    Surface(
-        color = Color.White,
-        modifier = Modifier
-            .fillMaxWidth()
+    IconButton(
+        onClick = { navController.navigateUp() },
+        modifier = Modifier.padding(8.dp)
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
+        Icon(
+            imageVector = Icons.Default.ArrowBack,
+            contentDescription = null,
             modifier = Modifier
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .padding(horizontal = 8.dp, vertical = 8.dp)
-                    .fillMaxWidth()
-            ) {
-                IconButton(
-                    onClick = { navController.navigateUp() },
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.ArrowBack,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(25.dp),
-                        tint = Color.Black
-                    )
-                }
-            }
-        }
+                .size(41.dp)
+                .padding(horizontal = 8.dp, vertical = 8.dp),
+            tint = Color.Black
+        )
     }
 }
 

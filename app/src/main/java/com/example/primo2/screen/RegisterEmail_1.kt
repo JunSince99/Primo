@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -24,76 +25,78 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.primo2.ui.theme.LazyColumnExampleTheme
 import com.example.primo2.ui.theme.Typography
 
 @Composable
 fun RegisterEmail_1( // focus 처리
     onRegisterButtonClicked: (userEmail:String) -> Unit = {},
-    modifier: Modifier = Modifier
+    navController: NavController,
 ){
     Column(
-        modifier = modifier
-            .padding(16.dp)
+        modifier = Modifier
             .fillMaxWidth()
-            .background(Color.White),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
     ){
-        Spacer(modifier = Modifier.padding(16.dp))
-        Text(
-            text = "이메일 주소를 입력해주세요.",
-            style = Typography.h1,
-            modifier = Modifier
-                .padding(vertical = 8.dp)
-        )
-        var email by remember { mutableStateOf("") }
-
-        var isErrorInID by remember { mutableStateOf(false) }
-
-        TextField(
-            value = email,
-            onValueChange = {
-                email = it.trim()
-                isErrorInID = Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches().not()
-            },
-            modifier = Modifier
-                .fillMaxWidth(),
-            textStyle = TextStyle.Default.copy(fontSize = 20.sp),
-            label = {Text("이메일")},
-            isError = isErrorInID,
-            singleLine = true,
-            trailingIcon = {
-                if (isErrorInID)
-                    Icon(Icons.Filled.Info, "Error", tint = MaterialTheme.colors.error)
-            },
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(
-                onDone = {onRegisterButtonClicked(email)}
-            ),
-
-            colors = TextFieldDefaults.textFieldColors(
-                backgroundColor = Color.White,
-                cursorColor = Color.Black,
-                focusedIndicatorColor = Color.Black,
-                focusedLabelColor = Color.DarkGray
-            )
-        )
-        if (isErrorInID) {
-            Text(
-                text = "잘못된 유형의 이메일 주소입니다.",
-                color = MaterialTheme.colors.error,
-                modifier = Modifier.padding(start = 16.dp)
+        IconButton(
+            onClick = { navController.navigateUp() },
+            modifier = Modifier.padding(8.dp)
+        ) {
+            Icon(
+                imageVector = Icons.Default.ArrowBack,
+                contentDescription = null,
+                modifier = Modifier
+                    .size(41.dp)
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
+                tint = Color.Black
             )
         }
-    }
-}
+        Column(
+            modifier = Modifier.padding(horizontal = 16.dp)
+        ) {
+            Text(
+                text = "이메일 주소를 입력해주세요.",
+                style = Typography.h1,
+                modifier = Modifier
+                    .padding(vertical = 8.dp)
+            )
+            var email by remember { mutableStateOf("") }
+            var isErrorInID by remember { mutableStateOf(false) }
+            TextField(
+                value = email,
+                onValueChange = {
+                    email = it.trim()
+                    isErrorInID = Patterns.EMAIL_ADDRESS.matcher(email.trim()).matches().not()
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                textStyle = TextStyle.Default.copy(fontSize = 20.sp),
+                label = {Text("이메일")},
+                isError = isErrorInID,
+                singleLine = true,
+                trailingIcon = {
+                    if (isErrorInID)
+                        Icon(Icons.Filled.Info, "Error", tint = MaterialTheme.colors.error)
+                },
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {onRegisterButtonClicked(email)}
+                ),
 
-
-
-@Preview
-@Composable
-fun RegisterPreview() {
-    LazyColumnExampleTheme() {
-        RegisterEmail_1()
+                colors = TextFieldDefaults.textFieldColors(
+                    backgroundColor = Color.White,
+                    cursorColor = Color.Black,
+                    focusedIndicatorColor = Color.Black,
+                    focusedLabelColor = Color.DarkGray
+                )
+            )
+            if (isErrorInID) {
+                Text(
+                    text = "잘못된 유형의 이메일 주소입니다.",
+                    color = MaterialTheme.colors.error,
+                    modifier = Modifier.padding(start = 16.dp)
+                )
+            }
+        }
     }
 }
