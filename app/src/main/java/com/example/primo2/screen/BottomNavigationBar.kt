@@ -63,7 +63,7 @@ fun NavigationBar(navController: NavController,bottomBarState:Boolean) {
                     unselectedContentColor = Color.Gray,
                     selected = currentDestination?.hierarchy?.any { it.route == "DatePlans" } == true,
                     onClick = {
-                        if(partnerName != null && userOrientation.isNotEmpty()) {navController.navigate("DatePlans") { popUpTo("Home") }}
+                        if(partnerName != "" && userOrientation.isNotEmpty()) {navController.navigate("DatePlans") { popUpTo("Home") }}
                     }
                 ) // 달력 화면
                 BottomNavigationItem(

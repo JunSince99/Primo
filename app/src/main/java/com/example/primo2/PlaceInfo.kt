@@ -27,10 +27,10 @@ fun getPlaceInfo(onClearPlaceChange:(Boolean) -> Unit){
     val user = Firebase.auth.currentUser
     var clearCount = 0
     if(user != null) {
+        placeList.clear()
         db.collection("places_Incheon")
             .get()
             .addOnSuccessListener { documents ->
-                placeList.clear()
                 for(document in documents)
                 {
                     val imageResource = document.data["imageResource"] as String
@@ -49,8 +49,25 @@ fun getPlaceInfo(onClearPlaceChange:(Boolean) -> Unit){
                             toptag.add(sortedByValue[i].first)
                         }
                     }
-
-                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap,address,toptag))
+                    if(placeList.indexOf(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap,address,toptag))==-1)
+                    {
+                        placeList.add(
+                            PlaceInfo(
+                                placeID,
+                                placeName,
+                                information,
+                                imageResource,
+                                latitude,
+                                longitude,
+                                placeHashMap,
+                                address,
+                                toptag
+                            )
+                        )
+                    }
+                    else{
+                        break
+                    }
                 }
                 for(i in 0 until placeList.size) {
                     placeListHashMap[placeList[i].placeID] = placeList[i]
@@ -58,6 +75,7 @@ fun getPlaceInfo(onClearPlaceChange:(Boolean) -> Unit){
                 clearCount ++
                 if(clearCount == 3){
                     onClearPlaceChange(true)
+                    Log.e("장소 로딩 완료","현재 데이터베이스에 존재하는 장소 : " + placeList.size.toString() + "개")
                 }
             }
             .addOnFailureListener { exception ->
@@ -84,7 +102,25 @@ fun getPlaceInfo(onClearPlaceChange:(Boolean) -> Unit){
                             toptag.add(sortedByValue[i].first)
                         }
                     }
-                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap, address,toptag))
+                    if(placeList.indexOf(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap,address,toptag))==-1)
+                    {
+                        placeList.add(
+                            PlaceInfo(
+                                placeID,
+                                placeName,
+                                information,
+                                imageResource,
+                                latitude,
+                                longitude,
+                                placeHashMap,
+                                address,
+                                toptag
+                            )
+                        )
+                    }
+                    else{
+                        break
+                    }
                 }
                 for(i in 0 until placeList.size) {
                     placeListHashMap[placeList[i].placeID] = placeList[i]
@@ -92,6 +128,7 @@ fun getPlaceInfo(onClearPlaceChange:(Boolean) -> Unit){
                 clearCount ++
                 if(clearCount == 3){
                     onClearPlaceChange(true)
+                    Log.e("장소 로딩 완료","현재 데이터베이스에 존재하는 장소 : " + placeList.size.toString() + "개")
                 }
             }
             .addOnFailureListener { exception ->
@@ -119,7 +156,25 @@ fun getPlaceInfo(onClearPlaceChange:(Boolean) -> Unit){
                             toptag.add(sortedByValue[i].first)
                         }
                     }
-                    placeList.add(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap,address,toptag))
+                    if(placeList.indexOf(PlaceInfo(placeID,placeName,information,imageResource,latitude,longitude,placeHashMap,address,toptag))==-1)
+                    {
+                        placeList.add(
+                            PlaceInfo(
+                                placeID,
+                                placeName,
+                                information,
+                                imageResource,
+                                latitude,
+                                longitude,
+                                placeHashMap,
+                                address,
+                                toptag
+                            )
+                        )
+                    }
+                    else{
+                        break
+                    }
                 }
                 for(i in 0 until placeList.size) {
                     placeListHashMap[placeList[i].placeID] = placeList[i]
@@ -127,6 +182,7 @@ fun getPlaceInfo(onClearPlaceChange:(Boolean) -> Unit){
                 clearCount ++
                 if(clearCount == 3){
                     onClearPlaceChange(true)
+                    Log.e("장소 로딩 완료","현재 데이터베이스에 존재하는 장소 : " + placeList.size.toString() + "개")
                 }
             }
             .addOnFailureListener { exception ->
